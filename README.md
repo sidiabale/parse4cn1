@@ -1,7 +1,7 @@
 Parse4CN1 - Java Library for [Parse](https://parse.com)
 ====================================
 
-Ths library is a non-official port of Parse's REST API specification to CodenameOne.
+Ths library is a non-official port of Parse's REST API specification to CodenameOne. It was inspired by this [parse4j project](https://github.com/thiagolocatelli/parse4j) from which the initial version was created.
 
 ps.: most of the following code snippets and text have been extracted from the parse website, since the java library mimicks the android library. I am not a Parse/Facebook employee.
 
@@ -918,4 +918,4 @@ TODO
  * [Instalations](#Instalations)
 
 ### Credits
-* The initial version of this library was originally forked from this [https://github.com/thiagolocatelli/parse4j](parse4j project). Many thanks to Thiago Locatelli for the initiative.
+* The initial version of this library was originally forked from this [parse4j project](https://github.com/thiagolocatelli/parse4j). Many thanks to Thiago Locatelli for the initiative.
