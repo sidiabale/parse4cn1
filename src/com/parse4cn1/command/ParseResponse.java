@@ -1,140 +1,132 @@
 package com.parse4cn1.command;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
-import org.apache.http.HttpResponse;
-import org.json.JSONException;
-import org.json.JSONObject;
+import ca.weblite.codename1.json.JSONException;
+import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.ConnectionRequest;
 import com.parse4cn1.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.parse4cn1.util.Logger;
 
 public class ParseResponse {
-	
-	private static Logger LOGGER = LoggerFactory.getLogger(ParseResponse.class);
 
-	private HttpResponse httpResponse;
-	static final String RESPONSE_CODE_JSON_KEY = "code";
-	static final String RESPONSE_ERROR_JSON_KEY = "error";
-	private String responseBody;
-	private String headers;
-	private int contentLength;
+    static final String RESPONSE_CODE_JSON_KEY = "code";
+    static final String RESPONSE_ERROR_JSON_KEY = "error";
+    private static final Logger LOGGER = Logger.getInstance();
+    
+    private ParseException error;
+    private String responseBody;
+    private int statusCode;
 
-	public ParseResponse(HttpResponse httpResponse) {
-		this.httpResponse = httpResponse;
-		this.responseBody = getResponseAsString(httpResponse);
-		this.contentLength = responseBody.length();
-		this.headers = httpResponse.toString();
-		if(LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Response Headers: " + headers);
-			LOGGER.debug("Response Content Length: " + contentLength);
-			LOGGER.debug("Response Content: " + responseBody);	
-		}
-	}
+    static ParseException getConnectionFailedException(String message) {
+        return new ParseException(ParseException.CONNECTION_FAILED,
+                "Connection failed with Parse servers.  Log: " + message);
+    }
 
-	public boolean isFailed() {
-		return hasConnectionFailed() || hasErrorCode();
-	}
+    static ParseException getConnectionFailedException(Throwable e) {
+        return getConnectionFailedException(e.getMessage());
+    }
+    
+    public boolean isFailed() {
+        return hasConnectionFailed() || hasError();
+    }
 
-	public boolean hasConnectionFailed() {
-		return responseBody == null;
-	}
 
-	public boolean hasErrorCode() {
-		int statusCode = httpResponse.getStatusLine().getStatusCode();
-		return (statusCode < 200 || statusCode >= 300);
-	}
+    public ParseException getException() {
 
-	static ParseException getConnectionFailedException(String message) {
-		return new ParseException(ParseException.CONNECTION_FAILED,
-				"Connection failed with Parse servers.  Log: " + message);
-	}
+        if (error != null) {
+            return error;
+        }
+        
+        if (hasConnectionFailed()) {
+            return new ParseException(ParseException.CONNECTION_FAILED,
+                    "Connection to Parse servers failed.");
+        }
 
-	static ParseException getConnectionFailedException(Throwable e) {
-		return getConnectionFailedException(e.getMessage());
-	}
-	
-	public ParseException getException() {
+        if (!hasErrorCode()) {
+            return new ParseException(ParseException.OPERATION_FORBIDDEN,
+                    "getException called with successful response");
+        }
 
-		if (hasConnectionFailed()) {
-			return new ParseException(ParseException.CONNECTION_FAILED,
-					"Connection to Parse servers failed.");
-		}
+        JSONObject response = null;
+        try {
+            response = getJsonObject();
+        } catch (ParseException ex) {
+            return ex;
+        }
 
-		if (!hasErrorCode()) {
-			return new ParseException(ParseException.OPERATION_FORBIDDEN,
-					"getException called with successful response");
-		}
+        if (response == null) {
+            return new ParseException(ParseException.INVALID_JSON,
+                    "Invalid response from Parse servers.");
+        }
 
-		JSONObject response = getJsonObject();
+        return getParseError(response);
+    }
 
-		if (response == null) {
-			return new ParseException(ParseException.INVALID_JSON,
-					"Invalid response from Parse servers.");
-		}
-		
-		return getParseError(response);
-	}
-	
-	public JSONObject getJsonObject() {
-		
-		return new JSONObject(responseBody);
-		/*
-		try {
-			
-			JSONObject json = new JSONObject(EntityUtils.toString(httpResponse.getEntity()));
-			
-			
-			return json;
-		} catch (org.apache.http.ParseException e) {
-			return null;
-		} catch (JSONException e) {
-			return null;
-		} catch (IOException e) {
-			return null;
-		}
-		*/
-	}	
-	
-	private ParseException getParseError(JSONObject response) {
-		
-		int code;
-		String error;
-		
-		try {
-			code = response.getInt(RESPONSE_CODE_JSON_KEY);
-		}
-		catch(JSONException e) {
-			code = ParseException.NOT_INITIALIZED;
-		}
-		
-		try {
-			error = response.getString(RESPONSE_ERROR_JSON_KEY);
-		}
-		catch(JSONException e) {
-			error = "Error undefinted by Parse server.";
-		}
-		
-		return new ParseException(code, error);
-	}
-	
-	private String getResponseAsString(HttpResponse httpResponse) {
-		try {
-			BufferedReader r = new BufferedReader(new InputStreamReader(httpResponse.getEntity().getContent()));
-			StringBuilder total = new StringBuilder();
-			String line = null;
-			while ((line = r.readLine()) != null) {
-			   total.append(line);
-			}
-			//r.close();
-			return total.toString();
-		}
-		catch(IOException e) {
-			LOGGER.error("Error while reading response entity", e);
-			throw new IllegalArgumentException("Failed getting Parse Response", e);
-		}
-	}
+    public JSONObject getJsonObject() throws ParseException {
+        try {
+            return new JSONObject(responseBody);
+        } catch (JSONException ex) {
+            throw new ParseException(ParseException.INVALID_JSON, 
+                    "Unable to parse the response to JSON", ex);
+        }
+    }
+    
+    protected void extractResponseData(final ConnectionRequest request) {
+        if (request.getResponseData() != null) {
+            responseBody = new String(request.getResponseData());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Raw response: " + responseBody);
+            }
+            setStatusCode(request.getResponseCode());
+        }
+    }
 
+    protected int getStatusCode() {
+        return statusCode;
+    }
+    
+    protected void setStatusCode(int statusCode) {
+        this.statusCode = statusCode;
+    }
+    
+    protected void setError(ParseException error) {
+        this.error = error;
+    }
+    
+    private boolean hasConnectionFailed() {
+        return responseBody == null;
+    }
+
+    private boolean hasError() {
+        return hasErrorCode() || (error != null);
+    }
+    
+    private boolean hasErrorCode() {
+        return (statusCode < 200 || statusCode >= 300);
+    }
+
+    private ParseException getParseError(JSONObject response) {
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getParseError(): " + response);
+        }
+        int code;
+        String errorMsg;
+        JSONException ex = null;
+
+        try {
+            code = response.getInt(RESPONSE_CODE_JSON_KEY);
+        } catch (JSONException e) {
+            ex = e;
+            code = ParseException.NOT_INITIALIZED;
+        }
+
+        try {
+            errorMsg = response.getString(RESPONSE_ERROR_JSON_KEY);
+        } catch (JSONException e) {
+            ex = e;
+            errorMsg = "Error undefined by Parse server.";
+        }
+
+        return new ParseException(code, errorMsg, ex);
+    }
 }

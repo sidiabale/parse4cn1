@@ -1,79 +1,89 @@
 package com.parse4cn1.command;
 
-import java.io.IOException;
-
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.ByteArrayEntity;
-import com.parse4cn1.Parse;
+import com.codename1.io.ConnectionRequest;
+import com.codename1.io.MultipartRequest;
+import com.codename1.io.NetworkEvent;
+import com.codename1.io.NetworkManager;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 import com.parse4cn1.ParseConstants;
+import com.parse4cn1.ParseException;
 import com.parse4cn1.callback.ProgressCallback;
-import com.parse4cn1.http.CountingHttpEntity;
 
 public class ParseUploadCommand extends ParseCommand {
 
-	private String endPoint;
-	private String contentType;
-	private byte[] data;
-	private ProgressCallback progressCallback;
+    private final String endPoint;
+    private String contentType;
+    private byte[] uploadData;
+    private ProgressCallback progressCallback;
 
-	public ParseUploadCommand(String endPoint) {
-		this.endPoint = endPoint;
-	}
+    public ParseUploadCommand(String endPoint) {
+        this.endPoint = endPoint;
+    }
 
-	@Override
-	public HttpRequestBase getRequest() throws IOException {
-		String url = Parse.getParseAPIUrl(endPoint);
-		System.out.println(url);
-		HttpPost httppost = new HttpPost(url);
-		setupHeaders(httppost, false);
-		
-		if(contentType != null) {
-			httppost.addHeader(ParseConstants.HEADER_CONTENT_TYPE, contentType);
-		}
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
 
-		System.out.println("data size: " + data.length);
-		if (data != null) {
-			if(progressCallback != null) {
-				httppost.setEntity(new CountingHttpEntity(new ByteArrayEntity(data), progressCallback));
-			}
-			else {
-				httppost.setEntity(new ByteArrayEntity(data));
-			}
-		}
-		return httppost;
-	}
-	
-	public void setContentType(String contentType) {
-		this.contentType = contentType;
-	}
-	
-	public void setData(byte[] data) {
-		this.data = data;
-	}
-	
-	public void setProgressCallback(ProgressCallback progressCallback) {
-		this.progressCallback = progressCallback;
-	}
-	
-	/*
-	@Override
-	public ParseResponse perform() throws ParseException {
-		
-		try {
-			HttpClient httpclient = createSingleClient();
-			HttpResponse httpResponse = httpclient.execute(getRequest());
-			ParseResponse response = new ParseResponse(httpResponse);
-			
-			return response;
-		}
-		catch (ClientProtocolException e) {
-			throw ParseResponse.getConnectionFailedException(e.getMessage());
-		} 
-		catch (IOException e) {
-			throw ParseResponse.getConnectionFailedException(e.getMessage());
-		}
-	}
-	*/
+    public void setData(byte[] uploadData) {
+        this.uploadData = uploadData;
+    }
 
+    @Override
+    void setUpRequest(ConnectionRequest request) throws ParseException {
+        setupHeaders(request, false);
+        request.setPost(true);
+        request.setHttpMethod("POST");
+        request.setUrl(getUrl(endPoint, null));
+        
+        if (contentType != null) {
+            request.addRequestHeader(ParseConstants.HEADER_CONTENT_TYPE, contentType);
+        }
+
+        // TODO Check if this works!!! Not sure what the key (currently 'data') should be
+        if (uploadData != null) {
+            if (!(request instanceof MultipartRequest)) {
+                throw new ParseException(ParseException.INCORRECT_TYPE, 
+                        "Request is not a MultipartRequest");
+            }
+            ((MultipartRequest) request).addData("data", uploadData, contentType);
+        }
+    }
+
+    protected ConnectionRequest getConnectionRequest(final ParseResponse response) {
+        final MultipartRequest request = new MultipartRequest() {
+
+            @Override
+            protected void handleErrorResponseCode(int code, String message) {
+                response.setStatusCode(code);
+                response.setError(new ParseException(code, message));
+            }
+
+            @Override
+            protected void handleException(Exception err) {
+                response.setError(new ParseException(ParseException.CONNECTION_FAILED, err.getMessage()));
+            }
+        };
+
+        if (progressCallback != null) {
+            NetworkManager.getInstance().addProgressListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent evt) {
+                    if (evt instanceof NetworkEvent) {
+                        final NetworkEvent networkEvent = (NetworkEvent) evt;
+                        if (request.equals(networkEvent.getConnectionRequest())) {
+                            progressCallback.done(networkEvent.getProgressPercentage());
+                        }
+                    }
+                }
+            });
+        }
+
+        request.setReadResponseForErrors(true);
+        return request;
+    }
+
+    public void setProgressCallback(ProgressCallback progressCallback) {
+        this.progressCallback = progressCallback;
+    }
 }

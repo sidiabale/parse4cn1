@@ -50,9 +50,10 @@
             classpath="lib/CodenameOne.jar:lib/CLDC11.jar"
             docletpath="Stubber.jar"
             doclet="com.codename1.build.client.StubGenerator"> 
-            <fileset dir="${src.dir}" excludes="*.java,${excludes}" includes="${includes}">
+            <!-- TODO: Fix me!!! -->
+            <!-- <fileset dir="${src.dir}" excludes="*.java,${excludes}" includes="${includes}">
                 <filename name="**/*.java"/>
-            </fileset>
+            </fileset> -->
          </javadoc>
     </target>
 
@@ -69,6 +70,8 @@
         <antcall target="buildNativeME" />       
         <mkdir dir="dist" />
         <zip basedir="build/lib" compress="true" destfile="dist/${application.title}.cn1lib" />
+        <copy file="dist/${application.title}.cn1lib" todir="./../parse4cn1TestApp/lib" failonerror="false" />
+        <copy file="lib/CN1JSON.cn1lib" todir="./../parse4cn1TestApp/lib" failonerror="false" />
     </target>
 
     <target name="buildNativeRIM">

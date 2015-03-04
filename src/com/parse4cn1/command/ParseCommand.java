@@ -1,106 +1,146 @@
 package com.parse4cn1.command;
 
-import java.io.IOException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.client.HttpClients;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import ca.weblite.codename1.json.JSONException;
+import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.ConnectionRequest;
+import com.codename1.io.NetworkManager;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.parse4cn1.util.Logger;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Iterator;
 
 public abstract class ParseCommand {
-	
-	private static Logger LOGGER = LoggerFactory.getLogger(ParseCommand.class);
 
-	private static RequestConfig config;
-	protected JSONObject data = new JSONObject();
-	protected boolean addJson = true;
+    private static final Logger LOGGER = Logger.getInstance();
+    private static final String REQUEST_BODY_KEY = "data";
 
-	static {
-		config = RequestConfig.custom().build();
-	}	
-	
-	abstract HttpRequestBase getRequest() throws IOException;
+    protected JSONObject data = new JSONObject();
+    protected boolean addJson = true;
 
-	public ParseResponse perform() throws ParseException {
+    abstract void setUpRequest(final ConnectionRequest request) throws ParseException;
 
-		if(LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Data to be sent: {}", data);
-		}		
-		
-		try {
-			long commandStart = System.currentTimeMillis();
-			HttpClient httpclient = createSingleClient();
-			//ResponseHandler<String> responseHandler=new BasicResponseHandler();
-			HttpResponse httpResponse = httpclient.execute(getRequest());
-			//String resp = httpclient.execute(getRequest(), responseHandler);
-			ParseResponse response = new ParseResponse(httpResponse);
-			
-			long commandReceived = System.currentTimeMillis();
-			if(LOGGER.isDebugEnabled()) {
-				LOGGER.debug("ParseCommand took " + (commandReceived - commandStart) + " milliseconds\n");
-			}
-			return response;
-		}
-		catch (ClientProtocolException e) {
-			throw ParseResponse.getConnectionFailedException(e.getMessage());
-		} 
-		catch (IOException e) {
-			throw ParseResponse.getConnectionFailedException(e.getMessage());
-		}
-		
-	}
-	
-	protected HttpClient createSingleClient() {
-		HttpClientBuilder client = HttpClients.custom().setDefaultRequestConfig(config);
-		
-		return client.build();
-	}
-	
-	protected void setupHeaders(HttpRequestBase requestBase, boolean addJson) {
-		requestBase.addHeader(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
-		requestBase.addHeader(ParseConstants.HEADER_REST_API_KEY, Parse.getRestAPIKey());
-		if(addJson) {
-			requestBase.addHeader(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
-		}
-		
-		if(data.has("sessionToken")) {
-			requestBase.addHeader(ParseConstants.HEADER_SESSION_TOKEN, data.getString("session_token"));
-		}
-		
-	}
+    public ParseResponse perform() throws ParseException {
 
-	public void setData(JSONObject data) {
-		this.data.put("data", data);
-	}
-	
-	public void put(String key, String value) {
-		this.data.put(key, value);
-	}
-	
-	public void put(String key, int value) {
-		this.data.put(key, value);
-	}
-	
-	public void put(String key, long value) {
-		this.data.put(key, value);
-	}
-	
-	public void put(String key, JSONObject value) {
-		this.data.put(key, value);
-	}
-	
-	public void put(String key, JSONArray value) {
-		this.data.put(key, value);
-	}	
-	
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Data to be sent: " + data.toString());
+        }
+
+        long commandStart = System.currentTimeMillis();
+        final ParseResponse response = new ParseResponse();
+        ConnectionRequest request = getConnectionRequest(response);
+
+        Iterator keys = data.keys();
+        while (keys.hasNext()) {
+            final String key = (String) keys.next();
+            if (!REQUEST_BODY_KEY.equals(key)) {
+                try {
+                    request.addArgument(key, data.get(key).toString());
+                } catch (JSONException ex) {
+                    throw new ParseException("Error parsing key '" + key + "' in command data", ex);
+                }
+            }
+        }
+
+        setUpRequest(request);
+        NetworkManager.getInstance().addToQueueAndWait(request);
+        response.extractResponseData(request);
+        long commandReceived = System.currentTimeMillis();
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("ParseCommand took " + (commandReceived - commandStart) + " milliseconds\n");
+        }
+
+        if (response.isFailed()) {
+            throw response.getException();
+        }
+
+        return response;
+
+    }
+    
+    protected ConnectionRequest getConnectionRequest(final ParseResponse response) {
+        ConnectionRequest request = new ConnectionRequest() {
+ 
+            @Override
+            protected void handleErrorResponseCode(int code, String message) {
+                response.setStatusCode(code);
+                response.setError(new ParseException(code, message));
+            }
+
+            @Override
+            protected void handleException(Exception err) {
+                response.setError(new ParseException(ParseException.CONNECTION_FAILED, err.getMessage()));
+            }
+
+            @Override
+            protected void buildRequestBody(OutputStream os) throws IOException {
+                if (data.has(REQUEST_BODY_KEY)) {
+                    try {
+                        os.write(data.get(REQUEST_BODY_KEY).toString().getBytes("UTF-8"));
+                    } catch (JSONException ex) {
+                        throw new IllegalArgumentException("Unable to read request body from json object. Error:" 
+                                + ex.getMessage());
+                    }
+                } else {
+                    super.buildRequestBody(os);
+                }
+            }
+        };
+        request.setReadResponseForErrors(true);
+        return request;
+    }
+
+    protected void setupHeaders(ConnectionRequest connectionRequest, boolean addJson) throws ParseException {
+        connectionRequest.addRequestHeader(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
+        connectionRequest.addRequestHeader(ParseConstants.HEADER_REST_API_KEY, Parse.getRestAPIKey());
+        if (addJson) {
+            connectionRequest.addRequestHeader(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
+        }
+
+        if (data.has(ParseConstants.FIELD_SESSION_TOKEN)) {
+            try {
+                connectionRequest.addRequestHeader(ParseConstants.HEADER_SESSION_TOKEN,
+                        data.getString(ParseConstants.FIELD_SESSION_TOKEN));
+            } catch (JSONException ex) {
+                throw new ParseException(ex);
+            }
+        }
+    }
+
+    static protected String getUrl(final String endPoint, final String objectId) {
+        String url = Parse.getParseAPIUrl(endPoint) + (objectId != null ? "/" + objectId : "");
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Request URL: " + url);
+        }
+
+        return url;
+    }
+
+    public void setData(JSONObject data) throws JSONException {
+        this.data.put(REQUEST_BODY_KEY, data);
+    }
+
+    public void put(String key, String value) throws JSONException {
+        this.data.put(key, value);
+    }
+
+//    public void put(String key, int value) throws JSONException {
+//        this.data.put(key, value);
+//    }
+//
+//    public void put(String key, long value) throws JSONException {
+//        this.data.put(key, value);
+//    }
+//
+//    public void put(String key, JSONObject value) throws JSONException {
+//        this.data.put(key, value);
+//    }
+//
+//    public void put(String key, JSONArray value) throws JSONException {
+//        this.data.put(key, value);
+//    }
 }

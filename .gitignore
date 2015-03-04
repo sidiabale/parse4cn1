@@ -18,3 +18,4 @@ bin/
 log/
 target/
 /build/
+/dist/

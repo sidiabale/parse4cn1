@@ -1,53 +1,29 @@
 package com.parse4cn1.command;
 
-import java.io.IOException;
+import com.codename1.io.ConnectionRequest;
 
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.entity.StringEntity;
-import com.parse4cn1.Parse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.parse4cn1.ParseException;
+import static com.parse4cn1.command.ParseCommand.getUrl;
 
 public class ParsePutCommand extends ParseCommand {
-	
-	private static Logger LOGGER = LoggerFactory.getLogger(ParsePutCommand.class);
-	
-	private String endPoint;
-	private String objectId;
 
-	public ParsePutCommand(String endPoint, String objectId) {
-		this.endPoint = endPoint;
-		this.objectId = objectId;
-	}
-	
-	public ParsePutCommand(String endPoint) {
-		this.endPoint = endPoint;
-	}
+    private final String endPoint;
+    private String objectId;
 
-	@Override
-	public HttpRequestBase getRequest() throws IOException {
-		
-		HttpPut httpput = new HttpPut(getUrl());
-		setupHeaders(httpput, true);
-		
-		if (data != null) {
-			if(LOGGER.isDebugEnabled()) {
-				LOGGER.debug("Sending data: {}", data.getJSONObject("data"));
-			}
-			httpput.setEntity(new StringEntity(data.getJSONObject("data").toString(), "UTF8"));
-		}		
-		return httpput;
-	}
-	
-	protected String getUrl() {
-		String url = Parse.getParseAPIUrl(endPoint) + (objectId != null ? "/" + objectId : "");
-		
-		if(LOGGER.isDebugEnabled()) {
-			LOGGER.debug("Request URL: {}", url);
-		}
-		
-		return url;
-	}
+    public ParsePutCommand(String endPoint, String objectId) {
+        this.endPoint = endPoint;
+        this.objectId = objectId;
+    }
 
+    public ParsePutCommand(String endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    @Override
+    void setUpRequest(ConnectionRequest request) throws ParseException {
+        setupHeaders(request, true);
+        request.setPost(true);
+        request.setHttpMethod("PUT");
+        request.setUrl(getUrl(endPoint, objectId));
+    }
 }
