@@ -18,8 +18,8 @@ public class ParseGetCommandTest extends BaseParseTest {
 
     @Override
     public boolean runTest() throws Exception {
-        testGetAllUsers();
-        testGetNonExistentUsers();
+        testGetWithoutParams();
+        testGetNonExistentPath();
         testGetWithParams();
         return true;
     }
@@ -30,7 +30,7 @@ public class ParseGetCommandTest extends BaseParseTest {
         init();
     }
     
-    public void testGetAllUsers() {
+    public void testGetWithoutParams() {
         ParseGetCommand command = new ParseGetCommand("users");
         try {
             ParseResponse response = command.perform();
@@ -42,7 +42,7 @@ public class ParseGetCommandTest extends BaseParseTest {
         }
     }
     
-    public void testGetNonExistentUsers() {
+    public void testGetNonExistentPath() {
         ParseGetCommand command = new ParseGetCommand("users", "nonExistentUserID");
         try {
             ParseResponse response = command.perform();
