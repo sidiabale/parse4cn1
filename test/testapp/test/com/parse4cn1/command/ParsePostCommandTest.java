@@ -12,33 +12,14 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
- * Original implementation adapted from Thiago Locatelli's Parse4J project
- * (see https://github.com/thiagolocatelli/parse4j)
  */
 
-//package com.parse4cn1.custom;
-//
-//import com.parse4cn1.ParseClassName;
-//import com.parse4cn1.ParseObject;
-//
-//@ParseClassName("person")
-//public class Person extends ParseObject {
-//
-//	public void setAge(int age) {
-//		put("age", age);
-//	}
-//	
-//	public int getAge() {
-//		return getInt("age");
-//	}
-//	
-//	public void setGender(String gender) {
-//		put("gender", gender);
-//	}
-//	
-//	public String getGender() {
-//		return getString("gender");
-//	}
-//	
-//}
+package com.parse4cn1.command;
+
+/**
+ *
+ * @author sidiabale
+ */
+public class ParsePostCommandTest {
+    
+}

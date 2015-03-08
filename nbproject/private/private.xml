@@ -5,42 +5,79 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParsePush.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/GetCallback.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/encode/PointerOrLocalIdEncodingStrategy.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseQuery.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseObjectCRUDTestCase.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseClassName.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/encode/ParseObjectEncodingStrategy.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/SignUpCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/DeleteFieldOperation.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParsePostCommand.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParseDeleteCommand.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/encode/PointerEncodingStrategy.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/LoginCallback.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParseUploadCommand.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseObject.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseRelation.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/ParseDecoder.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/CountCallback.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/ProgressCallback.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/test/resources/README.txt</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseException.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/ParseRegistry.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseCloud.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseConstants.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParseGetCommand.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParsePutCommand.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/FunctionCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseObjectCustomTest.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseFileTestCase.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/AddOperation.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/Logger.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseUser.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseAnalytics.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/ParseFieldOperations.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/ParseCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/custom/Person.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParseCommand.java</file>
             <file>jar:file:/D:/Workspace/projects/parse4cn1/lib/CodenameOne_SRC.zip!/com/codename1/io/NetworkManager.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/FindCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/SendCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/custom/Person2.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/RequestPasswordResetCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/AddUniqueOperation.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/GetDataCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/OperationUtil.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParseResponse.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/ParseEncoder.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/Parse.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/Preconditions.java</file>
-            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseRole.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseQueryTestCase.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/bolts/TestBolts.java</file>
             <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseFile.java</file>
             <file>jar:file:/D:/Workspace/projects/parse4cn1/lib/CodenameOne_SRC.zip!/com/codename1/io/MultipartRequest.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/GetCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/RelationOperation.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseObjectOperationsTestCase.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseAnalyticsTestCase.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/bolts/Capture.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/RemoveFieldOperation.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/encode/ParseObjectEncodingStrategy.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseRelationTestCase.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParseDeleteCommand.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/encode/PointerEncodingStrategy.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/Parse4JTestCase.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/IncrementFieldOperation.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/ParseDecoder.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/CountCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/resources/README.txt</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseConstants.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParseGetCommand.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseGeoPoint.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseUserTestCase.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/bolts/TestTask.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/command/ParsePutCommand.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/Logger.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseUser.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseAnalytics.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/LocationCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/test/com/parse4cn1/ParseCloudTestCase.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/ParseFieldOperation.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/SaveCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/FindCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/bolts/AggregateException.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/callback/DeleteCallback.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/util/MimeType.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseRole.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/ParseExecutor.java</file>
+            <file>file:/D:/Workspace/projects/parse4cn1/src/com/parse4cn1/operation/SetFieldOperation.java</file>
         </group>
     </open-files>
 </project-private>

@@ -457,3 +457,45 @@ java.lang.RuntimeException: Objects 'object found for get' and 'object not found
 [main] 0:0:1,232 - Starting test case com.parse4cn1.ParseTest
 [main] 0:0:1,233 - Test prepared for execution on EDT
 [main] 0:0:1,345 - com.parse4cn1.ParseTest passed
+[EDT] 0:0:0,19 - Data to be sent: {}
+[EDT] 0:0:0,116 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:2,401 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:2,401 - ParseCommand took 2343 milliseconds
+
+[main] 0:0:3,779 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:3,781 - Test prepared for execution on EDT
+[main] 0:0:3,781 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,13 - Data to be sent: {}
+[EDT] 0:0:0,106 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,763 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,763 - ParseCommand took 716 milliseconds
+
+[main] 0:0:1,281 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,282 - Test prepared for execution on EDT
+[main] 0:0:1,283 - Data to be sent: {}
+[main] 0:0:1,283 - Request URL: https://api.parse.com/1/users
+[main] 0:0:1,505 - Raw response: {"results":[]}
+
+[main] 0:0:1,506 - ParseCommand took 223 milliseconds
+
+[main] 0:0:1,629 - Response: {"results":[]}
+[main] 0:0:1,630 - Data to be sent: {}
+[main] 0:0:1,630 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:1,821 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:1,821 - ParseCommand took 191 milliseconds
+
+[main] 0:0:1,821 - Response: {"code":101,"error":"object not found for get"}
+[main] 0:0:1,822 - getParseError(): {"code":101,"error":"object not found for get"}
+[main] 0:0:1,822 - com.parse4cn1.command.ParseGetCommandTest passed
+[EDT] 0:0:0,17 - Data to be sent: {}
+[EDT] 0:0:0,135 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,668 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,669 - ParseCommand took 591 milliseconds
+
+[main] 0:0:1,222 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,223 - Test prepared for execution on EDT
+[main] 0:0:1,309 - com.parse4cn1.ParseTest passed

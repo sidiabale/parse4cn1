@@ -1,7 +1,6 @@
 log/
 target/
 /build/
-/dist/
 /test/testapp/lib/impl/
 /test/testapp/build/
 /test/testapp/dist/
