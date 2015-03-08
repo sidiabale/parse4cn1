@@ -1,21 +1,9 @@
-# Eclipse
-.classpath
-.project
-.settings/
-bin/
-.externalToolBuilders/
-.springBeans
-
-# Intellij
-.idea/
-*.iml
-*.iws
-
-# Mac
-.DS_Store
-
-# Maven
 log/
 target/
 /build/
-/dist/
+/test/testapp/lib/impl/
+/test/testapp/build/
+/test/testapp/dist/
+test/testapp/log.txt
+test/testapp/lib/CN1JSON.cn1lib
+test/testapp/lib/parse4cn1.cn1lib
