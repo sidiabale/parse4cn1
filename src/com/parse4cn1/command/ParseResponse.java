@@ -60,6 +60,34 @@ public class ParseResponse {
 
         return getParseError(response);
     }
+    
+    public static ParseException getParseError(JSONObject response) {
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("getParseError(): " + response);
+        }
+        int code;
+        String errorMsg;
+        JSONException ex = null;
+
+        try {
+            code = response.getInt(RESPONSE_CODE_JSON_KEY);
+        } catch (JSONException e) {
+            ex = e;
+            code = ParseException.NOT_INITIALIZED;
+        }
+
+        try {
+            errorMsg = response.getString(RESPONSE_ERROR_JSON_KEY);
+        } catch (JSONException e) {
+            ex = e;
+            errorMsg = "Error undefined by Parse server.";
+        }
+        
+        return (ex != null) 
+                ? new ParseException(code, errorMsg, ex) 
+                : new ParseException(code, errorMsg);
+    }
 
     public JSONObject getJsonObject() throws ParseException {
         try {
@@ -102,31 +130,5 @@ public class ParseResponse {
     
     private boolean hasErrorCode() {
         return (statusCode < 200 || statusCode >= 300);
-    }
-
-    private ParseException getParseError(JSONObject response) {
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("getParseError(): " + response);
-        }
-        int code;
-        String errorMsg;
-        JSONException ex = null;
-
-        try {
-            code = response.getInt(RESPONSE_CODE_JSON_KEY);
-        } catch (JSONException e) {
-            ex = e;
-            code = ParseException.NOT_INITIALIZED;
-        }
-
-        try {
-            errorMsg = response.getString(RESPONSE_ERROR_JSON_KEY);
-        } catch (JSONException e) {
-            ex = e;
-            errorMsg = "Error undefined by Parse server.";
-        }
-
-        return new ParseException(code, errorMsg, ex);
     }
 }

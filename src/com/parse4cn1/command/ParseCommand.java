@@ -53,9 +53,9 @@ public abstract class ParseCommand {
             LOGGER.debug("ParseCommand took " + (commandReceived - commandStart) + " milliseconds\n");
         }
 
-        if (response.isFailed()) {
-            throw response.getException();
-        }
+//        if (response.isFailed()) {
+//            throw response.getException();
+//        }
 
         return response;
 

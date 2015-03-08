@@ -6,7 +6,6 @@
 
 package com.parse4cn1.util;
 
-import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.Log;
 
 /**

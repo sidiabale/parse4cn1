@@ -1,0 +1,459 @@
+[EDT] 0:0:0,121 - Data to be sent: {}
+[EDT] 0:0:0,147 - Data to be sent: {}
+[EDT] 0:0:0,358 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,559 - ParseCommand took 1327 milliseconds
+
+[EDT] 0:0:0,47 - Data to be sent: {}
+[EDT] 0:0:0,238 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,414 - ParseCommand took 1300 milliseconds
+
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,220 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,530 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,530 - ParseCommand took 1448 milliseconds
+
+[main] 0:0:3,62 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:3,66 - Test prepared for execution on EDT
+[main] 0:0:3,66 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,202 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,866 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,867 - ParseCommand took 789 milliseconds
+
+[main] 0:0:1,843 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,844 - Test prepared for execution on EDT
+[main] 0:0:1,844 - Data to be sent: {}
+[main] 0:0:1,845 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:2,65 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:2,66 - ParseCommand took 221 milliseconds
+
+[main] 0:0:2,262 - Assert failed on: An exception occurred: Not Found
+[main] 0:0:2,263 - Exception: java.lang.RuntimeException - An exception occurred: Not Found
+java.lang.RuntimeException: An exception occurred: Not Found
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.command.ParseGetCommandTest.testGetNonExistentUsers(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,17 - Data to be sent: {}
+[EDT] 0:0:0,255 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,657 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,657 - ParseCommand took 1566 milliseconds
+
+[main] 0:0:3,392 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:3,394 - Test prepared for execution on EDT
+[main] 0:0:3,395 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,198 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,887 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,889 - ParseCommand took 811 milliseconds
+
+[main] 0:0:1,965 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,968 - Test prepared for execution on EDT
+[main] 0:0:1,968 - Data to be sent: {}
+[main] 0:0:1,968 - Request URL: https://api.parse.com/1/users
+[main] 0:0:2,174 - Raw response: {"results":[]}
+
+[main] 0:0:2,174 - ParseCommand took 206 milliseconds
+
+[main] 0:0:2,474 - Response: {"results":[]}
+[main] 0:0:2,474 - Data to be sent: {}
+[main] 0:0:2,474 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:3,18 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:3,18 - ParseCommand took 544 milliseconds
+
+[main] 0:0:3,19 - Assert failed on: An exception occurred: Not Found
+[main] 0:0:3,19 - Exception: java.lang.RuntimeException - An exception occurred: Not Found
+java.lang.RuntimeException: An exception occurred: Not Found
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.command.ParseGetCommandTest.testGetNonExistentUsers(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,11 - Data to be sent: {}
+[EDT] 0:0:0,196 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,1 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,1 - ParseCommand took 924 milliseconds
+
+[main] 0:0:1,944 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,945 - Test prepared for execution on EDT
+[main] 0:0:2,79 - Assert failed on: Test app ID should be null (obj=j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8)
+[main] 0:0:2,80 - Exception: java.lang.RuntimeException - Test app ID should be null (obj=j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8)
+java.lang.RuntimeException: Test app ID should be null (obj=j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8)
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.BaseParseTest.assertNull(Unknown Source)
+	at com.parse4cn1.ParseTest.testKeyInitialization(Unknown Source)
+	at com.parse4cn1.ParseTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:39,53 - Data to be sent: {}
+[EDT] 0:0:39,280 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:40,479 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:40,479 - ParseCommand took 1336 milliseconds
+
+[EDT] 0:0:0,116 - Data to be sent: {}
+[EDT] 0:0:0,324 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,524 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,524 - ParseCommand took 1336 milliseconds
+
+[EDT] 0:0:0,85 - Data to be sent: {}
+[EDT] 0:0:0,445 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:2,68 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:2,68 - ParseCommand took 1869 milliseconds
+
+[EDT] 0:0:0,13 - Data to be sent: {}
+[EDT] 0:0:0,183 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:2,397 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:2,397 - ParseCommand took 2301 milliseconds
+
+[main] 0:0:3,518 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:3,518 - Test prepared for execution on EDT
+[main] 0:0:3,519 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,13 - Data to be sent: {}
+[EDT] 0:0:0,117 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,681 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,681 - ParseCommand took 621 milliseconds
+
+[main] 0:0:1,212 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,214 - Test prepared for execution on EDT
+[main] 0:0:1,215 - Data to be sent: {}
+[main] 0:0:1,215 - Request URL: https://api.parse.com/1/users
+[main] 0:0:1,494 - Raw response: {"results":[]}
+
+[main] 0:0:1,494 - ParseCommand took 279 milliseconds
+
+[main] 0:0:1,655 - Response: {"results":[]}
+[main] 0:0:1,655 - Data to be sent: {}
+[main] 0:0:1,655 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:1,896 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:1,896 - ParseCommand took 241 milliseconds
+
+[main] 0:0:1,896 - Assert failed on: Oops! An exception occurred: ParseException [code=404, error=Not Found]
+[main] 0:0:1,896 - Exception: java.lang.RuntimeException - Oops! An exception occurred: ParseException [code=404, error=Not Found]
+java.lang.RuntimeException: Oops! An exception occurred: ParseException [code=404, error=Not Found]
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.command.ParseGetCommandTest.testGetNonExistentUsers(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,13 - Data to be sent: {}
+[EDT] 0:0:0,115 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,728 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,728 - ParseCommand took 671 milliseconds
+
+[main] 0:0:1,258 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,258 - Test prepared for execution on EDT
+[main] 0:0:1,321 - Assert failed on: Test app ID should be null (obj=j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8)
+[main] 0:0:1,322 - Exception: java.lang.RuntimeException - Test app ID should be null (obj=j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8)
+java.lang.RuntimeException: Test app ID should be null (obj=j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8)
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.BaseParseTest.assertNull(Unknown Source)
+	at com.parse4cn1.ParseTest.testKeyInitialization(Unknown Source)
+	at com.parse4cn1.ParseTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,117 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,324 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,324 - ParseCommand took 1267 milliseconds
+
+[main] 0:0:2,296 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:2,297 - Test prepared for execution on EDT
+[main] 0:0:2,297 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,112 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,665 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,666 - ParseCommand took 611 milliseconds
+
+[main] 0:0:1,198 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,200 - Test prepared for execution on EDT
+[main] 0:0:1,201 - Data to be sent: {}
+[main] 0:0:1,202 - Request URL: https://api.parse.com/1/users
+[main] 0:0:1,468 - Raw response: {"results":[]}
+
+[main] 0:0:1,468 - ParseCommand took 266 milliseconds
+
+[main] 0:0:1,573 - Response: {"results":[]}
+[main] 0:0:1,574 - Data to be sent: {}
+[main] 0:0:1,574 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:1,773 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:1,774 - ParseCommand took 200 milliseconds
+
+[main] 0:0:1,774 - Assert failed on: Oops! An exception occurred: ParseException [code=404, error=Not Found]
+[main] 0:0:1,774 - Exception: java.lang.RuntimeException - Oops! An exception occurred: ParseException [code=404, error=Not Found]
+java.lang.RuntimeException: Oops! An exception occurred: ParseException [code=404, error=Not Found]
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.command.ParseGetCommandTest.testGetNonExistentUsers(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,114 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,667 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,667 - ParseCommand took 611 milliseconds
+
+[main] 0:0:1,210 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,214 - Test prepared for execution on EDT
+[main] 0:0:1,325 - com.parse4cn1.ParseTest passed
+[EDT] 0:0:0,11 - Data to be sent: {}
+[EDT] 0:0:0,109 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,498 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,498 - ParseCommand took 1444 milliseconds
+
+[main] 0:0:2,410 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:2,414 - Test prepared for execution on EDT
+[main] 0:0:2,414 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,115 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,699 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,700 - ParseCommand took 642 milliseconds
+
+[main] 0:0:1,210 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,212 - Test prepared for execution on EDT
+[main] 0:0:1,212 - Data to be sent: {}
+[main] 0:0:1,212 - Request URL: https://api.parse.com/1/users
+[main] 0:0:1,550 - Raw response: {"results":[]}
+
+[main] 0:0:1,550 - ParseCommand took 338 milliseconds
+
+[main] 0:0:1,656 - Response: {"results":[]}
+[main] 0:0:1,657 - Data to be sent: {}
+[main] 0:0:1,657 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:1,861 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:1,861 - ParseCommand took 204 milliseconds
+
+[main] 0:0:1,861 - Response: {"code":101,"error":"object not found for get"}
+[main] 0:0:1,862 - getParseError(): {"code":101,"error":"object not found for get"}
+[main] 0:0:1,862 - Exception: java.lang.NullPointerException - null
+java.lang.NullPointerException
+	at com.parse4cn1.ParseException.<init>(ParseException.java:51)
+	at com.parse4cn1.command.ParseResponse.getParseError(ParseResponse.java:87)
+	at com.parse4cn1.command.ParseGetCommandTest.testGetNonExistentUsers(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,124 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,736 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,737 - ParseCommand took 673 milliseconds
+
+[main] 0:0:1,304 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,341 - Test prepared for execution on EDT
+[main] 0:0:1,648 - com.parse4cn1.ParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,108 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,236 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,236 - ParseCommand took 1182 milliseconds
+
+[main] 0:0:2,176 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:2,177 - Test prepared for execution on EDT
+[main] 0:0:2,177 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,11 - Data to be sent: {}
+[EDT] 0:0:0,111 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,696 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,696 - ParseCommand took 641 milliseconds
+
+[main] 0:0:1,215 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,215 - Test prepared for execution on EDT
+[main] 0:0:1,215 - Data to be sent: {}
+[main] 0:0:1,215 - Request URL: https://api.parse.com/1/users
+[main] 0:0:1,458 - Raw response: {"results":[]}
+
+[main] 0:0:1,458 - ParseCommand took 243 milliseconds
+
+[main] 0:0:1,550 - Response: {"results":[]}
+[main] 0:0:1,550 - Data to be sent: {}
+[main] 0:0:1,551 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:1,767 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:1,767 - ParseCommand took 217 milliseconds
+
+[main] 0:0:1,767 - Response: {"code":101,"error":"object not found for get"}
+[main] 0:0:1,767 - getParseError(): {"code":101,"error":"object not found for get"}
+[main] 0:0:1,767 - Assert failed on: Objects object found for get and object not found for get are not equal
+[main] 0:0:1,767 - Exception: java.lang.RuntimeException - Objects object found for get and object not found for get are not equal
+java.lang.RuntimeException: Objects object found for get and object not found for get are not equal
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.BaseParseTest.assertEqual(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.testGetNonExistentUsers(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,11 - Data to be sent: {}
+[EDT] 0:0:0,108 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,625 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,625 - ParseCommand took 571 milliseconds
+
+[main] 0:0:1,150 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,151 - Test prepared for execution on EDT
+[main] 0:0:1,256 - com.parse4cn1.ParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,111 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,285 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,285 - ParseCommand took 1231 milliseconds
+
+[main] 0:0:2,200 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:2,201 - Test prepared for execution on EDT
+[main] 0:0:2,201 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,128 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,764 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,764 - ParseCommand took 708 milliseconds
+
+[main] 0:0:1,285 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,286 - Test prepared for execution on EDT
+[main] 0:0:1,287 - Data to be sent: {}
+[main] 0:0:1,287 - Request URL: https://api.parse.com/1/users
+[main] 0:0:1,614 - Raw response: {"results":[]}
+
+[main] 0:0:1,637 - ParseCommand took 350 milliseconds
+
+[main] 0:0:1,885 - Response: {"results":[]}
+[main] 0:0:1,885 - Data to be sent: {}
+[main] 0:0:1,885 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:2,224 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:2,225 - ParseCommand took 340 milliseconds
+
+[main] 0:0:2,226 - Response: {"code":101,"error":"object not found for get"}
+[main] 0:0:2,226 - getParseError(): {"code":101,"error":"object not found for get"}
+[main] 0:0:2,227 - Assert failed on: Objects 'object found for get' and 'object not found for get' are not equal
+[main] 0:0:2,227 - Exception: java.lang.RuntimeException - Objects 'object found for get' and 'object not found for get' are not equal
+java.lang.RuntimeException: Objects 'object found for get' and 'object not found for get' are not equal
+	at com.codename1.testing.TestUtils.assertBool(TestUtils.java:704)
+	at com.codename1.testing.AbstractTest.assertBool(AbstractTest.java:78)
+	at com.parse4cn1.BaseParseTest.assertEqual(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.testGetNonExistentUsers(Unknown Source)
+	at com.parse4cn1.command.ParseGetCommandTest.runTest(Unknown Source)
+	at com.codename1.impl.javase.TestExecuter.runTest(TestExecuter.java:92)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:483)
+	at com.codename1.impl.javase.TestRunner.init(TestRunner.java:153)
+	at com.codename1.impl.javase.TestRunner.main(TestRunner.java:202)
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,109 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,672 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,672 - ParseCommand took 617 milliseconds
+
+[main] 0:0:1,554 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,554 - Test prepared for execution on EDT
+[main] 0:0:1,673 - com.parse4cn1.ParseTest passed
+[EDT] 0:0:0,12 - Data to be sent: {}
+[EDT] 0:0:0,113 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:1,310 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:1,310 - ParseCommand took 1253 milliseconds
+
+[main] 0:0:2,239 - Starting test case com.parse4cn1.BaseParseTest
+[main] 0:0:2,241 - Test prepared for execution on EDT
+[main] 0:0:2,241 - com.parse4cn1.BaseParseTest passed
+[EDT] 0:0:0,11 - Data to be sent: {}
+[EDT] 0:0:0,108 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,700 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,700 - ParseCommand took 647 milliseconds
+
+[main] 0:0:1,219 - Starting test case com.parse4cn1.command.ParseGetCommandTest
+[main] 0:0:1,220 - Test prepared for execution on EDT
+[main] 0:0:1,220 - Data to be sent: {}
+[main] 0:0:1,222 - Request URL: https://api.parse.com/1/users
+[main] 0:0:1,464 - Raw response: {"results":[]}
+
+[main] 0:0:1,464 - ParseCommand took 244 milliseconds
+
+[main] 0:0:1,572 - Response: {"results":[]}
+[main] 0:0:1,572 - Data to be sent: {}
+[main] 0:0:1,572 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[main] 0:0:1,783 - Raw response: {"code":101,"error":"object not found for get"}
+
+[main] 0:0:1,783 - ParseCommand took 211 milliseconds
+
+[main] 0:0:1,783 - Response: {"code":101,"error":"object not found for get"}
+[main] 0:0:1,783 - getParseError(): {"code":101,"error":"object not found for get"}
+[main] 0:0:1,784 - com.parse4cn1.command.ParseGetCommandTest passed
+[EDT] 0:0:0,11 - Data to be sent: {}
+[EDT] 0:0:0,108 - Request URL: https://api.parse.com/1/users/nonExistentUserID
+[EDT] 0:0:0,700 - Raw response: {"code":101,"error":"object not found for get"}
+
+[EDT] 0:0:0,700 - ParseCommand took 646 milliseconds
+
+[main] 0:0:1,232 - Starting test case com.parse4cn1.ParseTest
+[main] 0:0:1,233 - Test prepared for execution on EDT
+[main] 0:0:1,345 - com.parse4cn1.ParseTest passed
