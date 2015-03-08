@@ -16,6 +16,7 @@
 
 package com.parse4cn1.command;
 
+import ca.weblite.codename1.json.JSONException;
 import com.parse4cn1.BaseParseTest;
 import com.parse4cn1.ParseException;
 import java.util.logging.Level;
@@ -45,7 +46,6 @@ public class ParseGetCommandTest extends BaseParseTest {
         try {
             ParseResponse response = command.perform();
             assertFalse(response.isFailed(), "Command should not have failed");
-            log("Response: " + response.getJsonObject());
             assertNotNull(response.getJsonObject(), "Non-null reply expected");
         } catch (ParseException ex) {
             assertBool(false, "An exception occurred: " + ex.getMessage());
@@ -59,17 +59,29 @@ public class ParseGetCommandTest extends BaseParseTest {
             assertTrue(response.isFailed(), "Command should have failed");
             assertEqual(404, response.getStatusCode());
             assertNotNull(response.getJsonObject(), "Non-null reply expected");
-            log("Response: " + response.getJsonObject());
             ParseException serverMsg = ParseResponse.getParseError(response.getJsonObject());
-            assertEqual(101, serverMsg.getCode(), "Response code");
+            assertEqual(ParseException.OBJECT_NOT_FOUND, serverMsg.getCode(), "Response code");
             assertEqual("object not found for get", serverMsg.getMessage());
         } catch (ParseException ex) {
-            assertBool(false, "Oops! An exception occurred: " + ex);
+            assertBool(false, "Oops! An unexpected exception occurred: " + ex);
         }
     }
     
     public void testGetWithParams() {
-        
+        ParseGetCommand command = new ParseGetCommand("login");
+        try {
+            command.put("username", "user");
+            command.put("password", "pwd");
+            ParseResponse response = command.perform();
+            assertTrue(response.isFailed(), "Command should have failed");
+            assertEqual(404, response.getStatusCode());
+            assertNotNull(response.getJsonObject(), "Non-null reply expected");
+            ParseException serverMsg = ParseResponse.getParseError(response.getJsonObject());
+            assertEqual(ParseException.OBJECT_NOT_FOUND, serverMsg.getCode(), "Response code");
+            assertEqual("invalid login parameters", serverMsg.getMessage());
+        } catch (ParseException ex) {
+            assertBool(false, "Oops! An unexpected exception occurred: " + ex);
+        }
     }
     
 }

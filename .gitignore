@@ -4,3 +4,4 @@ target/
 /test/testapp/lib/impl/
 /test/testapp/build/
 /test/testapp/dist/
+test/testapp/log.txt

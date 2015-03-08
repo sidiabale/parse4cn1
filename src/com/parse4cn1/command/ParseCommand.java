@@ -16,7 +16,6 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1.command;
 
 import ca.weblite.codename1.json.JSONException;
@@ -50,6 +49,7 @@ public abstract class ParseCommand {
         long commandStart = System.currentTimeMillis();
         final ParseResponse response = new ParseResponse();
         ConnectionRequest request = getConnectionRequest(response);
+        setUpRequest(request);
 
         Iterator keys = data.keys();
         while (keys.hasNext()) {
@@ -62,8 +62,7 @@ public abstract class ParseCommand {
                 }
             }
         }
-
-        setUpRequest(request);
+        
         NetworkManager.getInstance().addToQueueAndWait(request);
         response.extractResponseData(request);
         long commandReceived = System.currentTimeMillis();
@@ -74,10 +73,10 @@ public abstract class ParseCommand {
 
         return response;
     }
-    
+
     protected ConnectionRequest getConnectionRequest(final ParseResponse response) {
         ConnectionRequest request = new ConnectionRequest() {
- 
+
             @Override
             protected void handleErrorResponseCode(int code, String message) {
                 response.setStatusCode(code);
@@ -95,7 +94,7 @@ public abstract class ParseCommand {
                     try {
                         os.write(data.get(REQUEST_BODY_KEY).toString().getBytes("UTF-8"));
                     } catch (JSONException ex) {
-                        throw new IllegalArgumentException("Unable to read request body from json object. Error:" 
+                        throw new IllegalArgumentException("Unable to read request body from json object. Error:"
                                 + ex.getMessage());
                     }
                 } else {
@@ -134,27 +133,35 @@ public abstract class ParseCommand {
         return url;
     }
 
-    public void setData(JSONObject data) throws JSONException {
-        this.data.put(REQUEST_BODY_KEY, data);
+    public void setData(JSONObject data) throws ParseException {
+        try {
+            this.data.put(REQUEST_BODY_KEY, data);
+        } catch (JSONException ex) {
+            throw new ParseException(ParseException.INVALID_JSON, ex);
+        }
     }
 
-    public void put(String key, String value) throws JSONException {
-        this.data.put(key, value);
+    public void put(String key, String value) throws ParseException {
+        try {
+            this.data.put(key, value);
+        } catch (JSONException ex) {
+            throw new ParseException(ParseException.INVALID_JSON, ex);
+        }
     }
 
-//    public void put(String key, int value) throws JSONException {
+//    public void put(String key, int value) throws ParseException {
 //        this.data.put(key, value);
 //    }
 //
-//    public void put(String key, long value) throws JSONException {
+//    public void put(String key, long value) throws ParseException {
 //        this.data.put(key, value);
 //    }
 //
-//    public void put(String key, JSONObject value) throws JSONException {
+//    public void put(String key, JSONObject value) throws ParseException {
 //        this.data.put(key, value);
 //    }
 //
-//    public void put(String key, JSONArray value) throws JSONException {
+//    public void put(String key, JSONArray value) throws ParseException {
 //        this.data.put(key, value);
 //    }
 }
