@@ -30,7 +30,7 @@
 //
 //public class ParseCloud {
 //	
-//	private static Logger LOGGER = LoggerFactory.getLogger(ParseCloud.class);
+//	private static final Logger LOGGER = Logger.getInstance();
 //
 //	@SuppressWarnings("unchecked")
 //	public static <T> T callFunction(String name, Map<String, ?> params)

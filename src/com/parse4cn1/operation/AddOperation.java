@@ -16,42 +16,44 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
+package com.parse4cn1.operation;
 
-//package com.parse4cn1.operation;
-//
-//import java.util.ArrayList;
-//import java.util.Collection;
-//
-//import org.json.JSONException;
-//import org.json.JSONObject;
-//import com.parse4cn1.ParseObject;
-//import com.parse4cn1.encode.ParseObjectEncodingStrategy;
-//import com.parse4cn1.util.ParseEncoder;
-//
-//public class AddOperation implements ParseFieldOperation {
-//
-//	protected final ArrayList<Object> objects = new ArrayList<Object>();
-//
-//	public AddOperation(Collection<?> coll) {
-//		this.objects.addAll(coll);
-//	}
-//
-//	public AddOperation(Object o) {
-//		this.objects.add(o);
-//	}
-//
-//	@Override
-//	public Object apply(Object oldValue, ParseObject parseObject, String key) {
-//		throw new IllegalArgumentException("not implemented!");
-//	}
-//
-//	@Override
-//	public Object encode(ParseObjectEncodingStrategy objectEncoder)
-//			throws JSONException {
-//	    JSONObject output = new JSONObject();
-//	    output.put("__op", "Add");
-//	    output.put("objects", ParseEncoder.encode(this.objects, objectEncoder));
-//	    return output;
-//	}
-//
-//}
+import ca.weblite.codename1.json.JSONException;
+import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseException;
+import com.parse4cn1.ParseObject;
+import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.util.ParseEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+
+public class AddOperation implements ParseFieldOperation {
+
+    protected final ArrayList<Object> objects = new ArrayList<Object>();
+
+    public AddOperation(Collection<?> coll) {
+        this.objects.addAll(coll);
+    }
+
+    public AddOperation(Object o) {
+        this.objects.add(o);
+    }
+
+    @Override
+    public Object apply(Object oldValue, ParseObject parseObject, String key) {
+        throw new IllegalArgumentException("not implemented!");
+    }
+
+    @Override
+    public Object encode(ParseObjectEncodingStrategy objectEncoder)
+            throws ParseException {
+        JSONObject output = new JSONObject();
+        try {
+            output.put("__op", "Add");
+            output.put("objects", ParseEncoder.encode(this.objects, objectEncoder));
+        } catch (JSONException ex) {
+            throw new ParseException(ParseException.INVALID_JSON, ex);
+        }
+        return output;
+    }
+}

@@ -16,17 +16,19 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
+package com.parse4cn1.operation;
 
-//package com.parse4cn1.operation;
-//
-//import org.json.JSONException;
-//import com.parse4cn1.ParseObject;
-//import com.parse4cn1.encode.ParseObjectEncodingStrategy;
-//
-//public interface ParseFieldOperation {
-//	
-//	abstract Object apply(Object oldValue, ParseObject parseObject, String key);
-//	
-//	abstract Object encode(ParseObjectEncodingStrategy objectEncoder) throws JSONException;
-//
-//}
+import com.parse4cn1.ParseException;
+import com.parse4cn1.ParseObject;
+import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+
+// TODO: Document
+public interface ParseFieldOperation {
+
+    abstract Object apply(Object oldValue, ParseObject parseObject, String key)
+            throws ParseException;
+
+    abstract Object encode(ParseObjectEncodingStrategy objectEncoder)
+            throws ParseException;
+
+}

@@ -16,31 +16,36 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1.operation;
+
+import com.parse4cn1.ParseException;
 
 public class OperationUtil {
 
-//    static Number addNumbers(Number first, Number second) {
-//        if (((first instanceof Double)) || ((second instanceof Double))) {
-//            return Double.valueOf(first.doubleValue() + second.doubleValue());
-//        }
-//        if (((first instanceof Float)) || ((second instanceof Float))) {
-//            return Float.valueOf(first.floatValue() + second.floatValue());
-//        }
-//        if (((first instanceof Long)) || ((second instanceof Long))) {
-//            return Long.valueOf(first.longValue() + second.longValue());
-//        }
-//        if (((first instanceof Integer)) || ((second instanceof Integer))) {
-//            return Integer.valueOf(first.intValue() + second.intValue());
-//        }
-//        if (((first instanceof Short)) || ((second instanceof Short))) {
-//            return Integer.valueOf(first.shortValue() + second.shortValue());
-//        }
-//        if (((first instanceof Byte)) || ((second instanceof Byte))) {
-//            return Integer.valueOf(first.byteValue() + second.byteValue());
-//        }
-//        throw new RuntimeException("Unknown number type.");
-//    }
+    static Object addNumbers(Object first, Object second) throws ParseException {
+        if (((first instanceof Double)) || ((second instanceof Double))) {
+            return (Double) first + (Double) second;
+        }
+        if (((first instanceof Float)) || ((second instanceof Float))) {
+            return (Float) first + (Float) second;
+        }
+        if (((first instanceof Long)) || ((second instanceof Long))) {
+            return (Long) first + (Long) second;
+        }
+        if (((first instanceof Integer)) || ((second instanceof Integer))) {
+            return (Integer) first + (Integer) second;
+        }
+        if (((first instanceof Short)) || ((second instanceof Short))) {
+            return (Short) first + (Short) second;
+        }
+        if (((first instanceof Byte)) || ((second instanceof Byte))) {
+            return (Byte) first + (Byte) second;
+        }
+        throw new ParseException(ParseException.OTHER_CAUSE, "Unknown number type.");
+    }
 
+    public static boolean isSupportedNumberType(Object o) {
+        return (o instanceof Double) || (o instanceof Float) || (o instanceof Long)
+                || (o instanceof Integer) || (o instanceof Short) || (o instanceof Byte);
+    }
 }

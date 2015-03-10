@@ -48,4 +48,7 @@ public class Logger {
         log.p(data, Log.DEBUG);
     }
     
+    public void error(String data) {
+        log.p(data, Log.ERROR);
+    }
 }

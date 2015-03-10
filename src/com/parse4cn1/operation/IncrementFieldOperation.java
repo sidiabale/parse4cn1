@@ -17,49 +17,56 @@
  * (see https://github.com/thiagolocatelli/parse4j)
  */
 
-//package com.parse4cn1.operation;
-//
-//import org.json.JSONException;
-//import org.json.JSONObject;
-//import com.parse4cn1.ParseObject;
-//import com.parse4cn1.encode.ParseObjectEncodingStrategy;
-//
-//public class IncrementFieldOperation implements ParseFieldOperation {
-//
-//	private Number amount;
-//	private boolean needIncrement = true;
-//
-//	public IncrementFieldOperation(Number amount) {
-//		this.amount = amount;
-//	}
-//
-//	@Override
-//	public Object apply(Object oldValue, ParseObject parseObject, String key) {
-//		
-//		if (oldValue == null) {
-//			needIncrement = false;
-//			return amount;
-//		}
-//		
-//		if ((oldValue instanceof Number)) {
-//			return OperationUtil.addNumbers((Number) oldValue, this.amount);
-//		}
-//		
-//		throw new IllegalArgumentException("You cannot increment a non-number. Key type ["+oldValue.getClass().getCanonicalName()+"]");
-//	}
-//
-//	@Override
-//	public Object encode(ParseObjectEncodingStrategy objectEncoder)
-//			throws JSONException {
-//		if(needIncrement) {
-//			JSONObject output = new JSONObject();
-//			output.put("__op", "Increment");
-//			output.put("amount", this.amount);
-//			return output;
-//		}
-//		else {
-//			return amount;
-//		}
-//	}
-//
-//}
+package com.parse4cn1.operation;
+
+import ca.weblite.codename1.json.JSONException;
+import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseException;
+import com.parse4cn1.ParseObject;
+import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+
+public class IncrementFieldOperation implements ParseFieldOperation {
+
+    private Object amount;
+    private boolean needIncrement = true;
+
+    public IncrementFieldOperation(Object amount) {
+        if (!OperationUtil.isSupportedNumberType(amount)) {
+            throw new IllegalArgumentException("Type '" + amount.getClass() 
+                    + "' is not a supported number type");
+        }
+        this.amount = amount;
+    }
+
+    @Override
+    public Object apply(Object oldValue, ParseObject parseObject, String key) 
+            throws ParseException {
+
+        if (oldValue == null) {
+            needIncrement = false;
+            return amount;
+        }
+
+        if (OperationUtil.isSupportedNumberType(oldValue)) {
+           return OperationUtil.addNumbers(oldValue, this.amount); 
+        }
+
+        throw new IllegalArgumentException("You cannot increment a non-number. Key type [" + oldValue.getClass().getCanonicalName() + "]");
+    }
+
+    @Override
+    public Object encode(ParseObjectEncodingStrategy objectEncoder) {
+        if (needIncrement) {
+            JSONObject output = new JSONObject();
+            try {
+                output.put("__op", "Increment");
+                output.put("amount", this.amount);
+            } catch (JSONException ex) {
+                throw new RuntimeException(ex.getMessage());
+            }
+            return output;
+        } else {
+            return amount;
+        }
+    }
+}

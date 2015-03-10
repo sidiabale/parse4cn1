@@ -16,14 +16,15 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
+package com.parse4cn1.encode;
 
-//package com.parse4cn1.encode;
-//
-//import org.json.JSONObject;
-//import com.parse4cn1.ParseObject;
-//
-//public interface ParseObjectEncodingStrategy {
-//	
-//	public abstract JSONObject encodeRelatedObject(ParseObject parseObject);
-//
-//}
+import com.parse4cn1.ParseObject;
+import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseException;
+
+// TODO: Document
+public interface ParseObjectEncodingStrategy {
+
+    public abstract JSONObject encodeRelatedObject(ParseObject parseObject) throws ParseException;
+
+}
