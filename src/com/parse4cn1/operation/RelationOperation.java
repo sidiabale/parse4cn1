@@ -25,13 +25,14 @@ import java.util.Set;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.ParseRelation;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
 import com.parse4cn1.util.ParseEncoder;
 
-public class RelationOperation<T extends ParseObject> implements ParseFieldOperation {
+public class RelationOperation<T extends ParseObject> implements ParseOperation {
 
     private String targetClass;
     private Set<ParseObject> relationsToAdd;
@@ -142,7 +143,7 @@ public class RelationOperation<T extends ParseObject> implements ParseFieldOpera
         if (this.relationsToAdd.size() > 0) {
             adds = new JSONObject();
             try {
-                adds.put("__op", "AddRelation");
+                adds.put(ParseConstants.KEYWORD_OP, "AddRelation");
                 adds.put("objects", convertSetToArray(this.relationsToAdd, objectEncoder));
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
@@ -152,7 +153,7 @@ public class RelationOperation<T extends ParseObject> implements ParseFieldOpera
         if (this.relationsToRemove.size() > 0) {
             removes = new JSONObject();
             try {
-                removes.put("__op", "RemoveRelation");
+                removes.put(ParseConstants.KEYWORD_OP, "RemoveRelation");
                 removes.put("objects", convertSetToArray(this.relationsToRemove, objectEncoder));
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
@@ -162,7 +163,7 @@ public class RelationOperation<T extends ParseObject> implements ParseFieldOpera
         if ((adds != null) && (removes != null)) {
             JSONObject result = new JSONObject();
             try {
-                result.put("__op", "Batch");
+                result.put(ParseConstants.KEYWORD_OP, "Batch");
                 JSONArray ops = new JSONArray();
                 ops.put(adds);
                 ops.put(removes);

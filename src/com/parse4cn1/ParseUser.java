@@ -42,13 +42,13 @@ public class ParseUser extends ParseObject {
         setEndPoint("users");
     }
 
-    public void remove(String key) {
+    public void deleteField(String key) {
         if ("username".equals(key)) {
             LOGGER.error("Can't remove the username key.");
             throw new IllegalArgumentException("Can't remove the username key.");
         }
 
-        remove(key);
+        deleteField(key);
     }
 
     public void setSessionToken(String sessionToken) {
@@ -92,7 +92,7 @@ public class ParseUser extends ParseObject {
         return (this.sessionToken != null && getObjectId() != null);
     }
 
-    void validateSave() {
+    protected void validateSave() {
 
         if (getObjectId() == null) {
             LOGGER.error("Cannot save a ParseUser until it has been signed up. Call signUp first.");

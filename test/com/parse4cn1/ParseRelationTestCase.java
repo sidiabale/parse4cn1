@@ -62,7 +62,7 @@
 //		        }
 //		    });
 //			
-//			//myComment.remove("parent");
+//			//myComment.deleteField("parent");
 //			//myComment.save();
 //			//postObj.delete();
 //			//myComment.delete();
@@ -76,7 +76,7 @@
 //		List<ParseObject> list = query.find();
 //		for(ParseObject po : list) {
 //			System.out.println(po.getObjectId());
-//			po.remove("parent");
+//			po.deleteField("parent");
 //			po.save();
 //		}		
 //	}

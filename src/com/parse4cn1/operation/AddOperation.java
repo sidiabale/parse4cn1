@@ -20,6 +20,7 @@ package com.parse4cn1.operation;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
@@ -27,7 +28,7 @@ import com.parse4cn1.util.ParseEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public class AddOperation implements ParseFieldOperation {
+public class AddOperation implements ParseOperation {
 
     protected final ArrayList<Object> objects = new ArrayList<Object>();
 
@@ -49,7 +50,7 @@ public class AddOperation implements ParseFieldOperation {
             throws ParseException {
         JSONObject output = new JSONObject();
         try {
-            output.put("__op", "Add");
+            output.put(ParseConstants.KEYWORD_OP, "Add");
             output.put("objects", ParseEncoder.encode(this.objects, objectEncoder));
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ex);

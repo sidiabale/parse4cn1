@@ -21,11 +21,12 @@ package com.parse4cn1.operation;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
 
-public class IncrementFieldOperation implements ParseFieldOperation {
+public class IncrementFieldOperation implements ParseOperation {
 
     private Object amount;
     private boolean needIncrement = true;
@@ -51,7 +52,8 @@ public class IncrementFieldOperation implements ParseFieldOperation {
            return OperationUtil.addNumbers(oldValue, this.amount); 
         }
 
-        throw new IllegalArgumentException("You cannot increment a non-number. Key type [" + oldValue.getClass().getCanonicalName() + "]");
+        throw new IllegalArgumentException("You cannot increment a non-number."
+                + " Key type [" + oldValue.getClass().getCanonicalName() + "]");
     }
 
     @Override
@@ -59,7 +61,7 @@ public class IncrementFieldOperation implements ParseFieldOperation {
         if (needIncrement) {
             JSONObject output = new JSONObject();
             try {
-                output.put("__op", "Increment");
+                output.put(ParseConstants.KEYWORD_OP, "Increment");
                 output.put("amount", this.amount);
             } catch (JSONException ex) {
                 throw new RuntimeException(ex.getMessage());

@@ -24,12 +24,13 @@ import java.util.LinkedHashSet;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
 import com.parse4cn1.util.ParseEncoder;
 
-public class AddUniqueOperation implements ParseFieldOperation {
+public class AddUniqueOperation implements ParseOperation {
 
     protected LinkedHashSet<Object> objects = new LinkedHashSet<Object>();
 
@@ -51,7 +52,7 @@ public class AddUniqueOperation implements ParseFieldOperation {
             throws ParseException {
         JSONObject output = new JSONObject();
         try {
-            output.put("__op", "AddUnique");
+            output.put(ParseConstants.KEYWORD_OP, "AddUnique");
             output.put("objects", ParseEncoder.encode(new ArrayList<Object>(this.objects), objectEncoder));
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ex);

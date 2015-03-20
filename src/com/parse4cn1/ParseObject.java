@@ -18,6 +18,7 @@
  */
 package com.parse4cn1;
 
+import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.callback.DeleteCallback;
@@ -34,9 +35,9 @@ import com.parse4cn1.operation.AddOperation;
 import com.parse4cn1.operation.AddUniqueOperation;
 import com.parse4cn1.operation.DeleteFieldOperation;
 import com.parse4cn1.operation.IncrementFieldOperation;
-import com.parse4cn1.operation.ParseFieldOperation;
+import com.parse4cn1.operation.ParseOperation;
 import com.parse4cn1.operation.RelationOperation;
-import com.parse4cn1.operation.RemoveFieldOperation;
+import com.parse4cn1.operation.RemoveOperation;
 import com.parse4cn1.operation.SetFieldOperation;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.util.ParseDecoder;
@@ -62,7 +63,7 @@ public class ParseObject {
     boolean isDirty = false;
 
     private Map<String, Object> data;
-    private Map<String, ParseFieldOperation> operations;
+    private Map<String, ParseOperation> operations;
     private List<String> dirtyKeys;
 
     private Date updatedAt;
@@ -86,7 +87,7 @@ public class ParseObject {
         
         this.className = className;
         this.data = new Hashtable<String, Object>();
-        this.operations = new Hashtable<String, ParseFieldOperation>();
+        this.operations = new Hashtable<String, ParseOperation>();
         this.dirtyKeys = new ArrayList<String>();
         setEndPoint("classes/" + className);
     }
@@ -95,11 +96,11 @@ public class ParseObject {
         return new ParseObject(className);
     }
 
-    // TODO: CN1 does not support reflection. Consider using mirah bindings if absolutely needed
-    @SuppressWarnings("unchecked")
-    public static <T extends ParseObject> T create(Class<T> subclass) {
-        return (T) create(ParseRegistry.getClassName(subclass));
-    }
+//    // TODO: CN1 does not support reflection. Consider using mirah bindings if absolutely needed
+//    @SuppressWarnings("unchecked")
+//    public static <T extends ParseObject> T create(Class<T> subclass) {
+//        return (T) create(ParseRegistry.getClassName(subclass));
+//    }
     
     public static ParseObject createWithoutData(String className, String objectId) {
         ParseObject result = create(className);
@@ -107,10 +108,7 @@ public class ParseObject {
         result.isDirty = false;
         return result;
     }
-
-    void validateSave() {
-    }
-
+    
     public String getObjectId() {
         return this.objectId;
     }
@@ -236,26 +234,26 @@ public class ParseObject {
         return (String) value;
     }
 
-    // TODO: Fix or remove!
-//    public <T> List<T> getList(String key) {
-//
-//        if (!this.data.containsKey(key)) {
-//            return null;
-//        }
-//        Object value = this.data.get(key);
-//
-//        if ((value instanceof JSONArray)) {
-//            value = ParseDecoder.decode(value);
-//            put(key, value);
-//        }
-//
-//        if (!(value instanceof List)) {
-//            return null;
-//        }
-//
-//        List<T> returnValue = (List<T>) value;
-//        return returnValue;
-//    }
+    public <T> List<T> getList(String key) {
+
+        if (!this.data.containsKey(key)) {
+            return null;
+        }
+        Object value = this.data.get(key);
+
+        if ((value instanceof JSONArray)) {
+            value = ParseDecoder.decode(value);
+            put(key, value);
+        }
+
+        if (!(value instanceof List)) {
+            return null;
+        }
+
+        List<T> returnValue = (List<T>) value;
+        return returnValue;
+    }
+    
     public ParseObject getParseObject(String key) {
         if (!this.data.containsKey(key)) {
             return null;
@@ -334,26 +332,26 @@ public class ParseObject {
                 && (getObjectId().equals(other.getObjectId()));
     }
 
-    public void add(String key, Object value) {
-        addAll(key, Arrays.asList(new Object[]{value}));
-    }
+//    public void add(String key, Object value) {
+//        addToArrayField(key, Arrays.asList(new Object[]{value}));
+//    }
 
-    public void addAll(String key, Collection<?> values) {
+    public void addToArrayField(String key, Collection<?> values) {
         AddOperation operation = new AddOperation(values);
         performOperation(key, operation);
     }
 
-    public void addUnique(String key, Object value) {
-        addAllUnique(key, Arrays.asList(new Object[]{value}));
-    }
+//    public void addUnique(String key, Object value) {
+//        addUniqueToArrayField(key, Arrays.asList(new Object[]{value}));
+//    }
 
-    public void addAllUnique(String key, Collection<?> values) {
+    public void addUniqueToArrayField(String key, Collection<?> values) {
         AddUniqueOperation operation = new AddUniqueOperation(values);
         performOperation(key, operation);
     }
 
-    public void removeAll(String key, Collection<?> values) {
-        RemoveFieldOperation operation = new RemoveFieldOperation(values);
+    public void removeFromArrayField(String key, Collection<?> values) {
+        RemoveOperation operation = new RemoveOperation(values);
         performOperation(key, operation);
     }
 
@@ -361,13 +359,16 @@ public class ParseObject {
         put(key, value, false);
     }
 
+    protected void validateSave() {
+    }
+    
     /**
      *
      * @param key
      * @param value
      * @param disableChecks some checks have to be skipped during fetch.
      * Currently the only effect of passing true here is to disable the check on
-     * uploaded files. See issue #17 on github.
+     * uploaded files. See issue #17 on github (https://github.com/thiagolocatelli/parse4j/issues/17).
      */
     protected void put(String key, Object value, boolean disableChecks) {
 
@@ -382,9 +383,9 @@ public class ParseObject {
         }
 
         if (value instanceof ParseObject && ((ParseObject) value).isDirty) {
-            LOGGER.error("ParseFile must be saved before being set on a ParseObject.");
+            LOGGER.error("ParseObject must be saved before being set on another ParseObject.");
             throw new IllegalArgumentException(
-                    "ParseFile must be saved before being set on a ParseObject.");
+                    "ParseObject must be saved before being set on another ParseObject.");
         }
 
         if (value instanceof ParseFile && !((ParseFile) value).isUploaded() && !disableChecks) {
@@ -408,9 +409,8 @@ public class ParseObject {
         performOperation(key, new SetFieldOperation(value));
     }
 
-    public void performOperation(String key, ParseFieldOperation operation) {
+    public void performOperation(String key, ParseOperation operation) {
 
-        // if field already exists, remove field and any pending operation for that field
         if (has(key)) {
             operations.remove(key);
             data.remove(key);
@@ -431,10 +431,9 @@ public class ParseObject {
         operations.put(key, operation);
         dirtyKeys.add(key);
         isDirty = true;
-
     }
 
-    public void remove(String key) {
+    public void deleteField(String key) {
 
         if (has(key)) {
             if (objectId != null) {
@@ -450,11 +449,11 @@ public class ParseObject {
     }
 
     public void decrement(String key) {
-        increment(key, Integer.valueOf(-1));
+        increment(key, -1);
     }
 
     public void increment(String key) {
-        increment(key, Integer.valueOf(1));
+        increment(key, 1);
     }
 
     public void increment(String key, Object amount) {
@@ -546,7 +545,7 @@ public class ParseObject {
         JSONObject parseData = new JSONObject();
 
         for (String key : operations.keySet()) {
-            ParseFieldOperation operation = (ParseFieldOperation) operations.get(key);
+            ParseOperation operation = (ParseOperation) operations.get(key);
             try {
                 if (operation instanceof SetFieldOperation) {
                     parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
@@ -557,6 +556,11 @@ public class ParseObject {
                 } else if (operation instanceof RelationOperation) {
                     parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
                 } else {
+                    // TODO: I don't get the original (now commented out) code 
+                    // below. Every modification of a ParseObject is done via operations
+                    // so if we get here, I expect that we've encountered an unsupported 
+                    // operation NOT a sub-ParseObject.
+                    
                     //here we deal will sub objects like ParseObject;
                     Object obj = data.get(key);
                     if (obj instanceof ParseObject) {
@@ -614,54 +618,52 @@ public class ParseObject {
         return this.endPoint;
     }
 
-    class DeleteInBackgroundThread extends Thread {
+//    class DeleteInBackgroundThread extends Thread {
+//
+//        DeleteCallback mDeleteCallback;
+//
+//        public DeleteInBackgroundThread(DeleteCallback callback) {
+//            mDeleteCallback = callback;
+//        }
+//
+//        public void run() {
+//            ParseException exception = null;
+//            try {
+//                delete();
+//            } catch (ParseException e) {
+//                exception = e;
+//            }
+//            if (mDeleteCallback != null) {
+//                mDeleteCallback.done(exception);
+//            }
+//        }
+//    }
+//
+//    class SaveInBackgroundThread extends Thread {
+//
+//        SaveCallback mSaveCallback;
+//
+//        public SaveInBackgroundThread(SaveCallback callback) {
+//            mSaveCallback = callback;
+//        }
+//
+//        public void run() {
+//            ParseException exception = null;
+//            try {
+//                save();
+//            } catch (ParseException e) {
+//                exception = e;
+//            }
+//            if (mSaveCallback != null) {
+//                mSaveCallback.done(exception);
+//            }
+//        }
+//    }
 
-        DeleteCallback mDeleteCallback;
-
-        public DeleteInBackgroundThread(DeleteCallback callback) {
-            mDeleteCallback = callback;
-        }
-
-        public void run() {
-            ParseException exception = null;
-            try {
-                delete();
-            } catch (ParseException e) {
-                exception = e;
-            }
-            if (mDeleteCallback != null) {
-                mDeleteCallback.done(exception);
-            }
-        }
-    }
-
-    class SaveInBackgroundThread extends Thread {
-
-        SaveCallback mSaveCallback;
-
-        public SaveInBackgroundThread(SaveCallback callback) {
-            mSaveCallback = callback;
-        }
-
-        public void run() {
-            ParseException exception = null;
-            try {
-                save();
-            } catch (ParseException e) {
-                exception = e;
-            }
-            if (mSaveCallback != null) {
-                mSaveCallback.done(exception);
-            }
-        }
-    }
-
-    public <T extends ParseObject> T fetchIfNeeded() throws ParseException {
-
-        ParseGetCommand command = new ParseGetCommand(getEndPoint(), getObjectId());
-        //JSONObject query = new JSONObject();
-        //query.put("objectId", getObjectId());
-        //command.setData(query);
+     public static <T extends ParseObject> T fetch(final String endPoint, 
+             final String objectId) throws ParseException {
+        
+        ParseGetCommand command = new ParseGetCommand(endPoint, objectId);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             JSONObject jsonResponse = response.getJsonObject();
@@ -675,16 +677,23 @@ public class ParseObject {
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, "Error parsing JSON data", ex);
             }
+            obj.setEndPoint(endPoint);
             return obj;
 
         } else {
             throw response.getException();
         }
-
+    }
+    
+    public <T extends ParseObject> T fetchIfNeeded() throws ParseException {
+        // TODO: Why is unconditional fetch done for a method that says ~IF NEEDED?
+        // Perhaps we need to first check if the object is dirty?
+        return fetch(getEndPoint(), getObjectId());
     }
 
     public final <T extends ParseObject> void fetchIfNeeded(GetCallback<T> callback) {
-
+        // TODO: Why is unconditional fetch done for a method that says ~IF NEEDED?
+        // Perhaps we need to first check if the object is dirty?
         ParseException exception = null;
         T object = null;
 
@@ -697,10 +706,10 @@ public class ParseObject {
         if (callback != null) {
             callback.done(object, exception);
         }
-
     }
 
-    private <T extends ParseObject> T parseData(JSONObject jsonObject) throws JSONException {
+    private static <T extends ParseObject> T parseData(JSONObject jsonObject) 
+            throws JSONException {
 
         @SuppressWarnings("unchecked")
         T po = (T) new ParseObject();
@@ -709,45 +718,12 @@ public class ParseObject {
         while (keys.hasNext()) {
             String key = (String) keys.next();
             Object obj = jsonObject.get(key);
-
-            if (obj instanceof JSONObject) {
-                JSONObject o = (JSONObject) obj;
-                String type = o.getString("__type");
-
-                if ("Date".equals(type)) {
-                    Date date = Parse.parseDate(o.getString("iso"));
-                    po.put(key, date);
-                }
-
-                if ("Bytes".equals(type)) {
-                    String base64 = o.getString("base64");
-                    po.put(key, base64);
-                }
-
-                if ("GeoPoint".equals(type)) {
-                    ParseGeoPoint gp = new ParseGeoPoint(o.getDouble("latitude"),
-                            o.getDouble("longitude"));
-                    po.put(key, gp);
-                }
-
-                if ("File".equals(type)) {
-                    ParseFile file = new ParseFile(o.getString("name"),
-                            o.getString("url"));
-                    po.put(key, file);
-                }
-
-                if ("Pointer".equals(type)) {
-
-                }
-
+            
+            if (Parse.isReservedKey(key)) {
+                po.setReservedKey(key, obj);
             } else {
-                if (Parse.isReservedKey(key)) {
-                    setReservedKey(key, obj);
-                } else {
-                    put(key, ParseDecoder.decode(obj));
-                }
+                po.put(key, ParseDecoder.decode(obj));
             }
-
         }
 
         po.isDirty = false;

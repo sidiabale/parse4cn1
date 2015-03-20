@@ -19,16 +19,12 @@
 
 package com.parse4cn1.util;
 
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import com.codename1.util.Base64;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.util.Base64;
 import com.parse4cn1.Parse;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseFile;
 import com.parse4cn1.ParseGeoPoint;
@@ -36,6 +32,10 @@ import com.parse4cn1.ParseObject;
 import com.parse4cn1.ParseQuery;
 import com.parse4cn1.ParseRelation;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class ParseEncoder {
 
@@ -52,7 +52,7 @@ public class ParseEncoder {
             byte[] bytes = (byte[]) value;
             JSONObject output = new JSONObject();
             try {
-                output.put("__type", "Bytes");
+                output.put(ParseConstants.KEYWORD_TYPE, "Bytes");
                 output.put("base64", Base64.encode(bytes));
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
@@ -64,7 +64,7 @@ public class ParseEncoder {
             Date dt = (Date) value;
             JSONObject output = new JSONObject();
             try {
-                output.put("__type", "Date");
+                output.put(ParseConstants.KEYWORD_TYPE, "Date");
                 output.put("iso", Parse.encodeDate(dt));
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
@@ -138,7 +138,7 @@ public class ParseEncoder {
             ParseFile file = (ParseFile) value;
             JSONObject output = new JSONObject();
             try {
-                output.put("__type", "File");
+                output.put(ParseConstants.KEYWORD_TYPE, "File");
                 output.put("name", file.getName());
                 output.put("url", file.getUrl());
             } catch (JSONException ex) {
@@ -151,22 +151,9 @@ public class ParseEncoder {
             ParseGeoPoint gp = (ParseGeoPoint) value;
             JSONObject output = new JSONObject();
             try {
-                output.put("__type", "GeoPoint");
+                output.put(ParseConstants.KEYWORD_TYPE, "GeoPoint");
                 output.put("latitude", gp.getLatitude());
                 output.put("longitude", gp.getLongitude());
-            } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
-            }
-            return output;
-        }
-
-        if (value instanceof ParseObject) {
-            ParseObject po = (ParseObject) value;
-            JSONObject output = new JSONObject();
-            try {
-                output.put("__type", "Pointer");
-                output.put("className", po.getClassName());
-                output.put("objectId", po.getObjectId());
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
             }

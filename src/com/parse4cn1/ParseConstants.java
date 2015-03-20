@@ -35,6 +35,13 @@ public class ParseConstants {
     public static final String FIELD_CREATED_AT = "createdAt";
     public static final String FIELD_UPDATED_AT = "updatedAt";
     public static final String FIELD_SESSION_TOKEN = "sessionToken";
+    public static final String FIELD_CLASSNAME = "className";
+    
+    public static final String CLASS_NAME_USER = "_User";
+    public static final String CLASS_NAME_ROLE = "_Role";
+    
+    public static final String KEYWORD_OP = "__op";
+    public static final String KEYWORD_TYPE = "__type";
 
     public static int MAX_PARSE_FILE_SIZE = 10485760;
 

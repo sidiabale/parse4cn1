@@ -19,6 +19,7 @@
 
 package com.parse4cn1.util;
 
+import com.parse4cn1.ParseConstants;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -38,8 +39,8 @@ public class ParseRegistry {
             = new HashMap<String, Class<? extends ParseObject>>();
 
     public static void registerDefaultSubClasses() {
-        registerSubclass(ParseUser.class, "_User");
-        registerSubclass(ParseRole.class, "_Role");
+        registerSubclass(ParseUser.class, ParseConstants.CLASS_NAME_USER);
+        registerSubclass(ParseRole.class, ParseConstants.CLASS_NAME_ROLE);
     }
 
     public static void unregisterSubclass(String className) {

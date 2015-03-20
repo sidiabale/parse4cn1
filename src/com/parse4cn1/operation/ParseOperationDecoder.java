@@ -21,7 +21,7 @@ package com.parse4cn1.operation;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.parse4cn1.ParseObject;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.util.ParseDecoder;
 import java.util.HashMap;
@@ -29,7 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-public class ParseFieldOperations {
+public class ParseOperationDecoder {
 
     private static final Logger LOGGER = Logger.getInstance();
 
@@ -45,18 +45,18 @@ public class ParseFieldOperations {
 
     private static abstract interface ParseFieldOperationFactory {
 
-        public abstract ParseFieldOperation decode(JSONObject paramJSONObject) throws JSONException;
+        public abstract ParseOperation decode(JSONObject paramJSONObject) throws JSONException;
     }
 
     public static void registerDefaultDecoders() {
         // TODO: Review this originally commented out code
         /*
          registerDecoder("Batch", new ParseFieldOperationFactory() {
-         public ParseFieldOperation decode(JSONObject object) throws JSONException {
-         ParseFieldOperation op = null;
+         public ParseOperation decode(JSONObject object) throws JSONException {
+         ParseOperation op = null;
          JSONArray ops = object.getJSONArray("ops");
          for (int i = 0; i < ops.length(); i++) {
-         ParseFieldOperation nextOp = ParseFieldOperations.decode(
+         ParseOperation nextOp = ParseOperationDecoder.decode(
          ops.getJSONObject(i));
          op = nextOp.mergeWithPrevious(op);
          }
@@ -66,32 +66,32 @@ public class ParseFieldOperations {
          */
 
         registerDecoder("Delete", new ParseFieldOperationFactory() {
-            public ParseFieldOperation decode(JSONObject object) throws JSONException {
+            public ParseOperation decode(JSONObject object) throws JSONException {
                 return new DeleteFieldOperation();
             }
         });
         registerDecoder("Increment", new ParseFieldOperationFactory() {
-            public ParseFieldOperation decode(JSONObject object) throws JSONException {
+            public ParseOperation decode(JSONObject object) throws JSONException {
                 return new IncrementFieldOperation(object.opt("amount"));
             }
         });
         registerDecoder("Add", new ParseFieldOperationFactory() {
-            public ParseFieldOperation decode(JSONObject object) throws JSONException {
+            public ParseOperation decode(JSONObject object) throws JSONException {
                 return new AddOperation(object.opt("objects"));
             }
         });
         registerDecoder("AddUnique", new ParseFieldOperationFactory() {
-            public ParseFieldOperation decode(JSONObject object) throws JSONException {
+            public ParseOperation decode(JSONObject object) throws JSONException {
                 return new AddUniqueOperation(object.opt("objects"));
             }
         });
         registerDecoder("Remove", new ParseFieldOperationFactory() {
-            public ParseFieldOperation decode(JSONObject object) throws JSONException {
-                return new RemoveFieldOperation(object.opt("objects"));
+            public ParseOperation decode(JSONObject object) throws JSONException {
+                return new RemoveOperation(object.opt("objects"));
             }
         });
         registerDecoder("AddRelation", new ParseFieldOperationFactory() {
-            public ParseFieldOperation decode(JSONObject object) throws JSONException {
+            public ParseOperation decode(JSONObject object) throws JSONException {
                 JSONArray objectsArray = object.optJSONArray("objects");
                 List objectsList = (List) ParseDecoder.decode(objectsArray);
                 return new RelationOperation(new HashSet(objectsList),
@@ -99,7 +99,7 @@ public class ParseFieldOperations {
             }
         });
         registerDecoder("RemoveRelation", new ParseFieldOperationFactory() {
-            public ParseFieldOperation decode(JSONObject object) throws JSONException {
+            public ParseOperation decode(JSONObject object) throws JSONException {
                 JSONArray objectsArray = object.optJSONArray("objects");
                 List objectsList = (List) ParseDecoder.decode(objectsArray);
                 return new RelationOperation(null,
@@ -108,8 +108,8 @@ public class ParseFieldOperations {
         });
     }
 
-    public static ParseFieldOperation decode(JSONObject encoded) throws JSONException {
-        String op = encoded.optString("__op");
+    public static ParseOperation decode(JSONObject encoded) throws JSONException {
+        String op = encoded.optString(ParseConstants.KEYWORD_OP);
         ParseFieldOperationFactory factory = (ParseFieldOperationFactory) opDecoderMap.get(op);
         if (factory == null) {
             throw new RuntimeException("Unable to decode operation of type " + op);

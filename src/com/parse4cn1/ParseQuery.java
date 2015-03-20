@@ -56,11 +56,11 @@ public class ParseQuery<T extends ParseObject> {
     private boolean caseSensitive = true;
     private String strTrace;
 
-    public ParseQuery(Class<T> subclass) {
+    private ParseQuery(Class<T> subclass) {
         this(ParseRegistry.getClassName(subclass));
     }
 
-    public ParseQuery(String theClassName) {
+    private ParseQuery(String theClassName) {
         this.className = theClassName;
         this.limit = -1;
         this.skip = 0;
@@ -326,14 +326,14 @@ public class ParseQuery<T extends ParseObject> {
         return this.className;
     }
 
-    String[] sortKeys() {
+    public String[] sortKeys() {
         if (this.order == null) {
             return new String[0];
         }
         return (String[]) StringUtil.tokenize(this.order, ',').toArray();
     }
 
-    List<String> getIncludes() {
+    public List<String> getIncludes() {
         return Collections.unmodifiableList(this.include);
     }
 
@@ -344,10 +344,10 @@ public class ParseQuery<T extends ParseObject> {
         this.selectedKeys.addAll(keys);
     }
 
-    JSONObject toREST() throws ParseException {
+    public JSONObject toREST() throws ParseException {
         JSONObject params = new JSONObject();
         try {
-            params.put("className", this.className);
+            params.put(ParseConstants.FIELD_CLASSNAME, this.className);
 
             if (this.where.size() > 0) {
                 params.put("where", ParseEncoder.encode(this.where, PointerEncodingStrategy.get()));
@@ -412,7 +412,7 @@ public class ParseQuery<T extends ParseObject> {
 
          ParseGetCommand command = new ParseGetCommand(endPoint);
          JSONObject query = whereEqualTo("objectId", objectId).toREST();
-         query.remove("className");
+         query.deleteField(ParseConstants.FIELD_CLASSNAME);
          command.setData(query);
          ParseResponse response = command.perform();
          if(!response.isFailed()) {
@@ -483,9 +483,7 @@ public class ParseQuery<T extends ParseObject> {
      * @return @throws ParseException
      */
     public List<T> find() throws ParseException {
-
         return find(toREST());
-
     }
 
     /**
@@ -507,14 +505,15 @@ public class ParseQuery<T extends ParseObject> {
     public List<T> find(JSONObject query) throws ParseException {
 
         String endPoint;
-        if (!"users".equals(getClassName()) && !"roles".equals(getClassName())) {
+        if (!ParseConstants.CLASS_NAME_USER.equals(getClassName()) 
+                && !ParseConstants.CLASS_NAME_USER.equals(getClassName())) {
             endPoint = "classes/" + getClassName();
         } else {
             endPoint = getClassName();
         }
 
         ParseGetCommand command = new ParseGetCommand(endPoint);
-        query.remove("className");
+        query.remove(ParseConstants.FIELD_CLASSNAME);
         command.setData(query);
         ParseResponse response = command.perform();
         List<T> results = null;
@@ -634,7 +633,7 @@ public class ParseQuery<T extends ParseObject> {
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ex);
         }
-        query.remove("className");
+        query.remove(ParseConstants.FIELD_CLASSNAME);
         command.setData(query);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
