@@ -41,13 +41,6 @@ public class StateMachine extends StateMachineBase {
      * the constructor/class scope to avoid race conditions
      */
     protected void initVars(Resources res) {
-        Parse.initialize("j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", "pW7IhlgwwB2WgmvK1yYguSaUgTofjCmyOX6vUh8k");
-        ParseGetCommand command = new ParseGetCommand("users", "nonExistentUserID");
-        try {
-            ParseResponse response = command.perform();
-        } catch (ParseException ex) {
-          System.out.println(ex);
-        }
     }
 
 }

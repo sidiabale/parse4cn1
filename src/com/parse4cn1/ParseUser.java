@@ -92,7 +92,7 @@ public class ParseUser extends ParseObject {
         return (this.sessionToken != null && getObjectId() != null);
     }
 
-    void validateSave() {
+    protected void validateSave() {
 
         if (getObjectId() == null) {
             LOGGER.error("Cannot save a ParseUser until it has been signed up. Call signUp first.");

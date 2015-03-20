@@ -17,6 +17,7 @@
 package com.parse4cn1;
 
 import com.codename1.testing.AbstractTest;
+import java.util.Date;
 
 /**
  * Ideally, this test should have been abstract but when that is done,
@@ -31,6 +32,18 @@ public class BaseParseTest extends AbstractTest {
 
     protected static final String TEST_APPLICATION_ID = "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8";
     protected static final String TEST_REST_API_KEY = "pW7IhlgwwB2WgmvK1yYguSaUgTofjCmyOX6vUh8k";
+    
+    @Override
+    public void prepare() {
+        super.prepare();
+        init();
+    }
+
+    @Override
+    public void cleanup() {
+        super.cleanup();
+        reset();
+    }
     
     public boolean runTest() throws Exception {
         return true;
@@ -90,5 +103,9 @@ public class BaseParseTest extends AbstractTest {
     protected void assertEqual(Object obj1, Object obj2, String errorMessage) {
         assertBool((obj1 == null) ? (obj2 == null) : (obj1.equals(obj2)),
                 errorMessage + " (obj1=" + obj1 + ", obj2=" + obj2 + ")");
+    }
+    
+    protected String getCurrentTimeInHex() {
+        return Long.toString((new Date()).getTime(), 16);
     }
 }

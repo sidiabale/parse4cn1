@@ -56,11 +56,11 @@ public class ParseQuery<T extends ParseObject> {
     private boolean caseSensitive = true;
     private String strTrace;
 
-    public ParseQuery(Class<T> subclass) {
+    private ParseQuery(Class<T> subclass) {
         this(ParseRegistry.getClassName(subclass));
     }
 
-    public ParseQuery(String theClassName) {
+    private ParseQuery(String theClassName) {
         this.className = theClassName;
         this.limit = -1;
         this.skip = 0;
@@ -326,14 +326,14 @@ public class ParseQuery<T extends ParseObject> {
         return this.className;
     }
 
-    String[] sortKeys() {
+    public String[] sortKeys() {
         if (this.order == null) {
             return new String[0];
         }
         return (String[]) StringUtil.tokenize(this.order, ',').toArray();
     }
 
-    List<String> getIncludes() {
+    public List<String> getIncludes() {
         return Collections.unmodifiableList(this.include);
     }
 
@@ -344,7 +344,7 @@ public class ParseQuery<T extends ParseObject> {
         this.selectedKeys.addAll(keys);
     }
 
-    JSONObject toREST() throws ParseException {
+    public JSONObject toREST() throws ParseException {
         JSONObject params = new JSONObject();
         try {
             params.put("className", this.className);
@@ -483,9 +483,7 @@ public class ParseQuery<T extends ParseObject> {
      * @return @throws ParseException
      */
     public List<T> find() throws ParseException {
-
         return find(toREST());
-
     }
 
     /**
@@ -507,7 +505,8 @@ public class ParseQuery<T extends ParseObject> {
     public List<T> find(JSONObject query) throws ParseException {
 
         String endPoint;
-        if (!"users".equals(getClassName()) && !"roles".equals(getClassName())) {
+        if (!ParseConstants.CLASS_NAME_USER.equals(getClassName()) 
+                && !ParseConstants.CLASS_NAME_USER.equals(getClassName())) {
             endPoint = "classes/" + getClassName();
         } else {
             endPoint = getClassName();

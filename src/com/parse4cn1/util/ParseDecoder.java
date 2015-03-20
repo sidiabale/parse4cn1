@@ -108,7 +108,7 @@ public class ParseDecoder {
         return ParseObject.createWithoutData(className, objectId);
     }
 
-    private static List<Object> convertJSONArrayToList(JSONArray array) {
+    public static List<Object> convertJSONArrayToList(JSONArray array) {
         List<Object> list = new ArrayList<Object>();
         for (int i = 0; i < array.length(); i++) {
             list.add(decode(array.opt(i)));
@@ -116,7 +116,7 @@ public class ParseDecoder {
         return list;
     }
 
-    private static Map<String, Object> convertJSONObjectToMap(JSONObject object) {
+    public static Map<String, Object> convertJSONObjectToMap(JSONObject object) {
         Map<String, Object> outputMap = new HashMap<String, Object>();
         Iterator<?> it = object.keys();
         while (it.hasNext()) {

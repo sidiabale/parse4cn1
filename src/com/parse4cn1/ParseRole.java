@@ -41,7 +41,7 @@ public class ParseRole extends ParseObject {
     }
 
     @Override
-    void validateSave() {
+    protected void validateSave() {
         if ((getObjectId() == null) && (getName() == null)) {
             LOGGER.error("New roles must specify a name.");
             throw new IllegalStateException("New roles must specify a name.");

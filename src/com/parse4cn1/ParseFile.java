@@ -44,7 +44,7 @@ public class ParseFile {
     private static final Logger LOGGER = Logger.getInstance();
 
     private String endPoint;
-    private boolean uplodated = false;
+    private boolean uploaded = false;
     private boolean dirty = false;
     private String name = null;
     private String url = null;
@@ -126,7 +126,7 @@ public class ParseFile {
     }
 
     public boolean isUploaded() {
-        return uplodated;
+        return uploaded;
     }
 
     public void save() throws ParseException {
@@ -175,7 +175,7 @@ public class ParseFile {
             }
             
             this.dirty = false;
-            this.uplodated = true;
+            this.uploaded = true;
 
         } else {
             LOGGER.error("Request failed.");

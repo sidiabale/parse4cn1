@@ -30,8 +30,8 @@ public class ParseGetCommand extends ParseCommand {
     private final String endPoint;
     private String objectId;
 
-    public ParseGetCommand(String className, String objectId) {
-        this.endPoint = className;
+    public ParseGetCommand(String endPoint, String objectId) {
+        this.endPoint = endPoint;
         this.objectId = objectId;
     }
 
