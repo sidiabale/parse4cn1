@@ -36,10 +36,12 @@ public class ParseObjectTest extends BaseParseTest {
         List<ParseObject> objectsToDelete = new ArrayList<ParseObject>();
         ParseObject obj = null;
         
-        obj = testCreateSimpleObject();
+        testRestApiExample();
+        
+        obj = testCreateObjectExtended();
         objectsToDelete.add(obj);
         
-        obj = testUpdateObject();
+        obj = testUpdateObjectExtended();
         objectsToDelete.add(obj);
         
         testDeleteObjects(objectsToDelete);
@@ -47,7 +49,63 @@ public class ParseObjectTest extends BaseParseTest {
         return true;
     }
     
-    private ParseObject testCreateSimpleObject() throws ParseException, JSONException {
+    private void testRestApiExample() throws ParseException {
+        // Create
+        ParseObject gameScore = ParseObject.create("GameScore");
+        gameScore.put("score", 1337);
+        gameScore.put("playerName", "Sean Plott");
+        gameScore.put("cheatMode", false);
+        gameScore.save();
+        
+        // Retrieve
+        ParseObject retrieved = ParseObject.fetch(gameScore.getEndPoint(), 
+                gameScore.getObjectId());
+        assertEqual(1337, gameScore.getInt("score"));
+        assertEqual("Sean Plott", gameScore.getString("playerName"));
+        assertFalse(gameScore.getBoolean("cheatMode"));
+        
+        // Update
+        retrieved.put("score", 73453);
+        retrieved.save();
+        assertEqual(73453, retrieved.getInt("score"));
+        
+        // Increment / decrement
+        retrieved.increment("score");
+        retrieved.save();
+        assertEqual(73454, retrieved.getInt("score"));
+        
+        // Decrement
+        retrieved.increment("score", -4);
+        retrieved.save();
+        assertEqual(73450, retrieved.getInt("score"));
+        
+        // Increment non-number field
+        try {
+            retrieved.increment("playerName");
+            retrieved.save();
+            assertFalse(true, "Increment should only work on number fields");
+        } catch (IllegalArgumentException ex) {
+            assertTrue(ex.getMessage().startsWith("You cannot increment a non-number"));
+        }
+        
+        // Array operations (manually)
+        List<String> skills = new ArrayList<String>();
+        skills.add("flying");
+        skills.add("kunfu");
+        retrieved.put("skills", skills);
+        retrieved.save();
+        assertEqual(skills, retrieved.getList("skills"));
+        
+        // Delete field
+        retrieved.deleteField("skills");
+        retrieved.save();
+        assertNull(retrieved.get("skills"));
+        
+        // Delete object
+        retrieved.delete();
+    }
+    
+    private ParseObject testCreateObjectExtended() throws ParseException, JSONException {
         ParseObject obj = ParseObject.create("Car");
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("brand", "Peugeot");
@@ -85,18 +143,7 @@ public class ParseObjectTest extends BaseParseTest {
         return retrieved;
     }
     
-    private void testDeleteObjects(final List<ParseObject> objectsToDelete) {
-        for (ParseObject obj : objectsToDelete) {
-            try {
-                obj.delete();
-            } catch (ParseException ex) {
-                assertTrue(false, "Error while deleting " + obj.getEndPoint()
-                        + "\nError: " + ex.getMessage());
-            }
-        }
-    }
-    
-    private ParseObject testUpdateObject() throws ParseException {
+    private ParseObject testUpdateObjectExtended() throws ParseException {
         ParseObject obj = ParseObject.create("Kitchen");
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("color", "White");
@@ -111,19 +158,26 @@ public class ParseObjectTest extends BaseParseTest {
         HashMap<String, Object> knifeInfo = new HashMap<String, Object>();
         knifeInfo.put("count", knifeTypes.size());
         knifeInfo.put("types", knifeTypes);
-        data.put("knifes", knifeInfo);
+        data.put("knives", knifeInfo);
         
         addData(obj, data);
         
         obj.save();
         
+        checkData(obj, data);
         ParseObject retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
         checkData(retrieved, data);
         
         data.clear();
         
-        // Update existing
+        // Update existing (both simple and nested - list inside sub-object)
         data.put("renovationYear", 2015);
+        HashMap<String, Object> retrievedKnifeInfo = 
+                (HashMap<String, Object>) retrieved.get("knives");
+        knifeTypes.add("Unknown");
+        retrievedKnifeInfo.put("types", knifeTypes);
+        data.put("knives", retrievedKnifeInfo);
+        
         // Add new
         data.put("floor", "laminate");
         JSONArray appliances = new JSONArray();
@@ -135,10 +189,22 @@ public class ParseObjectTest extends BaseParseTest {
         addData(retrieved, data);
         
         retrieved.save(); // Update
+        checkData(retrieved, data);
         retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
         checkData(retrieved, data);
         
         return retrieved;
+    }
+    
+    private void testDeleteObjects(final List<ParseObject> objectsToDelete) {
+        for (ParseObject obj : objectsToDelete) {
+            try {
+                obj.delete();
+            } catch (ParseException ex) {
+                assertTrue(false, "Error while deleting " + obj.getEndPoint()
+                        + "\nError: " + ex.getMessage());
+            }
+        }
     }
     
     private void checkData(final ParseObject obj, HashMap<String, Object> data) { 

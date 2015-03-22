@@ -41,7 +41,7 @@ public class ParseRelation<T extends ParseObject> {
     public ParseRelation(JSONObject jsonObject) {
         this.parent = null;
         this.key = null;
-        this.targetClass = jsonObject.optString("className", null);
+        this.targetClass = jsonObject.optString(ParseConstants.FIELD_CLASSNAME, null);
         JSONArray objectsArray = jsonObject.optJSONArray("objects");
         if (objectsArray != null) {
             for (int i = 0; i < objectsArray.length(); i++) {
@@ -136,8 +136,8 @@ public class ParseRelation<T extends ParseObject> {
 
     public JSONObject encodeToJSON(ParseObjectEncodingStrategy objectEncoder) throws JSONException {
         JSONObject relation = new JSONObject();
-        relation.put("__type", "Relation");
-        relation.put("className", this.targetClass);
+        relation.put(ParseConstants.KEYWORD_TYPE, "Relation");
+        relation.put(ParseConstants.FIELD_CLASSNAME, this.targetClass);
         JSONArray knownObjectsArray = new JSONArray();
         for (ParseObject knownObject : this.knownObjects) {
             try {

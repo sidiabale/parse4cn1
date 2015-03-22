@@ -51,7 +51,12 @@ public class BaseParseTest extends AbstractTest {
     
     /**
      * Initializes the parse application ID and REST API key.
-     * Update with your own keys.
+     * Update with your own keys to avoid the chance of false negatives 
+     * due to excessive API calls if multiple persons run tests with 
+     * these keys simultaneously.
+     * 
+     * TODO: Write app id and rest api key to storage and prompt user
+     * to provide if not present. In this way, own keys are never exposed
      */
     protected void init() {
         Parse.initialize(TEST_APPLICATION_ID, TEST_REST_API_KEY);

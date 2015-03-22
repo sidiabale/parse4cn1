@@ -22,6 +22,7 @@ import java.util.Random;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 
@@ -35,12 +36,12 @@ public class PointerOrLocalIdEncodingStrategy implements
         JSONObject json = new JSONObject();
         try {
             if (parseObject.getObjectId() != null) {
-                json.put("__type", "Pointer");
-                json.put("className", parseObject.getClassName());
-                json.put("objectId", parseObject.getObjectId());
+                json.put(ParseConstants.KEYWORD_TYPE, "Pointer");
+                json.put(ParseConstants.FIELD_CLASSNAME, parseObject.getClassName());
+                json.put(ParseConstants.FIELD_OBJECT_ID, parseObject.getObjectId());
             } else {
-                json.put("__type", "Pointer");
-                json.put("className", parseObject.getClassName());
+                json.put(ParseConstants.KEYWORD_TYPE, "Pointer");
+                json.put(ParseConstants.FIELD_CLASSNAME, parseObject.getClassName());
                 json.put("localId", createTempId());
             }
         } catch (JSONException e) {

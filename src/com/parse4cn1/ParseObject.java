@@ -35,9 +35,9 @@ import com.parse4cn1.operation.AddOperation;
 import com.parse4cn1.operation.AddUniqueOperation;
 import com.parse4cn1.operation.DeleteFieldOperation;
 import com.parse4cn1.operation.IncrementFieldOperation;
-import com.parse4cn1.operation.ParseFieldOperation;
+import com.parse4cn1.operation.ParseOperation;
 import com.parse4cn1.operation.RelationOperation;
-import com.parse4cn1.operation.RemoveFieldOperation;
+import com.parse4cn1.operation.RemoveOperation;
 import com.parse4cn1.operation.SetFieldOperation;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.util.ParseDecoder;
@@ -63,7 +63,7 @@ public class ParseObject {
     boolean isDirty = false;
 
     private Map<String, Object> data;
-    private Map<String, ParseFieldOperation> operations;
+    private Map<String, ParseOperation> operations;
     private List<String> dirtyKeys;
 
     private Date updatedAt;
@@ -87,7 +87,7 @@ public class ParseObject {
         
         this.className = className;
         this.data = new Hashtable<String, Object>();
-        this.operations = new Hashtable<String, ParseFieldOperation>();
+        this.operations = new Hashtable<String, ParseOperation>();
         this.dirtyKeys = new ArrayList<String>();
         setEndPoint("classes/" + className);
     }
@@ -351,7 +351,7 @@ public class ParseObject {
     }
 
     public void removeFromArrayField(String key, Collection<?> values) {
-        RemoveFieldOperation operation = new RemoveFieldOperation(values);
+        RemoveOperation operation = new RemoveOperation(values);
         performOperation(key, operation);
     }
 
@@ -368,7 +368,7 @@ public class ParseObject {
      * @param value
      * @param disableChecks some checks have to be skipped during fetch.
      * Currently the only effect of passing true here is to disable the check on
-     * uploaded files. See issue #17 on github.
+     * uploaded files. See issue #17 on github (https://github.com/thiagolocatelli/parse4j/issues/17).
      */
     protected void put(String key, Object value, boolean disableChecks) {
 
@@ -409,7 +409,7 @@ public class ParseObject {
         performOperation(key, new SetFieldOperation(value));
     }
 
-    public void performOperation(String key, ParseFieldOperation operation) {
+    public void performOperation(String key, ParseOperation operation) {
 
         if (has(key)) {
             operations.remove(key);
@@ -433,7 +433,7 @@ public class ParseObject {
         isDirty = true;
     }
 
-    public void remove(String key) {
+    public void deleteField(String key) {
 
         if (has(key)) {
             if (objectId != null) {
@@ -545,7 +545,7 @@ public class ParseObject {
         JSONObject parseData = new JSONObject();
 
         for (String key : operations.keySet()) {
-            ParseFieldOperation operation = (ParseFieldOperation) operations.get(key);
+            ParseOperation operation = (ParseOperation) operations.get(key);
             try {
                 if (operation instanceof SetFieldOperation) {
                     parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
@@ -556,6 +556,11 @@ public class ParseObject {
                 } else if (operation instanceof RelationOperation) {
                     parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
                 } else {
+                    // TODO: I don't get the original (now commented out) code 
+                    // below. Every modification of a ParseObject is done via operations
+                    // so if we get here, I expect that we've encountered an unsupported 
+                    // operation NOT a sub-ParseObject.
+                    
                     //here we deal will sub objects like ParseObject;
                     Object obj = data.get(key);
                     if (obj instanceof ParseObject) {
@@ -701,10 +706,10 @@ public class ParseObject {
         if (callback != null) {
             callback.done(object, exception);
         }
-
     }
 
-    private static <T extends ParseObject> T parseData(JSONObject jsonObject) throws JSONException {
+    private static <T extends ParseObject> T parseData(JSONObject jsonObject) 
+            throws JSONException {
 
         @SuppressWarnings("unchecked")
         T po = (T) new ParseObject();
@@ -713,46 +718,11 @@ public class ParseObject {
         while (keys.hasNext()) {
             String key = (String) keys.next();
             Object obj = jsonObject.get(key);
-
-            boolean parsed = false;
-            if (obj instanceof JSONObject) {
-                parsed = true;
-                JSONObject o = (JSONObject) obj;
-                String type = o.optString("__type", null);
-
-                // TODO: Check why __type decoding in Parse.decode is not used
-                // Most of this code is duplicated (though there seem to be slight 
-                // (significant?) differences e.g. compare Byte parsing
-                
-                if (type == null) {
-                    parsed = false;
-                } else if ("Date".equals(type)) {
-                    Date date = Parse.parseDate(o.getString("iso"));
-                    po.put(key, date);
-                } else if ("Bytes".equals(type)) {
-                    String base64 = o.getString("base64");
-                    po.put(key, base64);
-                } else if ("GeoPoint".equals(type)) {
-                    ParseGeoPoint gp = new ParseGeoPoint(o.getDouble("latitude"),
-                            o.getDouble("longitude"));
-                    po.put(key, gp);
-                } else if ("File".equals(type)) {
-                    ParseFile file = new ParseFile(o.getString("name"),
-                            o.getString("url"));
-                    po.put(key, file);
-                } else if ("Pointer".equals(type)) {
-                    throw new IllegalStateException("not implemented");
-                } else {
-                    parsed = false;
-                }
-            } 
             
-            if (!parsed) {
-                if (Parse.isReservedKey(key)) {
-                    po.setReservedKey(key, obj);
-                } else {
-                    po.put(key, ParseDecoder.decode(obj));
-                }
+            if (Parse.isReservedKey(key)) {
+                po.setReservedKey(key, obj);
+            } else {
+                po.put(key, ParseDecoder.decode(obj));
             }
         }
 

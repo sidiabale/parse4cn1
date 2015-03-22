@@ -16,7 +16,6 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1.util;
 
 import java.util.ArrayList;
@@ -30,11 +29,12 @@ import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.Parse;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseFile;
 import com.parse4cn1.ParseGeoPoint;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.ParseRelation;
-import com.parse4cn1.operation.ParseFieldOperations;
+import com.parse4cn1.operation.ParseOperationDecoder;
 
 public class ParseDecoder {
 
@@ -51,32 +51,22 @@ public class ParseDecoder {
 
         JSONObject jsonObject = (JSONObject) object;
 
-        String typeString = jsonObject.optString("__type", null);
+        String typeString = jsonObject.optString(ParseConstants.KEYWORD_TYPE, null);
         if (typeString == null) {
             return convertJSONObjectToMap(jsonObject);
-        }
-
-        if (typeString.equals("Date")) {
+        } else if ("Date".equals(typeString)) {
             String iso = jsonObject.optString("iso");
             return Parse.parseDate(iso);
-        }
-
-        if (typeString.equals("Bytes")) {
+        } else if ("Bytes".equals(typeString)) {
             String base64 = jsonObject.optString("base64");
             return Base64.decode(base64.getBytes());
-        }
-
-        if (typeString.equals("Pointer")) {
-            return decodePointer(jsonObject.optString("className"),
+        } else if ("Pointer".equals(typeString)) {
+            return decodePointer(jsonObject.optString(ParseConstants.FIELD_CLASSNAME), 
                     jsonObject.optString("objectId"));
-        }
-
-        if (typeString.equals("File")) {
+        } else if ("File".equals(typeString)) {
             return new ParseFile(jsonObject.optString("name"),
                     jsonObject.optString("url"));
-        }
-
-        if (typeString.equals("GeoPoint")) {
+        } else if ("GeoPoint".equals(typeString)) {
             double latitude, longitude;
             try {
                 latitude = jsonObject.getDouble("latitude");
@@ -85,27 +75,20 @@ public class ParseDecoder {
                 throw new RuntimeException(e.getMessage());
             }
             return new ParseGeoPoint(latitude, longitude);
-        }
-
-        if (typeString.equals("Relation")) {
+        } else if ("Relation".equals(typeString)) {
             return new ParseRelation(jsonObject);
         }
 
-        String opString = jsonObject.optString("__op", null);
+        String opString = jsonObject.optString(ParseConstants.KEYWORD_OP, null);
         if (opString != null) {
             try {
-                return ParseFieldOperations.decode(jsonObject);
+                return ParseOperationDecoder.decode(jsonObject);
             } catch (JSONException e) {
                 throw new RuntimeException(e.getMessage());
             }
         }
 
         return null;
-
-    }
-
-    private static ParseObject decodePointer(String className, String objectId) {
-        return ParseObject.createWithoutData(className, objectId);
     }
 
     public static List<Object> convertJSONArrayToList(JSONArray array) {
@@ -125,5 +108,9 @@ public class ParseDecoder {
             outputMap.put(key, decode(value));
         }
         return outputMap;
+    }
+
+    private static ParseObject decodePointer(String className, String objectId) {
+        return ParseObject.createWithoutData(className, objectId);
     }
 }

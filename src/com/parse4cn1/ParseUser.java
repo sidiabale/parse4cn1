@@ -42,13 +42,13 @@ public class ParseUser extends ParseObject {
         setEndPoint("users");
     }
 
-    public void remove(String key) {
+    public void deleteField(String key) {
         if ("username".equals(key)) {
             LOGGER.error("Can't remove the username key.");
             throw new IllegalArgumentException("Can't remove the username key.");
         }
 
-        remove(key);
+        deleteField(key);
     }
 
     public void setSessionToken(String sessionToken) {

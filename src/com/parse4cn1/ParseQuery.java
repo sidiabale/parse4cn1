@@ -347,7 +347,7 @@ public class ParseQuery<T extends ParseObject> {
     public JSONObject toREST() throws ParseException {
         JSONObject params = new JSONObject();
         try {
-            params.put("className", this.className);
+            params.put(ParseConstants.FIELD_CLASSNAME, this.className);
 
             if (this.where.size() > 0) {
                 params.put("where", ParseEncoder.encode(this.where, PointerEncodingStrategy.get()));
@@ -412,7 +412,7 @@ public class ParseQuery<T extends ParseObject> {
 
          ParseGetCommand command = new ParseGetCommand(endPoint);
          JSONObject query = whereEqualTo("objectId", objectId).toREST();
-         query.remove("className");
+         query.deleteField(ParseConstants.FIELD_CLASSNAME);
          command.setData(query);
          ParseResponse response = command.perform();
          if(!response.isFailed()) {
@@ -513,7 +513,7 @@ public class ParseQuery<T extends ParseObject> {
         }
 
         ParseGetCommand command = new ParseGetCommand(endPoint);
-        query.remove("className");
+        query.remove(ParseConstants.FIELD_CLASSNAME);
         command.setData(query);
         ParseResponse response = command.perform();
         List<T> results = null;
@@ -633,7 +633,7 @@ public class ParseQuery<T extends ParseObject> {
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ex);
         }
-        query.remove("className");
+        query.remove(ParseConstants.FIELD_CLASSNAME);
         command.setData(query);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
