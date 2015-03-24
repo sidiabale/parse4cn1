@@ -40,7 +40,7 @@ public class ParsePutCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupHeaders(request, true);
+        setupDefaultHeaders(request, true);
         request.setPost(true);
         request.setHttpMethod("PUT");
         request.setUrl(getUrl(endPoint, objectId));

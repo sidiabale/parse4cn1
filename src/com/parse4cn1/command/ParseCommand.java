@@ -35,8 +35,9 @@ public abstract class ParseCommand {
     private static final Logger LOGGER = Logger.getInstance();
     private static final String REQUEST_BODY_KEY = "data";
 
-    protected JSONObject data = new JSONObject();
-    protected boolean addJson = true;
+    private final JSONObject data = new JSONObject();
+    private final JSONObject headers = new JSONObject();
+    protected boolean addJson;
 
     abstract void setUpRequest(final ConnectionRequest request) throws ParseException;
 
@@ -51,7 +52,18 @@ public abstract class ParseCommand {
         ConnectionRequest request = getConnectionRequest(response);
         setUpRequest(request);
 
-        Iterator keys = data.keys();
+        Iterator keys = headers.keys();
+        while (keys.hasNext()) {
+            final String key = (String) keys.next();
+           
+             try {
+                request.addRequestHeader(key, (String) headers.get(key));
+            } catch (JSONException ex) {
+                throw new ParseException("Error parsing header '" + key + "'", ex);
+            }
+        }
+        
+        keys = data.keys();
         while (keys.hasNext()) {
             final String key = (String) keys.next();
             if (!REQUEST_BODY_KEY.equals(key)) {
@@ -62,7 +74,7 @@ public abstract class ParseCommand {
                 }
             }
         }
-        
+
         NetworkManager.getInstance().addToQueueAndWait(request);
         response.extractResponseData(request);
         long commandReceived = System.currentTimeMillis();
@@ -72,6 +84,15 @@ public abstract class ParseCommand {
         }
 
         return response;
+    }
+    
+    public void addHeader(final String key, final String value) throws ParseException {
+        try {
+            headers.put(key, value);
+        } catch (JSONException ex) {
+            throw new ParseException(ParseException.INVALID_JSON, 
+                    "Unable to add header. Error:" + ex.getMessage());
+        }
     }
 
     protected ConnectionRequest getConnectionRequest(final ParseResponse response) {
@@ -106,20 +127,20 @@ public abstract class ParseCommand {
         return request;
     }
 
-    protected void setupHeaders(ConnectionRequest connectionRequest, boolean addJson) throws ParseException {
-        connectionRequest.addRequestHeader(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
-        connectionRequest.addRequestHeader(ParseConstants.HEADER_REST_API_KEY, Parse.getRestAPIKey());
-        if (addJson) {
-            connectionRequest.addRequestHeader(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
-        }
-
-        if (data.has(ParseConstants.FIELD_SESSION_TOKEN)) {
-            try {
-                connectionRequest.addRequestHeader(ParseConstants.HEADER_SESSION_TOKEN,
-                        data.getString(ParseConstants.FIELD_SESSION_TOKEN));
-            } catch (JSONException ex) {
-                throw new ParseException(ex);
+    protected void setupDefaultHeaders(ConnectionRequest connectionRequest, boolean addJson) throws ParseException {
+        try {
+            headers.put(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
+            headers.put(ParseConstants.HEADER_REST_API_KEY, Parse.getRestAPIKey());
+            if (addJson) {
+                headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
             }
+
+            if (data.has(ParseConstants.FIELD_SESSION_TOKEN)) {
+                headers.put(ParseConstants.HEADER_SESSION_TOKEN,
+                        data.getString(ParseConstants.FIELD_SESSION_TOKEN));
+            }
+        } catch (JSONException ex) {
+            throw new ParseException(ex);
         }
     }
 
@@ -147,6 +168,10 @@ public abstract class ParseCommand {
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ex);
         }
+    }
+
+    public void putHeader(String key, String value) {
+
     }
 
 //    public void put(String key, int value) throws ParseException {

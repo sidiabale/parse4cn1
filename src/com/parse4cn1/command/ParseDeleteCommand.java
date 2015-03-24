@@ -38,7 +38,7 @@ public class ParseDeleteCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupHeaders(request, false);
+        setupDefaultHeaders(request, false);
         request.setPost(true);
         request.setHttpMethod("DELETE");
         request.setUrl(getUrl(endPoint, objectId));

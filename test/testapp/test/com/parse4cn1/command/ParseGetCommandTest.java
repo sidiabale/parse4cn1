@@ -16,11 +16,8 @@
 
 package com.parse4cn1.command;
 
-import ca.weblite.codename1.json.JSONException;
 import com.parse4cn1.BaseParseTest;
 import com.parse4cn1.ParseException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 /**
  *
  * @author sidiabale

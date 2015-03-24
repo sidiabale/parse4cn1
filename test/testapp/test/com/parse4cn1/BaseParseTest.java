@@ -110,6 +110,16 @@ public class BaseParseTest extends AbstractTest {
                 errorMessage + " (obj1=" + obj1 + ", obj2=" + obj2 + ")");
     }
     
+    protected void assertNotEqual(Object obj1, Object obj2) {
+        assertBool((obj1 == null) ? (obj2 != null) : !(obj1.equals(obj2)), 
+                "Objects '" + obj1 + "' and '" + obj2 + "' are equal (expected to be unequal)");
+    }
+    
+    protected void assertNotEqual(Object obj1, Object obj2, String errorMessage) {
+        assertBool((obj1 == null) ? (obj2 != null) : !(obj1.equals(obj2)),
+                errorMessage + " (obj1=" + obj1 + ", obj2=" + obj2 + ")");
+    }
+    
     protected String getCurrentTimeInHex() {
         return Long.toString((new Date()).getTime(), 16);
     }
