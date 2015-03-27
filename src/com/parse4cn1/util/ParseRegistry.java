@@ -76,7 +76,7 @@ public class ParseRegistry {
 //        if ((oldValue != null) && (subclass.isAssignableFrom(oldValue))) {
 //            return;
 //        }
-
+        classNames.put(subclass, className);
         objectTypes.put(className, subclass);
 
     }

@@ -21,8 +21,8 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.operation.OperationUtil;
-//import com.parse4cn1.operation.ParseFieldOperations;
-//import com.parse4cn1.util.ParseRegistry;
+import com.parse4cn1.operation.ParseOperationDecoder;
+import com.parse4cn1.util.ParseRegistry;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,15 +39,14 @@ public class Parse {
     private static String mRestAPIKey;
     private static final DateFormat dateFormat;
 
-    // TODO: Fix me!!!
     // TODO: Test
     static {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//        format.setTimeZone(TimeZone.getTimeZone("GMT"));
+//        format.setTimeZone(TimeZone.getTimeZone("GMT")); // Not supported in CN1; TODO: Check if it's really needed
         dateFormat = format;
 
-//        ParseRegistry.registerDefaultSubClasses();
-//        ParseFieldOperations.registerDefaultDecoders();
+        ParseRegistry.registerDefaultSubClasses();
+        ParseOperationDecoder.registerDefaultDecoders();
     }
 
     static public void initialize(String applicationId, String restAPIKey) {

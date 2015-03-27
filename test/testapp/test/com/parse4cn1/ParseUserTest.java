@@ -29,211 +29,112 @@ import java.util.Map.Entry;
  *
  * @author sidiabale
  */
-public class ParseObjectTest extends BaseParseTest {
+public class ParseUserTest extends BaseParseTest {
+   
+    private List<ParseUser> usersToDelete;
+    /*
+    TODO: Interesting test cases
+    1. Sign up
+       - Happy flow (OK)
+       - Save before signup
+       - Email verification (setting of field)
+    2. Logging in (OK)
+    3. Password reset
+       - User without email (should fail)
+       - User with email 
+    4. Retrieving users
+       - By ID
+       - By sessionToken
+       - By user root endpoint (all)
+    5. Updating users
+       - Check uniqueness of username and email (nothing is mentioned in API doc
+         about changing though I expect that to be possible
+       - Check changing username and/or email
+       - Check adding new fields
+    5. Deleting users
+    6. Linking users
+       - Facebook
+       - Twitter
+    7.
+    */
     
     @Override
     public boolean runTest() throws Exception {
-        List<ParseObject> objectsToDelete = new ArrayList<ParseObject>();
-        ParseObject obj = null;
+        usersToDelete = new ArrayList<ParseUser>();
         
         testRestApiExample();
-        
-        obj = testCreateObjectExtended();
-        objectsToDelete.add(obj);
-        
-        obj = testUpdateObjectExtended();
-        objectsToDelete.add(obj);
-        
-        testDeleteObjects(objectsToDelete);
+        testDeleteUser();
         
         return true;
     }
     
     private void testRestApiExample() throws ParseException {
-        // Create
-        ParseObject gameScore = ParseObject.create("GameScore");
-        gameScore.put("score", 1337);
-        gameScore.put("playerName", "Sean Plott");
-        gameScore.put("cheatMode", false);
-        gameScore.save();
+        // Create and signUp
+        final String username = "user_" + getCurrentTimeInHex();
+        final String password = "p_n7!-e8";
+        ParseUser user = ParseUser.create(username, password);
         
-        // Retrieve
-        ParseObject retrieved = ParseObject.fetch(gameScore.getEndPoint(), 
-                gameScore.getObjectId());
-        assertEqual(1337, gameScore.getInt("score"));
-        assertEqual("Sean Plott", gameScore.getString("playerName"));
-        assertFalse(gameScore.getBoolean("cheatMode"));
+        assertNull(user.getCreatedAt());
+        assertNull(user.getUpdatedAt());
+        assertNull(user.getSessionToken());
+        assertNull(user.getObjectId());
         
-        // Update
-        retrieved.put("score", 73453);
-        retrieved.save();
-        assertEqual(73453, retrieved.getInt("score"));
+        user.put("phone", "415-392-0202");
+        user.signUp();
+        usersToDelete.add(user); // Ensure deletion even if other assertions fail.
         
-        // Increment / decrement
-        retrieved.increment("score");
-        retrieved.save();
-        assertEqual(73454, retrieved.getInt("score"));
+        assertNotNull(user.getObjectId(), 
+                 "Object id should be set upon successful signup");
+        assertNotNull(user.getCreatedAt(), 
+                "Creation time should be set upon successful signup");
+        assertEqual(user.getCreatedAt(), user.getUpdatedAt(), 
+                "Update time is set to created time by Parse4CN1");
+        assertNotNull(user.getSessionToken(), 
+                "Session token should be created upon successful signup");
         
-        // Decrement
-        retrieved.increment("score", -4);
-        retrieved.save();
-        assertEqual(73450, retrieved.getInt("score"));
+        ParseUser loggedIn = ParseUser.create(username, password);
+        loggedIn.login();
         
-        // Increment non-number field
-        try {
-            retrieved.increment("playerName");
-            retrieved.save();
-            assertFalse(true, "Increment should only work on number fields");
-        } catch (IllegalArgumentException ex) {
-            assertTrue(ex.getMessage().startsWith("You cannot increment a non-number"));
-        }
+        assertNotNull(user.getSessionToken(),
+                "Session token is created upon successful login");
+        assertEqual(user.getObjectId(), loggedIn.getObjectId(),
+                "Object id is preserved after sign up");
+        assertEqual(user.getString("phone"), loggedIn.getString("phone"),
+                "User data is preserved");
         
-        // Array operations (manually)
-        List<String> skills = new ArrayList<String>();
-        skills.add("flying");
-        skills.add("kunfu");
-        retrieved.put("skills", skills);
-        retrieved.save();
-        assertEqual(skills, retrieved.getList("skills"));
-        
-        // Delete field
-        retrieved.deleteField("skills");
-        retrieved.save();
-        assertNull(retrieved.get("skills"));
-        
-        // Delete object
-        retrieved.delete();
+        loggedIn.logout();
+        assertNull(loggedIn.getSessionToken(), "Session token is invalidated on logout");
+        loggedIn.login();
+        assertNotNull(user.getSessionToken(), 
+            "Session token should be created upon successful login");
     }
     
-    private ParseObject testCreateObjectExtended() throws ParseException, JSONException {
-        ParseObject obj = ParseObject.create("Car");
-        HashMap<String, Object> data = new HashMap<String, Object>();
-        data.put("brand", "Peugeot");
-        data.put("model", "208");
-        data.put("nrOfDoors", 4);
-        data.put("convertible", false);
-        data.put("color", "Red");
-        data.put("batchNr", getCurrentTimeInHex());
-        
-        List<String> pastUsers = new ArrayList<String>();
-        pastUsers.add("User 1");
-        pastUsers.add("User 2");
-        pastUsers.add("User 3");
-        data.put("pastUsers", pastUsers);
-        
-        JSONObject facilities = new JSONObject();
-        facilities.put("navigationSystem", true);
-        facilities.put("airConditioner", false);
-        facilities.put("parkAssist", "parkingSensors");
-        data.put("facilities", facilities);
-        
-        addData(obj, data);
-        obj.save();
-        
-        assertNotNull(obj.getCreatedAt(), "Creation time not set");
-        assertNotNull(obj.getObjectId(), "Object ID not set");
-        assertEqual(obj.getCreatedAt(), obj.getUpdatedAt(), "Creation time should equal update time for new object");
-        
-        ParseObject retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
-        assertEqual(obj.getCreatedAt(), retrieved.getCreatedAt());
-        assertEqual(obj.getUpdatedAt(), retrieved.getUpdatedAt());
-        assertEqual(obj.getObjectId(), retrieved.getObjectId());
-        checkData(retrieved, data);
-        
-        return retrieved;
-    }
-    
-    private ParseObject testUpdateObjectExtended() throws ParseException {
-        ParseObject obj = ParseObject.create("Kitchen");
-        HashMap<String, Object> data = new HashMap<String, Object>();
-        data.put("color", "White");
-        data.put("style", "modern");
-        data.put("renovationYear", 2006);
-
-        List<String> knifeTypes = new ArrayList<String>();
-        knifeTypes.add("Wavy Edge");
-        knifeTypes.add("Straight Edge");
-        knifeTypes.add("Granton Edge");
-        
-        HashMap<String, Object> knifeInfo = new HashMap<String, Object>();
-        knifeInfo.put("count", knifeTypes.size());
-        knifeInfo.put("types", knifeTypes);
-        data.put("knives", knifeInfo);
-        
-        addData(obj, data);
-        
-        obj.save();
-        
-        checkData(obj, data);
-        ParseObject retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
-        checkData(retrieved, data);
-        
-        data.clear();
-        
-        // Update existing (both simple and nested - list inside sub-object)
-        data.put("renovationYear", 2015);
-        HashMap<String, Object> retrievedKnifeInfo = 
-                (HashMap<String, Object>) retrieved.get("knives");
-        knifeTypes.add("Unknown");
-        retrievedKnifeInfo.put("types", knifeTypes);
-        data.put("knives", retrievedKnifeInfo);
-        
-        // Add new
-        data.put("floor", "laminate");
-        JSONArray appliances = new JSONArray();
-        appliances.put("refrigerator");
-        appliances.put("electricCooker");
-        appliances.put("toaster");
-        data.put("appliances", appliances);
-        
-        addData(retrieved, data);
-        
-        retrieved.save(); // Update
-        checkData(retrieved, data);
-        retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
-        checkData(retrieved, data);
-        
-        return retrieved;
-    }
-    
-    private void testDeleteObjects(final List<ParseObject> objectsToDelete) {
-        for (ParseObject obj : objectsToDelete) {
-            try {
-                obj.delete();
-            } catch (ParseException ex) {
-                assertTrue(false, "Error while deleting " + obj.getEndPoint()
-                        + "\nError: " + ex.getMessage());
-            }
+    private void testDeleteUser() throws ParseException {
+        for (ParseUser user: usersToDelete) {
+            user.delete();
         }
     }
     
-    private void checkData(final ParseObject obj, HashMap<String, Object> data) { 
-        for (Entry<String, Object> entry : data.entrySet()) {
-            if (entry.getValue() instanceof JSONArray) {
-                assertEqual(ParseDecoder.convertJSONArrayToList((JSONArray) entry.getValue()), 
-                        obj.getList(entry.getKey()));
-            } else if (entry.getValue() instanceof JSONObject) {
-                assertEqual(ParseDecoder.convertJSONObjectToMap((JSONObject) entry.getValue()), 
-                        obj.get(entry.getKey()));
-            } else {
-                assertEqual(entry.getValue(), obj.get(entry.getKey()));
-            }
-        }
-    }
-    
-    private void addData(ParseObject obj, HashMap<String, Object> dataToAdd) {
-        for (Entry<String, Object> entry : dataToAdd.entrySet()) {
-            obj.put(entry.getKey(), entry.getValue());
-        }
-    }
-    // TODO
-    // - Create object with complex types (pointers, relations, etc, etc)
-    // - Update object complex (counters, relation, etc)
-    // - Retrieve all
-    // - include children in retrieval
     
     
-//    private ParseObject testCreate
-  
+//    private void checkData(final ParseObject obj, HashMap<String, Object> data) { 
+//        for (Entry<String, Object> entry : data.entrySet()) {
+//            if (entry.getValue() instanceof JSONArray) {
+//                assertEqual(ParseDecoder.convertJSONArrayToList((JSONArray) entry.getValue()), 
+//                        obj.getList(entry.getKey()));
+//            } else if (entry.getValue() instanceof JSONObject) {
+//                assertEqual(ParseDecoder.convertJSONObjectToMap((JSONObject) entry.getValue()), 
+//                        obj.get(entry.getKey()));
+//            } else {
+//                assertEqual(entry.getValue(), obj.get(entry.getKey()));
+//            }
+//        }
+//    }
+//    
+//    private void addData(ParseObject obj, HashMap<String, Object> dataToAdd) {
+//        for (Entry<String, Object> entry : dataToAdd.entrySet()) {
+//            obj.put(entry.getKey(), entry.getValue());
+//        }
+//    }  
     
 }

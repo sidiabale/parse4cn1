@@ -36,12 +36,12 @@ public class ParseGetCommand extends ParseCommand {
     }
 
     public ParseGetCommand(String endPoint) {
-        this.endPoint = endPoint;
+        this(endPoint, null);
     }
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupHeaders(request, addJson);
+        setupDefaultHeaders(request, addJson);
         request.setPost(false);
         request.setHttpMethod("GET");
         request.setUrl(getUrl(endPoint, objectId));

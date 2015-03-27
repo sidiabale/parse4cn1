@@ -359,7 +359,7 @@ public class ParseObject {
         put(key, value, false);
     }
 
-    protected void validateSave() {
+    protected void validateSave() throws ParseException {
     }
     
     /**
@@ -476,6 +476,8 @@ public class ParseObject {
         if (!isDirty) {
             return;
         }
+        
+        validateSave();
 
         ParseCommand command;
         if (objectId == null) {
@@ -523,8 +525,10 @@ public class ParseObject {
 
     public void delete() throws ParseException {
 
-        if (objectId == null) {
-            return;
+        if (getObjectId() == null) {
+            LOGGER.error("Attempting to delete an object without an objectId.");
+            throw new ParseException(ParseException.MISSING_OBJECT_ID,
+                    "Attempting to delete an object without an objectId.");
         }
 
         ParseCommand command = new ParseDeleteCommand(getEndPoint(), getObjectId());
@@ -532,13 +536,8 @@ public class ParseObject {
         if (response.isFailed()) {
             throw response.getException();
         }
-
-        this.updatedAt = null;
-        this.createdAt = null;
-        this.objectId = null;
-        this.isDirty = false;
-        this.operations.clear();
-        this.dirtyKeys.clear();
+        
+        reset();
     }
 
     public JSONObject getParseData() throws ParseException {
@@ -598,6 +597,15 @@ public class ParseObject {
 //        ParseExecutor.runInBackground(task);
 //    }
 
+    protected void reset() {
+        updatedAt = null;
+        createdAt = null;
+        objectId = null;
+        isDirty = false;
+        operations.clear();
+        dirtyKeys.clear();
+    }
+    
     protected void setEndPoint(String endPoint) {
         this.endPoint = endPoint;
     }
@@ -735,6 +743,10 @@ public class ParseObject {
     }
 
     protected void setData(JSONObject jsonObject, boolean disableChecks) {
+        this.isDirty = false;
+        this.operations.clear();
+        this.dirtyKeys.clear();
+        
         Iterator<?> it = jsonObject.keys();
         while (it.hasNext()) {
             String key = (String) it.next();
@@ -745,18 +757,14 @@ public class ParseObject {
                 put(key, ParseDecoder.decode(value), disableChecks);
             }
         }
-
-        this.isDirty = false;
-        this.operations.clear();
-        this.dirtyKeys.clear();
     }
 
-    protected void setReservedKey(String key, Object value) {
-        if ("objectId".equals(key)) {
+    protected void setReservedKey(String key, Object value) {        
+        if (ParseConstants.FIELD_OBJECT_ID.equals(key)) {
             setObjectId(value.toString());
-        } else if ("createdAt".equals(key)) {
+        } else if (ParseConstants.FIELD_CREATED_AT.equals(key)) {
             setCreatedAt(Parse.parseDate(value.toString()));
-        } else if ("updatedAt".equals(key)) {
+        } else if (ParseConstants.FIELD_UPDATED_AT.equals(key)) {
             setUpdatedAt(Parse.parseDate(value.toString()));
         }
     }
