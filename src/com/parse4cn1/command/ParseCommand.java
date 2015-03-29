@@ -130,7 +130,7 @@ public abstract class ParseCommand {
     protected void setupDefaultHeaders(ConnectionRequest connectionRequest, boolean addJson) throws ParseException {
         try {
             headers.put(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
-            headers.put(ParseConstants.HEADER_REST_API_KEY, Parse.getRestAPIKey());
+            headers.put(ParseConstants.HEADER_CLIENT_KEY, Parse.getClientKey());
             if (addJson) {
                 headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
             }

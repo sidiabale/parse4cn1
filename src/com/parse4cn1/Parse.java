@@ -36,7 +36,7 @@ import java.util.TimeZone;
 public class Parse {
 
     private static String mApplicationId;
-    private static String mRestAPIKey;
+    private static String mClientKey;
     private static final DateFormat dateFormat;
 
     // TODO: Test
@@ -49,17 +49,17 @@ public class Parse {
         ParseOperationDecoder.registerDefaultDecoders();
     }
 
-    static public void initialize(String applicationId, String restAPIKey) {
+    static public void initialize(String applicationId, String clientKey) {
         mApplicationId = applicationId;
-        mRestAPIKey = restAPIKey;
+        mClientKey = clientKey;
     }
 
     static public String getApplicationId() {
         return mApplicationId;
     }
 
-    static public String getRestAPIKey() {
-        return mRestAPIKey;
+    static public String getClientKey() {
+        return mClientKey;
     }
 
     static public String getParseAPIUrl(String context) {

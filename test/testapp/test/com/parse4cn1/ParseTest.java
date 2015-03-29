@@ -37,13 +37,13 @@ public class ParseTest extends BaseParseTest {
     private void testKeyInitialization() {
         reset();
         assertNull(Parse.getApplicationId(), "Test app ID should be null");
-        assertNull(Parse.getRestAPIKey(), "Test app REST API key should be null");
+        assertNull(Parse.getClientKey(), "Test app client key should be null");
         
         init();
         assertEqual(TEST_APPLICATION_ID, Parse.getApplicationId(), 
                 "Test app ID is not initialized");
-        assertEqual(TEST_REST_API_KEY, Parse.getRestAPIKey(), 
-                "Test app REST API key is not initialized");
+        assertEqual(TEST_CLIENT_KEY, Parse.getClientKey(), 
+                "Test app client key is not initialized");
     }
     
     private void testGetParseApiUrl() {
