@@ -35,23 +35,23 @@ public class ParseUserTest extends BaseParseTest {
     /*
     TODO: Interesting test cases
     1. Sign up
-       - Happy flow (OK)
-       - Save before signup
-       - Email verification (setting of field)
-    2. Logging in (OK)
+       - Happy flow [OK]
+       - Save before signup 
+       - Email verification (setting of field) [OK]
+    2. Logging in [OK]
     3. Password reset
        - User without email (should fail)
-       - User with email 
+       - User with email [OK]
     4. Retrieving users
-       - By ID
-       - By sessionToken
-       - By user root endpoint (all)
+       - By ID [OK]
+       - By sessionToken [OK]
+       - By user root endpoint (all
     5. Updating users
        - Check uniqueness of username and email (nothing is mentioned in API doc
-         about changing though I expect that to be possible
+         about changing though I expect that to be possible)
        - Check changing username and/or email
-       - Check adding new fields
-    5. Deleting users
+       - Check adding new fields [OK]
+    5. Deleting users [OK]
     6. Linking users
        - Facebook
        - Twitter
@@ -69,9 +69,10 @@ public class ParseUserTest extends BaseParseTest {
     }
     
     private void testRestApiExample() throws ParseException {
-        // Create and signUp
+        // Create and sign up
         final String username = "user_" + getCurrentTimeInHex();
         final String password = "p_n7!-e8";
+        final String phone = "phone";
         ParseUser user = ParseUser.create(username, password);
         
         assertNull(user.getCreatedAt());
@@ -79,7 +80,7 @@ public class ParseUserTest extends BaseParseTest {
         assertNull(user.getSessionToken());
         assertNull(user.getObjectId());
         
-        user.put("phone", "415-392-0202");
+        user.put(phone, "415-392-0202");
         user.signUp();
         usersToDelete.add(user); // Ensure deletion even if other assertions fail.
         
@@ -95,18 +96,55 @@ public class ParseUserTest extends BaseParseTest {
         ParseUser loggedIn = ParseUser.create(username, password);
         loggedIn.login();
         
-        assertNotNull(user.getSessionToken(),
+        assertNotNull(loggedIn.getSessionToken(),
                 "Session token is created upon successful login");
         assertEqual(user.getObjectId(), loggedIn.getObjectId(),
                 "Object id is preserved after sign up");
-        assertEqual(user.getString("phone"), loggedIn.getString("phone"),
+        assertEqual(user.getString(phone), loggedIn.getString(phone),
                 "User data is preserved");
         
+        final String sessionToken = loggedIn.getSessionToken();
         loggedIn.logout();
-        assertNull(loggedIn.getSessionToken(), "Session token is invalidated on logout");
+        assertNull(loggedIn.getSessionToken(), 
+                "Session token is invalidated on logout");
+        
         loggedIn.login();
-        assertNotNull(user.getSessionToken(), 
-            "Session token should be created upon successful login");
+        assertNotNull(loggedIn.getSessionToken(), 
+                "Session token is created upon successful re-login");
+        assertNotEqual(sessionToken, loggedIn.getSessionToken(), 
+            "New session token created upon successful re-login is different "
+                    + "from previous one");
+        
+        // Verify email
+        final String emailVerified = "emailVerified";
+        final String email = "email";
+        assertNull(loggedIn.getBoolean(emailVerified), 
+                "emailVerified field should not be defined initially");
+        loggedIn.put("email", "test@test.com");
+        loggedIn.save();
+        assertFalse((Boolean) loggedIn.get(emailVerified), 
+                emailVerified + " field should be defined but false");
+        
+        // Retrieve by object id
+        ParseObject userById = ParseUser.fetch(loggedIn.getEndPoint(), loggedIn.getObjectId());
+        assertEqual(loggedIn.getString(phone),          userById.getString(phone));
+        assertEqual(loggedIn.getBoolean(emailVerified), userById.getBoolean(emailVerified));
+        assertEqual(loggedIn.getString(email),          userById.getString(email));
+        assertEqual(loggedIn.getCreatedAt(),            userById.getCreatedAt());
+        assertEqual(loggedIn.getUpdatedAt(),            userById.getUpdatedAt());
+        
+        // Retrieve by sessionToken
+        ParseUser userBySession = ParseUser.fetchBySession(loggedIn.getSessionToken());
+        assertEqual(loggedIn.getString(phone),          userBySession.getString(phone));
+        assertEqual(loggedIn.getBoolean(emailVerified), userBySession.getBoolean(emailVerified));
+        assertEqual(loggedIn.getString(email),          userBySession.getString(email));
+        assertEqual(loggedIn.getCreatedAt(),            userBySession.getCreatedAt());
+        assertEqual(loggedIn.getUpdatedAt(),            userBySession.getUpdatedAt());
+        
+        // Reset password
+        ParseUser.requestPasswordReset("test@test.com");
+        
+        loggedIn.logout();
     }
     
     private void testDeleteUser() throws ParseException {

@@ -39,6 +39,9 @@ public class ParseUser extends ParseObject {
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_EMAIL = "email";
     private static final String ENDPOINT_USERS = "users";
+    private static final String OBJECT_ID_CURRENT = "me";
+    private static final String ENDPOINT_LOGIN = "login";
+    private static final String ENDPOINT_LOGOUT = "logout";
 
     private String password;
     private String sessionToken;
@@ -60,9 +63,9 @@ public class ParseUser extends ParseObject {
     @Override
     public void delete() throws ParseException {
         if (!isAuthenticated()) {
-            LOGGER.error("Cannot save a ParseUser that is not authenticated.");
+            LOGGER.error("Cannot delete a ParseUser that is not authenticated.");
             throw new ParseException(ParseException.SESSION_MISSING,
-                    "Cannot save a ParseUser that is not authenticated.");
+                    "Cannot delete a ParseUser that is not authenticated.");
         }
         
         ParseCommand command = new ParseDeleteCommand(getEndPoint(), getObjectId());
@@ -110,33 +113,65 @@ public class ParseUser extends ParseObject {
         pu.setPassword(password);
         return pu;
     }
+    
+    public static ParseUser fetchBySession(final String sessionToken) throws ParseException {
+        ParseUser user = null;
+        ParseCommand command = new ParseGetCommand(ENDPOINT_USERS, OBJECT_ID_CURRENT);
+        command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, sessionToken);
+    
+        ParseResponse response = command.perform();
+        if (!response.isFailed()) {
+            JSONObject jsonResponse = response.getJsonObject();
+            if (jsonResponse == null) {
+                LOGGER.error("Empty response.");
+                throw response.getException();
+            }
+            
+            user = ParseUser.create("", null);
+            user.setSessionToken(sessionToken);
+            if (jsonResponse.has(ParseConstants.FIELD_SESSION_TOKEN)) {
+                jsonResponse.remove(ParseConstants.FIELD_SESSION_TOKEN);
+            }
+            user.setData(jsonResponse);
+        } else {
+            LOGGER.error("Request failed.");
+            throw response.getException();
+        }
+        return user;
+    }
 
+    public static void requestPasswordReset(String email) throws ParseException {
+
+        try {
+            ParsePostCommand command = new ParsePostCommand("requestPasswordReset");
+            JSONObject data = new JSONObject();
+            data.put(KEY_EMAIL, email);
+            command.setData(data);
+            ParseResponse response = command.perform();
+            if (!response.isFailed()) {
+                JSONObject jsonResponse = response.getJsonObject();
+                if (jsonResponse == null) {
+                    LOGGER.error("Empty response.");
+                    throw response.getException();
+                }
+            } else {
+                LOGGER.error("Request failed.");
+                throw response.getException();
+            }
+        } catch (JSONException ex) {
+            throw new ParseException(ex);
+        }
+    }
+    
+    public static void requestPasswordResetInBackground(String email,
+        RequestPasswordResetCallback callback) {
+        throw new RuntimeException("Not implemented");
+    }
+    
     public boolean isAuthenticated() {
         return (getSessionToken() != null && getObjectId() != null);
     }
     
-    @Override
-    protected void setEndPoint(String endPoint) {
-        // Prevent any changes to the endpoint
-        super.setEndPoint(ENDPOINT_USERS);
-    }
-
-    @Override
-    protected void validateSave() throws ParseException {
-
-        if (getObjectId() == null) {
-            LOGGER.error("Cannot save a ParseUser until it has been signed up. Call signUp first.");
-            throw new ParseException(ParseException.MISSING_OBJECT_ID,
-                    "Cannot save a ParseUser until it has been signed up. Call signUp first.");
-        }
-
-        if ((!isAuthenticated()) && isDirty && getObjectId() != null) {
-            LOGGER.error("Cannot save a ParseUser that is not authenticated.");
-            throw new ParseException(ParseException.SESSION_MISSING,
-                    "Cannot save a ParseUser that is not authenticated.");
-        }
-    }
-
     public void signUp() throws ParseException {
 
         if ((getUsername() == null) || (getUsername().length() == 0)) {
@@ -191,7 +226,7 @@ public class ParseUser extends ParseObject {
 
     public void login() throws ParseException {
 
-        ParseGetCommand command = new ParseGetCommand("login");
+        ParseGetCommand command = new ParseGetCommand(ENDPOINT_LOGIN);
         command.addJson(false);
         command.put(KEY_USERNAME, getUsername());
         command.put(KEY_PASSWORD, password);
@@ -204,6 +239,7 @@ public class ParseUser extends ParseObject {
             }
             try {
                 setSessionToken(jsonResponse.getString(ParseConstants.FIELD_SESSION_TOKEN));
+                jsonResponse.remove(ParseConstants.FIELD_SESSION_TOKEN);
                 setData(jsonResponse);
             } catch (JSONException e) {
                 LOGGER.error("Although Parse reports object successfully saved, the response was invalid.");
@@ -218,47 +254,53 @@ public class ParseUser extends ParseObject {
         }
     }
 
-    public static void requestPasswordReset(String email) throws ParseException {
-
-        try {
-            ParsePostCommand command = new ParsePostCommand("requestPasswordReset");
-            JSONObject data = new JSONObject();
-            data.put(KEY_EMAIL, email);
-            command.setData(data);
-            ParseResponse response = command.perform();
-            if (!response.isFailed()) {
-                JSONObject jsonResponse = response.getJsonObject();
-                if (jsonResponse == null) {
-                    LOGGER.error("Empty response.");
-                    throw response.getException();
-                }
-            } else {
-                LOGGER.error("Request failed.");
-                throw response.getException();
-            }
-        } catch (JSONException ex) {
-            throw new ParseException(ex);
-        }
-    }
-
     public void logout() throws ParseException {
 
         if (isAuthenticated()) {
+            ParseCommand command = new ParsePostCommand(ENDPOINT_LOGOUT);
+            command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, getSessionToken());
+            ParseResponse response = command.perform();
+            if (response.isFailed()) {
+                throw response.getException();
+            }
             setSessionToken(null);
         }
     }
 
-    public static void requestPasswordResetInBackground(String email,
-            RequestPasswordResetCallback callback) {
-
-    }
-
     public void signUpInBackground(SignUpCallback callback) {
-
+        throw new RuntimeException("Not implemented");
     }
 
     public static void loginInBackground(String username, String password,
             LoginCallback callback) {
+        throw new RuntimeException("Not implemented");
+    }
+    
+    @Override
+    protected void setEndPoint(String endPoint) {
+        // Prevent any changes to the endpoint
+        super.setEndPoint(ENDPOINT_USERS);
+    }
 
+    @Override
+    protected void validateSave() throws ParseException {
+
+        if (getObjectId() == null) {
+            LOGGER.error("Cannot save a ParseUser until it has been signed up. Call signUp first.");
+            throw new ParseException(ParseException.MISSING_OBJECT_ID,
+                    "Cannot save a ParseUser until it has been signed up. Call signUp first.");
+        }
+
+        if ((!isAuthenticated()) && isDirty && getObjectId() != null) {
+            LOGGER.error("Cannot save a ParseUser that is not authenticated.");
+            throw new ParseException(ParseException.SESSION_MISSING,
+                    "Cannot save a ParseUser that is not authenticated.");
+        }
+    }
+
+    @Override
+    protected void performSave(final ParseCommand command) throws ParseException {
+        command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, getSessionToken());
+        super.performSave(command);
     }
 }
