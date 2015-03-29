@@ -33,17 +33,17 @@ public class ParseOperationDecoder {
 
     private static final Logger LOGGER = Logger.getInstance();
 
-    static Map<String, ParseFieldOperationFactory> opDecoderMap
-            = new HashMap<String, ParseFieldOperationFactory>();
+    static Map<String, IParseFieldOperationFactory> opDecoderMap
+            = new HashMap<String, IParseFieldOperationFactory>();
 
-    private static void registerDecoder(String opName, ParseFieldOperationFactory factory) {
+    private static void registerDecoder(String opName, IParseFieldOperationFactory factory) {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Registering '" + opName + "' decoder");
         }
         opDecoderMap.put(opName, factory);
     }
 
-    private static abstract interface ParseFieldOperationFactory {
+    private static abstract interface IParseFieldOperationFactory {
 
         public abstract ParseOperation decode(JSONObject paramJSONObject) throws JSONException;
     }
@@ -65,32 +65,32 @@ public class ParseOperationDecoder {
          });
          */
 
-        registerDecoder("Delete", new ParseFieldOperationFactory() {
+        registerDecoder("Delete", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 return new DeleteFieldOperation();
             }
         });
-        registerDecoder("Increment", new ParseFieldOperationFactory() {
+        registerDecoder("Increment", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 return new IncrementFieldOperation(object.opt("amount"));
             }
         });
-        registerDecoder("Add", new ParseFieldOperationFactory() {
+        registerDecoder("Add", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 return new AddOperation(object.opt("objects"));
             }
         });
-        registerDecoder("AddUnique", new ParseFieldOperationFactory() {
+        registerDecoder("AddUnique", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 return new AddUniqueOperation(object.opt("objects"));
             }
         });
-        registerDecoder("Remove", new ParseFieldOperationFactory() {
+        registerDecoder("Remove", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 return new RemoveOperation(object.opt("objects"));
             }
         });
-        registerDecoder("AddRelation", new ParseFieldOperationFactory() {
+        registerDecoder("AddRelation", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 JSONArray objectsArray = object.optJSONArray("objects");
                 List objectsList = (List) ParseDecoder.decode(objectsArray);
@@ -98,7 +98,7 @@ public class ParseOperationDecoder {
                         null);
             }
         });
-        registerDecoder("RemoveRelation", new ParseFieldOperationFactory() {
+        registerDecoder("RemoveRelation", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 JSONArray objectsArray = object.optJSONArray("objects");
                 List objectsList = (List) ParseDecoder.decode(objectsArray);
@@ -110,7 +110,7 @@ public class ParseOperationDecoder {
 
     public static ParseOperation decode(JSONObject encoded) throws JSONException {
         String op = encoded.optString(ParseConstants.KEYWORD_OP);
-        ParseFieldOperationFactory factory = (ParseFieldOperationFactory) opDecoderMap.get(op);
+        IParseFieldOperationFactory factory = (IParseFieldOperationFactory) opDecoderMap.get(op);
         if (factory == null) {
             throw new RuntimeException("Unable to decode operation of type " + op);
         }

@@ -69,20 +69,12 @@ public class ParseObject {
     private Date updatedAt;
     private Date createdAt;
 
-    protected ParseObject() {
-        this("_Parse4J");
-    }
-    
     protected ParseObject(String className) {
 
         if (className == null) {
             LOGGER.error("You must specify a Parse class name when creating a new ParseObject.");
             throw new IllegalArgumentException(
                     "You must specify a Parse class name when creating a new ParseObject.");
-        }
-
-        if ("_Parse4J".equals(className)) {
-            className = ParseRegistry.getClassName(getClass());
         }
         
         this.className = className;
@@ -123,6 +115,10 @@ public class ParseObject {
 
     public String getClassName() {
         return this.className;
+    }
+    
+    public String getEndPoint() {
+        return this.endPoint;
     }
 
     public Set<String> keySet() {
@@ -308,16 +304,6 @@ public class ParseObject {
         return relation;
     }
 
-    public void clearData() {
-        data.clear();
-        this.dirtyKeys.clear();
-        operations.clear();
-        isDirty = false;
-        objectId = null;
-        createdAt = null;
-        updatedAt = null;
-    }
-
     public boolean has(String key) {
         return containsKey(key);
     }
@@ -409,6 +395,27 @@ public class ParseObject {
         performOperation(key, new SetFieldOperation(value));
     }
 
+    protected void performSave(final ParseCommand command) throws ParseException {
+        
+        command.setData(getParseData());
+        ParseResponse response = command.perform();
+        if (!response.isFailed()) {
+            JSONObject jsonResponse = response.getJsonObject();
+            if (jsonResponse == null) {
+                LOGGER.error("Empty response");
+                throw response.getException();
+            }
+
+            setData(jsonResponse);
+            if (getUpdatedAt() == null) {
+                setUpdatedAt(getCreatedAt());
+            }
+        } else {
+            LOGGER.error("Request failed.");
+            throw response.getException();
+        }
+    }
+    
     public void performOperation(String key, ParseOperation operation) {
 
         if (has(key)) {
@@ -485,42 +492,8 @@ public class ParseObject {
         } else {
             command = new ParsePutCommand(getEndPoint(), getObjectId());
         }
-
-        try {
-            command.setData(getParseData());
-            ParseResponse response = command.perform();
-            if (!response.isFailed()) {
-                JSONObject jsonResponse = response.getJsonObject();
-                if (jsonResponse == null) {
-                    LOGGER.error("Empty response");
-                    throw response.getException();
-                }
-
-                if (getObjectId() == null) {
-                    setObjectId(jsonResponse.getString(ParseConstants.FIELD_OBJECT_ID));
-                    final String createdAt = jsonResponse.getString(ParseConstants.FIELD_CREATED_AT);
-                    setCreatedAt(Parse.parseDate(createdAt));
-                    setUpdatedAt(Parse.parseDate(createdAt));
-                } else {
-                    String updatedAt = jsonResponse.getString(ParseConstants.FIELD_UPDATED_AT);
-                    setUpdatedAt(Parse.parseDate(updatedAt));
-                }
-
-                this.isDirty = false;
-                this.operations.clear();
-                this.dirtyKeys.clear();
-
-            } else {
-                LOGGER.error("Request failed.");
-                throw response.getException();
-            }
-        } catch (JSONException e) {
-            LOGGER.error("Request failed.");
-            throw new ParseException(
-                    ParseException.INVALID_JSON,
-                    "Although Parse reports object successfully saved, the response was invalid.",
-                    e);
-        }
+        
+        performSave(command);
     }
 
     public void delete() throws ParseException {
@@ -604,26 +577,23 @@ public class ParseObject {
         isDirty = false;
         operations.clear();
         dirtyKeys.clear();
+        data.clear();
+    }
+
+    protected void setObjectId(String objectId) {
+        this.objectId = objectId;
+    }
+
+    protected void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    protected void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
     }
     
     protected void setEndPoint(String endPoint) {
         this.endPoint = endPoint;
-    }
-
-    public void setObjectId(String objectId) {
-        this.objectId = objectId;
-    }
-
-    public void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    protected String getEndPoint() {
-        return this.endPoint;
     }
 
 //    class DeleteInBackgroundThread extends Thread {
@@ -679,12 +649,8 @@ public class ParseObject {
                 throw response.getException();
             }
 
-            T obj = null;
-            try {
-                obj = parseData(jsonResponse);
-            } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, "Error parsing JSON data", ex);
-            }
+            T obj = ParseRegistry.getObjectFactory(endPoint).create(endPoint);
+            obj.setData(jsonResponse);
             obj.setEndPoint(endPoint);
             return obj;
 
@@ -716,37 +682,12 @@ public class ParseObject {
         }
     }
 
-    private static <T extends ParseObject> T parseData(JSONObject jsonObject) 
-            throws JSONException {
-
-        @SuppressWarnings("unchecked")
-        T po = (T) new ParseObject();
-
-        Iterator<?> keys = jsonObject.keys();
-        while (keys.hasNext()) {
-            String key = (String) keys.next();
-            Object obj = jsonObject.get(key);
-            
-            if (Parse.isReservedKey(key)) {
-                po.setReservedKey(key, obj);
-            } else {
-                po.put(key, ParseDecoder.decode(obj));
-            }
-        }
-
-        po.isDirty = false;
-        return po;
-    }
-
     protected void setData(JSONObject jsonObject) {
         setData(jsonObject, false);
     }
 
     protected void setData(JSONObject jsonObject, boolean disableChecks) {
-        this.isDirty = false;
-        this.operations.clear();
-        this.dirtyKeys.clear();
-        
+   
         Iterator<?> it = jsonObject.keys();
         while (it.hasNext()) {
             String key = (String) it.next();
@@ -757,6 +698,10 @@ public class ParseObject {
                 put(key, ParseDecoder.decode(value), disableChecks);
             }
         }
+
+        this.isDirty = false;
+        this.operations.clear();
+        this.dirtyKeys.clear();
     }
 
     protected void setReservedKey(String key, Object value) {        
