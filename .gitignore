@@ -9,3 +9,5 @@ test/testapp/lib/CN1JSON.cn1lib
 test/testapp/lib/parse4cn1.cn1lib
 nbproject/private/private.properties
 nbproject/private/private.xml
+test/testapp/nbproject/private/private.properties
+test/testapp/nbproject/private/private.xml

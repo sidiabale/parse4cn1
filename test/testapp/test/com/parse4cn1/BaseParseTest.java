@@ -31,7 +31,7 @@ import java.util.Date;
 public class BaseParseTest extends AbstractTest {
 
     protected static final String TEST_APPLICATION_ID = "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8";
-    protected static final String TEST_REST_API_KEY = "pW7IhlgwwB2WgmvK1yYguSaUgTofjCmyOX6vUh8k";
+    protected static final String TEST_CLIENT_KEY = "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB";
     
     @Override
     public void prepare() {
@@ -50,19 +50,19 @@ public class BaseParseTest extends AbstractTest {
     }
     
     /**
-     * Initializes the parse application ID and REST API key.
+     * Initializes the parse application ID and client key.
      * Update with your own keys to avoid the chance of false negatives 
      * due to excessive API calls if multiple persons run tests with 
      * these keys simultaneously.
      * 
-     * TODO: Write app id and rest api key to storage and prompt user
+     * TODO: Write app id and client key to storage and prompt user
      * to provide if not present. In this way, own keys are never exposed
      */
     protected void init() {
-        Parse.initialize(TEST_APPLICATION_ID, TEST_REST_API_KEY);
+        Parse.initialize(TEST_APPLICATION_ID, TEST_CLIENT_KEY);
     }
     /**
-     * Resets the parse application ID and REST API key.
+     * Resets the parse application ID and client key.
      */
     protected void reset() {
         Parse.initialize(null, null);
