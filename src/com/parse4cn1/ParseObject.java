@@ -69,20 +69,12 @@ public class ParseObject {
     private Date updatedAt;
     private Date createdAt;
 
-    protected ParseObject() {
-        this("_Parse4J");
-    }
-    
     protected ParseObject(String className) {
 
         if (className == null) {
             LOGGER.error("You must specify a Parse class name when creating a new ParseObject.");
             throw new IllegalArgumentException(
                     "You must specify a Parse class name when creating a new ParseObject.");
-        }
-
-        if ("_Parse4J".equals(className)) {
-            className = ParseRegistry.getClassName(getClass());
         }
         
         this.className = className;
@@ -657,12 +649,8 @@ public class ParseObject {
                 throw response.getException();
             }
 
-            T obj = null;
-            try {
-                obj = parseData(jsonResponse);
-            } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, "Error parsing JSON data", ex);
-            }
+            T obj = ParseRegistry.getObjectFactory(endPoint).create(endPoint);
+            obj.setData(jsonResponse);
             obj.setEndPoint(endPoint);
             return obj;
 
@@ -692,15 +680,6 @@ public class ParseObject {
         if (callback != null) {
             callback.done(object, exception);
         }
-    }
-
-    private static <T extends ParseObject> T parseData(JSONObject jsonObject) 
-            throws JSONException {
-
-        @SuppressWarnings("unchecked")
-        T po = (T) new ParseObject(); // TODO: Instantiate real class via factory?
-        po.setData(jsonObject);
-        return po;
     }
 
     protected void setData(JSONObject jsonObject) {

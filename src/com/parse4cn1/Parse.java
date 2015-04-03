@@ -35,6 +35,22 @@ import java.util.TimeZone;
 
 public class Parse {
 
+    /**
+     * A factory for instantiating ParseObjects of various concrete types
+     */
+    public interface IParseObjectFactory {
+        /**
+         * Creates a Parse object of the type matching the provided class name.
+         * Defaults to the base ParseObject, i.e., call must always return a 
+         * non-null object.
+         * 
+         * @param <T> The type of ParseObject to be instantiated
+         * @param className The class name associated with type T
+         * @return The newly created Parse object.
+         */
+        <T extends ParseObject> T create(final String className);
+    }
+    
     private static String mApplicationId;
     private static String mClientKey;
     private static final DateFormat dateFormat;
@@ -46,6 +62,7 @@ public class Parse {
         dateFormat = format;
 
         ParseRegistry.registerDefaultSubClasses();
+        ParseRegistry.registerDefaultObjectFactories();
         ParseOperationDecoder.registerDefaultDecoders();
     }
 
@@ -119,5 +136,4 @@ public class Parse {
         }
         return buffer.toString();
     }
-
 }

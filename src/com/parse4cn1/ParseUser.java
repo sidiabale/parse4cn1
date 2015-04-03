@@ -38,7 +38,6 @@ public class ParseUser extends ParseObject {
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_EMAIL = "email";
-    private static final String ENDPOINT_USERS = "users";
     private static final String OBJECT_ID_CURRENT = "me";
     private static final String ENDPOINT_LOGIN = "login";
     private static final String ENDPOINT_LOGOUT = "logout";
@@ -46,8 +45,8 @@ public class ParseUser extends ParseObject {
     private String password;
     private String sessionToken;
 
-    private ParseUser() {
-        super(ENDPOINT_USERS);
+    protected ParseUser() {
+        super(ParseConstants.ENDPOINT_USERS);
     }
 
     @Override
@@ -108,15 +107,16 @@ public class ParseUser extends ParseObject {
     }
 
     public static ParseUser create(String username, String password) throws ParseException {
-        ParseUser pu = new ParseUser();
-        pu.setUsername(username);
-        pu.setPassword(password);
-        return pu;
+        ParseUser user = new ParseUser();
+        user.setUsername(username);
+        user.setPassword(password);
+        return user;
     }
     
     public static ParseUser fetchBySession(final String sessionToken) throws ParseException {
         ParseUser user = null;
-        ParseCommand command = new ParseGetCommand(ENDPOINT_USERS, OBJECT_ID_CURRENT);
+        ParseCommand command = 
+            new ParseGetCommand(ParseConstants.ENDPOINT_USERS, OBJECT_ID_CURRENT);
         command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, sessionToken);
     
         ParseResponse response = command.perform();
@@ -127,11 +127,7 @@ public class ParseUser extends ParseObject {
                 throw response.getException();
             }
             
-            user = ParseUser.create("", null);
-            user.setSessionToken(sessionToken);
-            if (jsonResponse.has(ParseConstants.FIELD_SESSION_TOKEN)) {
-                jsonResponse.remove(ParseConstants.FIELD_SESSION_TOKEN);
-            }
+            user = new ParseUser();
             user.setData(jsonResponse);
         } else {
             LOGGER.error("Request failed.");
@@ -275,11 +271,20 @@ public class ParseUser extends ParseObject {
             LoginCallback callback) {
         throw new RuntimeException("Not implemented");
     }
+
+    @Override
+    protected void setData(JSONObject jsonObject, boolean disableChecks) {
+        if (jsonObject.has(ParseConstants.FIELD_SESSION_TOKEN)) {
+            setSessionToken(jsonObject.optString(ParseConstants.FIELD_SESSION_TOKEN));
+            jsonObject.remove(ParseConstants.FIELD_SESSION_TOKEN);
+        }
+        super.setData(jsonObject, disableChecks);
+    }
     
     @Override
     protected void setEndPoint(String endPoint) {
         // Prevent any changes to the endpoint
-        super.setEndPoint(ENDPOINT_USERS);
+        super.setEndPoint(ParseConstants.ENDPOINT_USERS);
     }
 
     @Override

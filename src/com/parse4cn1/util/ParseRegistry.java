@@ -19,7 +19,10 @@
 
 package com.parse4cn1.util;
 
+import com.parse4cn1.DefaultParseObjectFactory;
+import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
+import com.parse4cn1.ParseException;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -33,78 +36,62 @@ public class ParseRegistry {
 
     // TODO: Check impact of ConcurrentHashMap --> HashMap
     private static final Map<Class<? extends ParseObject>, String> classNames
-            = new HashMap<Class<? extends ParseObject>, String>();
+        = new HashMap<Class<? extends ParseObject>, String>();
 
-    private static final Map<String, Class<? extends ParseObject>> objectTypes
-            = new HashMap<String, Class<? extends ParseObject>>();
+    private static final Map<String, Parse.IParseObjectFactory> objectFactories
+        = new HashMap<String, Parse.IParseObjectFactory>();
 
     public static void registerDefaultSubClasses() {
         registerSubclass(ParseUser.class, ParseConstants.CLASS_NAME_USER);
         registerSubclass(ParseRole.class, ParseConstants.CLASS_NAME_ROLE);
     }
+    
+    public static void registerDefaultObjectFactories() {
+        final Parse.IParseObjectFactory factory = new DefaultParseObjectFactory();
+        registerParseFactory(ParseConstants.ENDPOINT_USERS, factory);
+        registerParseFactory(ParseConstants.CLASS_NAME_USER, factory);
+        // TODO: Register other classes
+    }
+    
+    public static void registerParseFactory(final String className, 
+            final Parse.IParseObjectFactory factory) {
 
-    public static void unregisterSubclass(String className) {
-        objectTypes.remove(className);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Registering object factory for class '" + className +  "'");
+        }
+        
+        if (className == null || factory == null) {
+            throw new IllegalArgumentException("Null class name and/or factory");
+        }
+             
+        objectFactories.put(className, factory);
     }
 
     public static void registerSubclass(Class<? extends ParseObject> subclass, 
             final String className) {
 
-//        String className = getClassName(subclass);
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Registering subclass '" + className +  "'");
         }
         if (className == null) {
-            throw new IllegalArgumentException(
-                    "No ParseClassName annoation provided on " + subclass);
+            throw new IllegalArgumentException("Null subclass");
         }
 
-//        if (subclass.getDeclaredConstructors().length > 0) {
-//            try {
-//                if (!isAccessible(subclass.getDeclaredConstructor(new Class[0]))) {
-//                    throw new IllegalArgumentException(
-//                            "Default constructor for " + subclass
-//                            + " is not accessible.");
-//                }
-//            } catch (NoSuchMethodException e) {
-//                throw new IllegalArgumentException(
-//                        "No default constructor provided for " + subclass);
-//            }
-//        }
-//
-//        Class<? extends ParseObject> oldValue = (Class<? extends ParseObject>) objectTypes.get(className);
-//        if ((oldValue != null) && (subclass.isAssignableFrom(oldValue))) {
-//            return;
-//        }
         classNames.put(subclass, className);
-        objectTypes.put(className, subclass);
-
     }
 
-//    private static boolean isAccessible(Member m) {
-//        return (Modifier.isPublic(m.getModifiers()))
-//                || ((m.getDeclaringClass().getPackage().getName()
-//                .equals("com.parse"))
-//                && (!Modifier.isPrivate(m.getModifiers())) && (!Modifier
-//                .isProtected(m.getModifiers())));
-//    }
-//
     public static String getClassName(Class<? extends ParseObject> clazz) {
         String name = (String) classNames.get(clazz);
-//        if (name == null) {
-//            ParseClassName info = (ParseClassName) clazz.getAnnotation(ParseClassName.class);
-//            if (info == null) {
-//                return null;
-//            }
-//            name = info.value();
-//            classNames.put(clazz, name);
-//        }
         return name;
     }
 
-    public static Class<? extends ParseObject> getParseClass(String className) {
-        Class<? extends ParseObject> value = (Class<? extends ParseObject>) objectTypes.get(className);
-        return value;
+    public static Parse.IParseObjectFactory getObjectFactory(final String className) {
+        
+        if (!objectFactories.containsKey(className)) {
+           throw new IllegalArgumentException(
+                   "No factory registered for class '" + className + "'");
+        }
+        
+        return objectFactories.get(className);
     }
-
 }

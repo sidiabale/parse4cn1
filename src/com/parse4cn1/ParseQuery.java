@@ -538,25 +538,15 @@ public class ParseQuery<T extends ParseObject> {
 
                 results = new ArrayList<T>();
                 for (int i = 0; i < objs.length(); i++) {
-                    Class<?> clazz = ParseRegistry.getParseClass(getClassName());
-                    if (clazz != null) {
-                        T po = (T) clazz.newInstance();
-                        JSONObject obj = (JSONObject) objs.get(i);
-
-                        /*
-                         We disable some checks while setting data in objects during fetch because
-                         those checks are useful only when setting data from client
-                         code. The "true" argument disables such checks.
-                         */
-                        po.setData(obj, true);
-                        results.add((T) po);
-                    } else {
-                        ParseObject po = new ParseObject(getClassName());
-                        JSONObject obj = (JSONObject) objs.get(i);
-                        // see above for the "true" argument
-                        po.setData(obj, true);
-                        results.add((T) po);
-                    }
+                    T po = ParseRegistry.getObjectFactory(getClassName()).create(getClassName());
+                    JSONObject obj = (JSONObject) objs.get(i);
+                    /*
+                    We disable some checks while setting data in objects during fetch because
+                    those checks are useful only when setting data from client
+                    code. The "true" argument disables such checks.
+                    */
+                   po.setData(obj, true);
+                   results.add((T) po);
                 }
 
                 return results;
@@ -568,19 +558,11 @@ public class ParseQuery<T extends ParseObject> {
                         ParseException.INVALID_JSON,
                         "Although Parse reports object successfully saved, the response was invalid.",
                         e);
-            } catch (InstantiationException e) {
+            } catch (IllegalArgumentException e) {
                 LOGGER.error("Error while instantiating class. Did you register your subclass? Error: "
                         + e.getMessage());
                 throw new ParseException(
-                        ParseException.INVALID_JSON,
-                        "Although Parse reports object successfully saved, the response was invalid.",
-                        e);
-            } catch (IllegalAccessException e) {
-                LOGGER.error("Error while instantiating class. Did you register your subclass? Error: "
-                        + e.getMessage());
-                throw new ParseException(
-                        ParseException.INVALID_JSON,
-                        "Although Parse reports object successfully saved, the response was invalid.",
+                        "Error while instantiating class. Did you register your subclass?",
                         e);
             }
         } else {

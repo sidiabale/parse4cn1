@@ -33,18 +33,18 @@ public class ParseObjectTest extends BaseParseTest {
     
     @Override
     public boolean runTest() throws Exception {
-        List<ParseObject> objectsToDelete = new ArrayList<ParseObject>();
-        ParseObject obj = null;
-        
-        testRestApiExample();
-        
-        obj = testCreateObjectExtended();
-        objectsToDelete.add(obj);
-        
-        obj = testUpdateObjectExtended();
-        objectsToDelete.add(obj);
-        
-        testDeleteObjects(objectsToDelete);
+//        List<ParseObject> objectsToDelete = new ArrayList<ParseObject>();
+//        ParseObject obj = null;
+//        
+//        testRestApiExample();
+//        
+//        obj = testCreateObjectExtended();
+//        objectsToDelete.add(obj);
+//        
+//        obj = testUpdateObjectExtended();
+//        objectsToDelete.add(obj);
+//        
+//        testDeleteObjects(objectsToDelete);
         
         return true;
     }

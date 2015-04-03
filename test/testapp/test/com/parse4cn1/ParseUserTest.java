@@ -120,18 +120,19 @@ public class ParseUserTest extends BaseParseTest {
         final String email = "email";
         assertNull(loggedIn.getBoolean(emailVerified), 
                 "emailVerified field should not be defined initially");
-        loggedIn.put("email", "test@test.com");
+        loggedIn.put(email, "test@test.com");
         loggedIn.save();
-        assertFalse((Boolean) loggedIn.get(emailVerified), 
+        assertFalse(loggedIn.getBoolean(emailVerified), 
                 emailVerified + " field should be defined but false");
         
         // Retrieve by object id
-        ParseObject userById = ParseUser.fetch(loggedIn.getEndPoint(), loggedIn.getObjectId());
+        ParseUser userById = ParseUser.fetch(loggedIn.getEndPoint(), loggedIn.getObjectId());
         assertEqual(loggedIn.getString(phone),          userById.getString(phone));
         assertEqual(loggedIn.getBoolean(emailVerified), userById.getBoolean(emailVerified));
         assertEqual(loggedIn.getString(email),          userById.getString(email));
         assertEqual(loggedIn.getCreatedAt(),            userById.getCreatedAt());
         assertEqual(loggedIn.getUpdatedAt(),            userById.getUpdatedAt());
+        assertNull(userById.getSessionToken(), "Session token is not returned on retrieval by object id");
         
         // Retrieve by sessionToken
         ParseUser userBySession = ParseUser.fetchBySession(loggedIn.getSessionToken());
