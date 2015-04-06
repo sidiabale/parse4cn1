@@ -172,7 +172,7 @@ public class ParseRelation<T extends ParseObject> {
      * @return The objects in this relation encoded as a Parse "Relation".
      * @throws JSONException if anything goes wrong with JSON encoding.
      */
-    public JSONObject encodeToJSON(ParseObjectEncodingStrategy objectEncoder) throws JSONException {
+    public JSONObject encode(ParseObjectEncodingStrategy objectEncoder) throws JSONException {
         JSONObject relation = new JSONObject();
         relation.put(ParseConstants.KEYWORD_TYPE, "Relation");
         relation.put(ParseConstants.FIELD_CLASSNAME, this.targetClass);

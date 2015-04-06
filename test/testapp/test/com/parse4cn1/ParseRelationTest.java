@@ -213,7 +213,7 @@
 //
 //    private void checkParseRelation(final ParseRelation<?> relation, int expectedCount,
 //            final String message) throws JSONException {
-//        JSONObject encoded = relation.encodeToJSON(encoder);
+//        JSONObject encoded = relation.encode(encoder);
 //        System.out.println("JSON from ParseRelation: " + encoded);
 //
 //        assertEqual(3, encoded.length(), "Encoded object should contain only two elements");
