@@ -21,9 +21,7 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.parse4cn1.callback.DeleteCallback;
 import com.parse4cn1.callback.GetCallback;
-import com.parse4cn1.callback.SaveCallback;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParseDeleteCommand;
 import com.parse4cn1.command.ParseGetCommand;
@@ -43,7 +41,6 @@ import com.parse4cn1.util.Logger;
 import com.parse4cn1.util.ParseDecoder;
 import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -81,24 +78,15 @@ public class ParseObject {
         this.data = new Hashtable<String, Object>();
         this.operations = new Hashtable<String, ParseOperation>();
         this.dirtyKeys = new ArrayList<String>();
-        setEndPoint("classes/" + className);
+        setEndPoint(ParseConstants.CLASSES_PATH + className);
     }
 
     public static ParseObject create(String className) {
         return new ParseObject(className);
     }
-
-//    // TODO: CN1 does not support reflection. Consider using mirah bindings if absolutely needed
-//    @SuppressWarnings("unchecked")
-//    public static <T extends ParseObject> T create(Class<T> subclass) {
-//        return (T) create(ParseRegistry.getClassName(subclass));
-//    }
     
-    public static ParseObject createWithoutData(String className, String objectId) {
-        ParseObject result = create(className);
-        result.setObjectId(objectId);
-        result.isDirty = false;
-        return result;
+    public void setObjectId(String objectId) {
+        this.objectId = objectId;
     }
     
     public String getObjectId() {
@@ -269,39 +257,26 @@ public class ParseObject {
         }
 
         Object value = this.data.get(key);
-
-        // TODO: Investigate if this originally commented out code needs to 
-        // be fixed or removed
-        /*
-         if (((value instanceof ParseACL)) && (key.equals("ACL"))) {
-         ParseACL acl = (ParseACL) value;
-         if (acl.isShared()) {
-         ParseACL copy = acl.copy();
-         this.estimatedData.put("ACL", copy);
-         addToHashedObjects(copy);
-         return getACL();
-         }
-
-         }*/
-      // TODO: Fix  
-//        if ((value instanceof ParseRelation)) {
-//            ((ParseRelation<?>) value).ensureParentAndKey(this, key);
-//        }
         return value;
-
     }
 
+    /**
+     * Creates a <i>temporary</i> ParseRelation object for defining/updating
+     * relations associated with {@code key}. 
+     * 
+     * <p><b>Note:</b> Relations defined via the returned object will override 
+     * any existing relations previously defined for the same {@code key}!</p>
+     * 
+     * @param <T> A {@link ParseObject} or its sub-type.
+     * @param key The key associated with this relation.
+     * @return The newly created object.
+     */
     public <T extends ParseObject> ParseRelation<T> getRelation(String key) {
-        ParseRelation<T> relation = new ParseRelation<T>(this, key);
-        Object value = this.data.get(key);
-        if (value != null) {
-            if (value instanceof ParseRelation) {
-                relation.setTargetClass(((ParseRelation<?>) value).getTargetClass());
-            }
-        } else {
-            this.data.put(key, relation);
+        String targetClass = null;
+        if (has(key)) {
+            targetClass = ((ParseRelation<T>) get(key)).getTargetClass();
         }
-        return relation;
+        return new ParseRelation<T>(this, key, targetClass);
     }
 
     public boolean has(String key) {
@@ -318,18 +293,10 @@ public class ParseObject {
                 && (getObjectId().equals(other.getObjectId()));
     }
 
-//    public void add(String key, Object value) {
-//        addToArrayField(key, Arrays.asList(new Object[]{value}));
-//    }
-
     public void addToArrayField(String key, Collection<?> values) {
         AddOperation operation = new AddOperation(values);
         performOperation(key, operation);
     }
-
-//    public void addUnique(String key, Object value) {
-//        addUniqueToArrayField(key, Arrays.asList(new Object[]{value}));
-//    }
 
     public void addUniqueToArrayField(String key, Collection<?> values) {
         AddUniqueOperation operation = new AddUniqueOperation(values);
@@ -416,7 +383,7 @@ public class ParseObject {
         }
     }
     
-    public void performOperation(String key, ParseOperation operation) {
+    void performOperation(String key, ParseOperation operation) {
 
         if (has(key)) {
             operations.remove(key);
@@ -532,13 +499,16 @@ public class ParseObject {
                     // below. Every modification of a ParseObject is done via operations
                     // so if we get here, I expect that we've encountered an unsupported 
                     // operation NOT a sub-ParseObject.
+                    throw new ParseException("Unsupported operation " + operation, null);
                     
+                    /*
                     //here we deal will sub objects like ParseObject;
                     Object obj = data.get(key);
                     if (obj instanceof ParseObject) {
                         ParseObject pob = (ParseObject) obj;
                         parseData.put(key, pob.getParseData());
                     }
+                    */
                 }
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
@@ -578,10 +548,6 @@ public class ParseObject {
         operations.clear();
         dirtyKeys.clear();
         data.clear();
-    }
-
-    protected void setObjectId(String objectId) {
-        this.objectId = objectId;
     }
 
     protected void setCreatedAt(Date createdAt) {

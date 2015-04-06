@@ -80,7 +80,8 @@ public abstract class ParseCommand {
         long commandReceived = System.currentTimeMillis();
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("ParseCommand took " + (commandReceived - commandStart) + " milliseconds\n");
+            LOGGER.debug("Parse " + request.getHttpMethod() + " Command took " 
+                    + (commandReceived - commandStart) + " milliseconds\n");
         }
 
         return response;

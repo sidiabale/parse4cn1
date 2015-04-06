@@ -33,6 +33,8 @@ import com.parse4cn1.ParseUser;
 public class ParseRegistry {
 
     private static final Logger LOGGER = Logger.getInstance();
+    private static final Parse.IParseObjectFactory DEFAULT_OBJECT_FACTORY = 
+       new DefaultParseObjectFactory();     
 
     // TODO: Check impact of ConcurrentHashMap --> HashMap
     private static final Map<Class<? extends ParseObject>, String> classNames
@@ -44,13 +46,6 @@ public class ParseRegistry {
     public static void registerDefaultSubClasses() {
         registerSubclass(ParseUser.class, ParseConstants.CLASS_NAME_USER);
         registerSubclass(ParseRole.class, ParseConstants.CLASS_NAME_ROLE);
-    }
-    
-    public static void registerDefaultObjectFactories() {
-        final Parse.IParseObjectFactory factory = new DefaultParseObjectFactory();
-        registerParseFactory(ParseConstants.ENDPOINT_USERS, factory);
-        registerParseFactory(ParseConstants.CLASS_NAME_USER, factory);
-        // TODO: Register other classes
     }
     
     public static void registerParseFactory(final String className, 
@@ -81,15 +76,13 @@ public class ParseRegistry {
     }
 
     public static String getClassName(Class<? extends ParseObject> clazz) {
-        String name = (String) classNames.get(clazz);
-        return name;
+        return (String) classNames.get(clazz);
     }
 
     public static Parse.IParseObjectFactory getObjectFactory(final String className) {
         
         if (!objectFactories.containsKey(className)) {
-           throw new IllegalArgumentException(
-                   "No factory registered for class '" + className + "'");
+           return DEFAULT_OBJECT_FACTORY;
         }
         
         return objectFactories.get(className);

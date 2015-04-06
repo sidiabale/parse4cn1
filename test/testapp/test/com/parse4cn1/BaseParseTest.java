@@ -68,6 +68,14 @@ public class BaseParseTest extends AbstractTest {
         Parse.initialize(null, null);
     }
     
+    protected void fail() {
+        assertTrue(false);
+    }
+    
+    protected void fail(String errorMessage) {
+        assertTrue(false, errorMessage);
+    }
+    
     protected void assertTrue(boolean value) {
         assertTrue(value, "");
     }

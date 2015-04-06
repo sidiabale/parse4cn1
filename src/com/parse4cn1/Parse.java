@@ -62,7 +62,6 @@ public class Parse {
         dateFormat = format;
 
         ParseRegistry.registerDefaultSubClasses();
-        ParseRegistry.registerDefaultObjectFactories();
         ParseOperationDecoder.registerDefaultDecoders();
     }
 
@@ -99,12 +98,21 @@ public class Parse {
     }
 
     public static boolean isReservedKey(String key) {
-        return ParseConstants.FIELD_OBJECT_ID.equalsIgnoreCase(key)
-                || ParseConstants.FIELD_CREATED_AT.equalsIgnoreCase(key)
-                || ParseConstants.FIELD_UPDATED_AT.equalsIgnoreCase(key);
+        return ParseConstants.FIELD_OBJECT_ID.equals(key)
+                || ParseConstants.FIELD_CREATED_AT.equals(key)
+                || ParseConstants.FIELD_UPDATED_AT.equals(key);
     }
 
     // TODO: Test
+    public static boolean isReservedEndPoint(String endPoint) {
+        // Parse-reserved end points and classes
+        return ParseConstants.CLASS_NAME_USER.equals(endPoint)
+            || ParseConstants.CLASS_NAME_ROLE.equals(endPoint)
+            || ParseConstants.ENDPOINT_USERS.equals(endPoint)
+            || ParseConstants.ENDPOINT_ROLES.equals(endPoint)
+            || ParseConstants.ENDPOINT_SESSIONS.equals(endPoint); 
+    }
+    
     public static boolean isValidType(Object value) {
         return ((value instanceof JSONObject))
                 || ((value instanceof JSONArray))
@@ -113,7 +121,6 @@ public class Parse {
                 || ((value instanceof Boolean))
                 || (value == JSONObject.NULL)
                 || ((value instanceof ParseObject))
-                // || ((value instanceof ParseACL))
                 || ((value instanceof ParseFile))
                 || ((value instanceof ParseRelation))
                 || ((value instanceof ParseGeoPoint))
