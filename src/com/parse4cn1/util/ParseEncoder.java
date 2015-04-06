@@ -123,11 +123,15 @@ public class ParseEncoder {
             ParseRelation relation = (ParseRelation) value;
             JSONObject json = null;
             try {
-                json = relation.encodeToJSON(objectEncoder);
+                json = relation.encode(objectEncoder);
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
             }
             return json;
+        }
+        
+        if (value instanceof ParseQuery) {
+            return ((ParseQuery) value).encode();
         }
 
         if ((value instanceof ParseQuery.RelationConstraint)) {

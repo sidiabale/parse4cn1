@@ -63,6 +63,8 @@ public class ParseDecoder {
         } else if ("Pointer".equals(typeString)) {
             return decodePointer(jsonObject.optString(ParseConstants.FIELD_CLASSNAME), 
                     jsonObject.optString("objectId"));
+        } else if ("Object".equals(typeString)) {
+            return decodeObject(jsonObject);
         } else if ("File".equals(typeString)) {
             return new ParseFile(jsonObject.optString("name"),
                     jsonObject.optString("url"));
@@ -114,6 +116,15 @@ public class ParseDecoder {
         ParseObject obj = ParseRegistry.getObjectFactory(className).create(className);
         obj.setObjectId(objectId);
         
+        return obj;
+    }
+
+    private static ParseObject decodeObject(JSONObject jsonObject) {
+        final String className = jsonObject.optString(ParseConstants.FIELD_CLASSNAME);
+        ParseObject obj = ParseRegistry.getObjectFactory(className).create(className);
+        jsonObject.remove(ParseConstants.FIELD_CLASSNAME);
+        jsonObject.remove(ParseConstants.KEYWORD_TYPE);
+        obj.setData(jsonObject, true);
         return obj;
     }
 }

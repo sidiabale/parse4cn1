@@ -42,7 +42,7 @@ public class ParseRelation<T extends ParseObject> {
     private ParseObject parent;
     private String key;
     private String targetClass;
-    private final Set<T> knownObjects = new HashSet<T>();
+    private final Set<T> addedObjects = new HashSet<T>();
     private final Set<T> removedObjects = new HashSet<T>();
 
     /**
@@ -59,14 +59,6 @@ public class ParseRelation<T extends ParseObject> {
 
         if (getTargetClass() == null) {
             throw new IllegalArgumentException("A target class must be specified");
-        } 
-                 
-        JSONArray objectsArray = jsonObject.optJSONArray("objects");
-        if (objectsArray != null) {
-            for (int i = 0; i < objectsArray.length(); i++) {
-                this.knownObjects.add((T) ParseDecoder.decode(objectsArray
-                        .optJSONObject(i)));
-            }
         }
     }
 
@@ -102,23 +94,23 @@ public class ParseRelation<T extends ParseObject> {
      * 
      * @param object The object to be added.
      * @throws IllegalArgumentException if {@code object} is null.
-     * @throws IllegalStateException if any of the members required to create 
-     * the relation is uninitialized or mismatching.
+     * @throws IllegalStateException if any of the members required to getQuery 
+ the relation is uninitialized or mismatching.
      */
     public void add(T object) {
         if (object == null) {
             throw new IllegalArgumentException("Cannot add a null object");
         }
         
-        if (contains(object.getObjectId(), knownObjects)) {
+        if (contains(object.getObjectId(), addedObjects)) {
             return;
         }
         
-        this.knownObjects.add(object);
+        this.addedObjects.add(object);
         this.removedObjects.remove(object);
 
         RelationOperation<T> operation = new RelationOperation<T>(
-                Collections.unmodifiableSet(this.knownObjects), 
+                Collections.unmodifiableSet(this.addedObjects), 
                 RelationOperation.ERelationType.AddRelation);
 
         validate(operation.getTargetClass());
@@ -142,7 +134,7 @@ public class ParseRelation<T extends ParseObject> {
             return;
         }
         
-        this.knownObjects.remove(object);
+        this.addedObjects.remove(object);
         this.removedObjects.add(object);
 
         RelationOperation<T> operation = new RelationOperation<T>(
@@ -160,7 +152,7 @@ public class ParseRelation<T extends ParseObject> {
     public ParseQuery<T> getQuery() {
 
         validate(targetClass);
-        ParseQuery<T> query = ParseQuery.create(this.targetClass);
+        ParseQuery<T> query = ParseQuery.getQuery(this.targetClass);
         query.whereRelatedTo(this.parent, this.key);
         return query;
     }
@@ -172,12 +164,12 @@ public class ParseRelation<T extends ParseObject> {
      * @return The objects in this relation encoded as a Parse "Relation".
      * @throws JSONException if anything goes wrong with JSON encoding.
      */
-    public JSONObject encodeToJSON(ParseObjectEncodingStrategy objectEncoder) throws JSONException {
+    public JSONObject encode(ParseObjectEncodingStrategy objectEncoder) throws JSONException {
         JSONObject relation = new JSONObject();
         relation.put(ParseConstants.KEYWORD_TYPE, "Relation");
         relation.put(ParseConstants.FIELD_CLASSNAME, this.targetClass);
         JSONArray knownObjectsArray = new JSONArray();
-        for (ParseObject knownObject : this.knownObjects) {
+        for (ParseObject knownObject : this.addedObjects) {
             try {
                 knownObjectsArray.put(objectEncoder.encodeRelatedObject(knownObject));
             } catch (ParseException e) {

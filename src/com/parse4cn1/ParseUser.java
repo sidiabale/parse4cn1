@@ -40,12 +40,13 @@ public class ParseUser extends ParseObject {
     private static final String OBJECT_ID_CURRENT = "me";
     private static final String ENDPOINT_LOGIN = "login";
     private static final String ENDPOINT_LOGOUT = "logout";
+    private static final String ENDPOINT_PASSWORD_RESET = "requestPasswordReset";
 
     private String password;
     private String sessionToken;
 
     protected ParseUser() {
-        super(ParseConstants.ENDPOINT_USERS);
+        super(ParseConstants.CLASS_NAME_USER);
     }
 
     @Override
@@ -138,7 +139,7 @@ public class ParseUser extends ParseObject {
     public static void requestPasswordReset(String email) throws ParseException {
 
         try {
-            ParsePostCommand command = new ParsePostCommand("requestPasswordReset");
+            ParsePostCommand command = new ParsePostCommand(ENDPOINT_PASSWORD_RESET);
             JSONObject data = new JSONObject();
             data.put(KEY_EMAIL, email);
             command.setData(data);
@@ -187,7 +188,7 @@ public class ParseUser extends ParseObject {
                     "Cannot sign up a user that has already signed up.");
         }
 
-        ParsePostCommand command = new ParsePostCommand(getClassName());
+        ParsePostCommand command = new ParsePostCommand(getEndPoint());
         try {
             JSONObject parseData = getParseData();
             parseData.put(KEY_PASSWORD, password);
@@ -272,18 +273,12 @@ public class ParseUser extends ParseObject {
     }
 
     @Override
-    protected void setData(JSONObject jsonObject, boolean disableChecks) {
+    public void setData(JSONObject jsonObject, boolean disableChecks) {
         if (jsonObject.has(ParseConstants.FIELD_SESSION_TOKEN)) {
             setSessionToken(jsonObject.optString(ParseConstants.FIELD_SESSION_TOKEN));
             jsonObject.remove(ParseConstants.FIELD_SESSION_TOKEN);
         }
         super.setData(jsonObject, disableChecks);
-    }
-    
-    @Override
-    protected void setEndPoint(String endPoint) {
-        // Prevent any changes to the endpoint
-        super.setEndPoint(ParseConstants.ENDPOINT_USERS);
     }
 
     @Override
