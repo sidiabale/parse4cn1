@@ -95,15 +95,15 @@ public class ParseOperationDecoder {
                 JSONArray objectsArray = object.optJSONArray("objects");
                 List objectsList = (List) ParseDecoder.decode(objectsArray);
                 return new RelationOperation(new HashSet(objectsList),
-                        null);
+                        RelationOperation.ERelationType.AddRelation);
             }
         });
         registerDecoder("RemoveRelation", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
                 JSONArray objectsArray = object.optJSONArray("objects");
                 List objectsList = (List) ParseDecoder.decode(objectsArray);
-                return new RelationOperation(null,
-                        new HashSet(objectsList));
+                return new RelationOperation(new HashSet(objectsList),
+                    RelationOperation.ERelationType.RemoveRelation);
             }
         });
     }

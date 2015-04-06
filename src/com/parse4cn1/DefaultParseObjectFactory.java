@@ -25,9 +25,12 @@ public class DefaultParseObjectFactory implements Parse.IParseObjectFactory {
     public <T extends ParseObject> T create(String className) {
         T obj;
         
-        if (ParseConstants.ENDPOINT_USERS.equalsIgnoreCase(className)
-                || ParseConstants.CLASS_NAME_USER.equalsIgnoreCase(className)) {
+        if (ParseConstants.ENDPOINT_USERS.equals(className)
+                || ParseConstants.CLASS_NAME_USER.equals(className)) {
             obj = (T) new ParseUser();
+        } else if (ParseConstants.ENDPOINT_ROLES.equals(className)
+                || ParseConstants.CLASS_NAME_ROLE.equals(className)) {
+            obj = (T) new ParseRole();
         } else {
             obj = (T) new ParseObject(className);
         }

@@ -111,14 +111,9 @@ public class ParseDecoder {
     }
 
     private static ParseObject decodePointer(String className, String objectId) {
-        // TODO: Will this work well when creating 'special' sub-classes with 
-        // different end points e.g, user and role?
-        if (className != null && !className.startsWith("classes/")) {
-            throw new IllegalArgumentException("Unverified code; please check if "
-                    + "this will work as expected for parse object with endpoints "
-                    + "different from /classes/ e.g. /users");
-        }
+        ParseObject obj = ParseRegistry.getObjectFactory(className).create(className);
+        obj.setObjectId(objectId);
         
-        return ParseObject.createWithoutData(className, objectId);
+        return obj;
     }
 }

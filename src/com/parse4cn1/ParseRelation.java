@@ -19,29 +19,48 @@
 
 package com.parse4cn1;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
 import com.parse4cn1.operation.RelationOperation;
 import com.parse4cn1.util.ParseDecoder;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+/**
+ * A class that is used to define, modify and/or access all of the children of a 
+ * many-to-many relationship. Each instance of ParseRelation is associated with 
+ * a particular parent object and key.
+ * 
+ * @param <T> The type of {@link ParseObject}
+ */
 public class ParseRelation<T extends ParseObject> {
 
     private ParseObject parent;
     private String key;
     private String targetClass;
-    private Set<T> knownObjects = new HashSet<T>();
+    private final Set<T> knownObjects = new HashSet<T>();
+    private final Set<T> removedObjects = new HashSet<T>();
 
+    /**
+     * Creates a ParseRelation object from JSON data, for example, retrieved 
+     * from a Parse API call.
+     * 
+     * @param jsonObject The JSON data that defines the ParseRelation. It must 
+     * contains at least a {@value ParseConstants#FIELD_CLASSNAME} field for the
+     * target class and optionally an "objects" array field.
+     */
     @SuppressWarnings("unchecked")
     public ParseRelation(JSONObject jsonObject) {
-        this.parent = null;
-        this.key = null;
-        this.targetClass = jsonObject.optString(ParseConstants.FIELD_CLASSNAME, null);
+        this(null, null, jsonObject.optString(ParseConstants.FIELD_CLASSNAME, null));
+
+        if (getTargetClass() == null) {
+            throw new IllegalArgumentException("A target class must be specified");
+        } 
+                 
         JSONArray objectsArray = jsonObject.optJSONArray("objects");
         if (objectsArray != null) {
             for (int i = 0; i < objectsArray.length(); i++) {
@@ -51,89 +70,108 @@ public class ParseRelation<T extends ParseObject> {
         }
     }
 
-    public ParseRelation(String targetClass) {
-        this.parent = null;
-        this.key = null;
+    /**
+     * Creates a ParseRelation between the {@code parent} and {@code targetClass}
+     * using the specified {@code key} in the parent.
+     * 
+     * @param parent The ParseObject on which this ParseRelation is defined.
+     * @param key The key in {@code parent} on which the relation is defined.
+     * @param targetClass The name of the ParseObject class whose objects are 
+     * involved in relation.
+     * 
+     * @throws IllegalArgumentException if the {@code targetClass} is null or the
+     * provided {@code parent} and/or {@code key} do not match those
+     */
+    public ParseRelation(final ParseObject parent, final String key,
+            final String targetClass) {
+
+        this.parent = parent;
+        this.key = key;
         this.targetClass = targetClass;
     }
 
-    public ParseRelation(ParseObject parent, String key) {
-        this.parent = parent;
-        this.key = key;
-        this.targetClass = null;
-    }
-
-    public String getTargetClass() {
+    /**
+     * @return The target class for this relation.
+     */
+    public final String getTargetClass() {
         return this.targetClass;
     }
 
-    public void setTargetClass(String className) {
-        this.targetClass = className;
-    }
-
-    void ensureParentAndKey(ParseObject someParent, String someKey) {
-
-        if (this.parent == null) {
-            this.parent = someParent;
-        }
-
-        if (this.key == null) {
-            this.key = someKey;
-        }
-
-        if (this.parent != someParent) {
-            throw new IllegalStateException(
-                    "Internal error. One ParseRelation retrieved from two different ParseObjects.");
-        }
-
-        if (!this.key.equals(someKey)) {
-            throw new IllegalStateException(
-                    "Internal error. One ParseRelation retrieved from two different keys.");
-        }
-
-    }
-
+    /**
+     * Adds an object to this relation.
+     * 
+     * @param object The object to be added.
+     * @throws IllegalArgumentException if {@code object} is null.
+     * @throws IllegalStateException if any of the members required to create 
+     * the relation is uninitialized or mismatching.
+     */
     public void add(T object) {
-
+        if (object == null) {
+            throw new IllegalArgumentException("Cannot add a null object");
+        }
+        
+        if (contains(object.getObjectId(), knownObjects)) {
+            return;
+        }
+        
         this.knownObjects.add(object);
+        this.removedObjects.remove(object);
 
-        /*
-         RelationOperation<T> operation = new RelationOperation<T>(
-         Collections.singleton(object), null);
-         */
         RelationOperation<T> operation = new RelationOperation<T>(
-                Collections.unmodifiableSet(this.knownObjects), null);
+                Collections.unmodifiableSet(this.knownObjects), 
+                RelationOperation.ERelationType.AddRelation);
 
-        this.targetClass = operation.getTargetClass();
+        validate(operation.getTargetClass());
         this.parent.performOperation(this.key, operation);
-
     }
 
+    /**
+     * Removes an object from this relation.
+     * 
+     * @param object The object to be removed.
+     * @throws IllegalArgumentException if {@code object} is null.
+     * @throws IllegalStateException if any of the members required to remove 
+     * the relation is uninitialized or mismatching.
+     */
     public void remove(T object) {
-
+        if (object == null) {
+            throw new IllegalArgumentException("Cannot remove a null object");
+        }
+        
+        if (contains(object.getObjectId(), removedObjects)) {
+            return;
+        }
+        
         this.knownObjects.remove(object);
+        this.removedObjects.add(object);
 
-        RelationOperation<T> operation = new RelationOperation<T>(null,
-                Collections.singleton(object));
+        RelationOperation<T> operation = new RelationOperation<T>(
+            Collections.unmodifiableSet(this.removedObjects), 
+                RelationOperation.ERelationType.RemoveRelation);
 
-        this.targetClass = operation.getTargetClass();
+        validate(operation.getTargetClass());
         this.parent.performOperation(this.key, operation);
     }
 
+    /**
+     * Gets a query that can be used to query the objects in this relation.
+     * @return the query.
+     */
     public ParseQuery<T> getQuery() {
 
-        ParseQuery<T> query;
-        if (this.targetClass == null) {
-            query = ParseQuery.getQuery(this.parent.getClassName());
-            query.redirectClassNameForKey(this.key);
-        } else {
-            query = ParseQuery.getQuery(this.targetClass);
-        }
+        validate(targetClass);
+        ParseQuery<T> query = ParseQuery.create(this.targetClass);
         query.whereRelatedTo(this.parent, this.key);
         return query;
-
     }
 
+    /**
+     * Converts the objects in this relation to JSON.
+     * 
+     * @param objectEncoder The encoder to be used to encode the objects.
+     * @return The objects in this relation encoded as a Parse "Relation".
+     * @throws JSONException if anything goes wrong with JSON encoding.
+     */
     public JSONObject encodeToJSON(ParseObjectEncodingStrategy objectEncoder) throws JSONException {
         JSONObject relation = new JSONObject();
         relation.put(ParseConstants.KEYWORD_TYPE, "Relation");
@@ -142,10 +180,65 @@ public class ParseRelation<T extends ParseObject> {
         for (ParseObject knownObject : this.knownObjects) {
             try {
                 knownObjectsArray.put(objectEncoder.encodeRelatedObject(knownObject));
-            } catch (Exception e) {
+            } catch (ParseException e) {
+                throw new JSONException(e);
             }
         }
         relation.put("objects", knownObjectsArray);
         return relation;
+    }
+
+    /**
+     * Checks if an element with {@code objectId} is contained in {@code collection}.
+     * 
+     * @param objectId The objectId to be checked for.
+     * @param collection The collection to be searched for {@code objectId}.
+     * @return {@code true} if an element with {@code objectId} is found in {@code collection}.
+     * Otherwise, returns {@code false}.
+     */
+    private boolean contains(final String objectId, final Collection<T> collection) {
+        if (objectId == null) {
+            throw new IllegalArgumentException("Null object id");
+        }
+
+        for (ParseObject object : collection) {
+            if (objectId.equals(object.getObjectId())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Validates the state of this ParseRelation.
+     * 
+     * @param targetClass The new target class to be set if none was previously defined.
+     * @throws IllegalStateException if any of the required relation fields is 
+     * null or if the provided {@code targetClass} is different from the previously
+     * defined one.
+     */
+    private void validate(final String targetClass) {
+        
+        if (targetClass == null) {
+            throw new IllegalStateException("Target class is null");
+        }
+        
+        if (this.parent == null) {
+            throw new IllegalStateException("Parent ParseObject is null");
+        }
+
+        if (this.key == null) {
+            throw new IllegalStateException("Relation key is null");
+        }
+        
+        if (this.targetClass == null) {
+            this.targetClass = targetClass;
+        }
+
+        if (!this.targetClass.equals(targetClass)) {
+            throw new IllegalStateException(
+                    "Target class mismatch. Expected '" + this.targetClass
+                    + "' but found '" + targetClass + "'");
+        }
     }
 }

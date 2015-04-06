@@ -30,7 +30,6 @@ import com.parse4cn1.command.ParseGetCommand;
 import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
-import com.parse4cn1.util.ParseRegistry;
 
 public class ParseUser extends ParseObject {
 
