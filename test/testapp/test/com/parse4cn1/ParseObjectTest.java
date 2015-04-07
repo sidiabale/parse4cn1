@@ -58,7 +58,7 @@
 //        gameScore.save();
 //        
 //        // Retrieve
-//        ParseObject retrieved = ParseObject.fetch(gameScore.getEndPoint(), 
+//        ParseObject retrieved = ParseObject.fetch(gameScore.getClassName(), 
 //                gameScore.getObjectId());
 //        assertEqual(1337, gameScore.getInt("score"));
 //        assertEqual("Sean Plott", gameScore.getString("playerName"));
@@ -101,7 +101,7 @@
 //                (ParseRelation<ParseObject>) retrieved.get("opponents");
 //        assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());
 //        
-//        retrieved = ParseObject.fetch(retrieved.getEndPoint(), retrieved.getObjectId());
+//        retrieved = ParseObject.fetch(retrieved.getClassName(), retrieved.getObjectId());
 //        retrievedRelation = (ParseRelation<ParseObject>) retrieved.getRelation("opponents");
 //        assertNotNull(retrievedRelation);
 //        assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());
@@ -153,7 +153,7 @@
 //        assertNotNull(obj.getObjectId(), "Object ID not set");
 //        assertEqual(obj.getCreatedAt(), obj.getUpdatedAt(), "Creation time should equal update time for new object");
 //        
-//        ParseObject retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
+//        ParseObject retrieved = ParseObject.fetch(obj.getClassName(), obj.getObjectId());
 //        assertEqual(obj.getCreatedAt(), retrieved.getCreatedAt());
 //        assertEqual(obj.getUpdatedAt(), retrieved.getUpdatedAt());
 //        assertEqual(obj.getObjectId(), retrieved.getObjectId());
@@ -184,7 +184,7 @@
 //        obj.save();
 //        
 //        checkData(obj, data);
-//        ParseObject retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
+//        ParseObject retrieved = ParseObject.fetch(obj.getClassName(), obj.getObjectId());
 //        checkData(retrieved, data);
 //        
 //        data.clear();
@@ -209,7 +209,7 @@
 //        
 //        retrieved.save(); // Update
 //        checkData(retrieved, data);
-//        retrieved = ParseObject.fetch(obj.getEndPoint(), obj.getObjectId());
+//        retrieved = ParseObject.fetch(obj.getClassName(), obj.getObjectId());
 //        checkData(retrieved, data);
 //        
 //        return retrieved;

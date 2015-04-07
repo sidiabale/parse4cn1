@@ -139,7 +139,7 @@
 //       
 //       ParseRelation<ParseObject> relation = 
 //               new ParseRelation<ParseObject>(report, parentKey, targetClass);
-//       final JSONObject query = relation.getQuery().toJson();
+//       final JSONObject query = relation.getQuery().encode();
 //       System.out.println("ParseRelation query: " + query);
 //       
 //       final JSONObject where = query.getJSONObject("where");

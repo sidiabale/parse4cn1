@@ -16,14 +16,8 @@
 //
 //package com.parse4cn1;
 //
-//import ca.weblite.codename1.json.JSONArray;
-//import ca.weblite.codename1.json.JSONException;
-//import ca.weblite.codename1.json.JSONObject;
-//import com.parse4cn1.util.ParseDecoder;
 //import java.util.ArrayList;
-//import java.util.HashMap;
 //import java.util.List;
-//import java.util.Map.Entry;
 //
 ///**
 // *
@@ -126,7 +120,7 @@
 //                emailVerified + " field should be defined but false");
 //        
 //        // Retrieve by object id
-//        ParseUser userById = ParseUser.fetch(loggedIn.getEndPoint(), loggedIn.getObjectId());
+//        ParseUser userById = ParseUser.fetch(loggedIn.getClassName(), loggedIn.getObjectId());
 //        assertEqual(loggedIn.getString(phone),          userById.getString(phone));
 //        assertEqual(loggedIn.getBoolean(emailVerified), userById.getBoolean(emailVerified));
 //        assertEqual(loggedIn.getString(email),          userById.getString(email));

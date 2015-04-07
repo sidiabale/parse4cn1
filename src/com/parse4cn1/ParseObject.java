@@ -78,7 +78,7 @@ public class ParseObject {
         this.data = new Hashtable<String, Object>();
         this.operations = new Hashtable<String, ParseOperation>();
         this.dirtyKeys = new ArrayList<String>();
-        setEndPoint(ParseConstants.CLASSES_PATH + className);
+        setEndPoint(toEndPoint(className));
     }
 
     public static ParseObject create(String className) {
@@ -558,7 +558,7 @@ public class ParseObject {
         this.updatedAt = updatedAt;
     }
     
-    protected void setEndPoint(String endPoint) {
+    protected final void setEndPoint(String endPoint) {
         this.endPoint = endPoint;
     }
 
@@ -604,10 +604,11 @@ public class ParseObject {
 //        }
 //    }
 
-     public static <T extends ParseObject> T fetch(final String endPoint, 
+     public static <T extends ParseObject> T fetch(final String className, 
              final String objectId) throws ParseException {
         
-        ParseGetCommand command = new ParseGetCommand(endPoint, objectId);
+        ParseGetCommand command = 
+                new ParseGetCommand(toEndPoint(className), objectId);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             JSONObject jsonResponse = response.getJsonObject();
@@ -615,9 +616,9 @@ public class ParseObject {
                 throw response.getException();
             }
 
-            T obj = ParseRegistry.getObjectFactory(endPoint).create(endPoint);
+            T obj = ParseRegistry.getObjectFactory(className).create(className);
             obj.setData(jsonResponse);
-            obj.setEndPoint(endPoint);
+            obj.setEndPoint(toEndPoint(className));
             return obj;
 
         } else {
@@ -680,6 +681,10 @@ public class ParseObject {
         }
     }
 
+    private static String toEndPoint(final String className) {
+        return ParseConstants.CLASSES_PATH + className;
+    }
+    
     private void logGetValueError(final String methodName, final String key, final Object value) {
         LOGGER.error("Called " + methodName + "(" + key
                 + "') but the value is of class type '"

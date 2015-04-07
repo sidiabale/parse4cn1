@@ -25,7 +25,7 @@ public class ParseRole extends ParseObject {
     private static final Logger LOGGER = Logger.getInstance();
 
     protected ParseRole() {
-        super(ParseConstants.ENDPOINT_ROLES);
+        super(ParseConstants.CLASS_NAME_ROLE);
     }
 
     public void setName(String name) {
