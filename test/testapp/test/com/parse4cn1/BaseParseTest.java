@@ -18,6 +18,9 @@ package com.parse4cn1;
 
 import com.codename1.testing.AbstractTest;
 import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Ideally, this test should have been abstract but when that is done,
@@ -32,17 +35,39 @@ public class BaseParseTest extends AbstractTest {
 
     protected static final String TEST_APPLICATION_ID = "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8";
     protected static final String TEST_CLIENT_KEY = "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB";
+    protected static final String TEST_PASSWORD = "p_n7!-e8";
     
     @Override
     public void prepare() {
         super.prepare();
         init();
+        resetClassData();
     }
 
     @Override
     public void cleanup() {
-        super.cleanup();
+        resetClassData();
+        /*
+        // Note: We would like to delete all sessions here but the session tokens 
+        // are needed and tracking these across tests is cumbersome. Parse will 
+        // clean them up after year so we can live with that.
+        
+        try {
+            deleteObjects(ParseConstants.CLASS_NAME_SESSION);
+        } catch (ParseException ex) {
+            fail("Deleting sessions during teardown failed!\n" + ex);
+        }
+        */
         reset();
+        super.cleanup();
+    }
+    
+    /**
+     * Cleans up data in classes. Called in the {@link #init()} and {@link #cleanup()}
+     * methods of {@link BaseParseTest} class.
+     */
+    protected void resetClassData() {
+        
     }
     
     public boolean runTest() throws Exception {
@@ -58,14 +83,58 @@ public class BaseParseTest extends AbstractTest {
      * TODO: Write app id and client key to storage and prompt user
      * to provide if not present. In this way, own keys are never exposed
      */
-    protected void init() {
+    protected final void init() {
         Parse.initialize(TEST_APPLICATION_ID, TEST_CLIENT_KEY);
     }
     /**
      * Resets the parse application ID and client key.
      */
-    protected void reset() {
+    protected final void reset() {
         Parse.initialize(null, null);
+    }
+    
+    protected void deleteAllUsers() {
+        // TODO: Replace with batch deletion when batch operations are implemented
+        ParseQuery<ParseUser> query = ParseQuery.create(ParseConstants.CLASS_NAME_USER);
+        try {
+            List<ParseUser> results = query.find();
+            for (ParseUser user : results) {
+                user.setPassword(TEST_PASSWORD);
+                user.login(); // Authenticate to get session required for deletion
+                user.delete();
+            }
+        } catch (ParseException ex) {
+            fail("Deleting objects failed\n" + ex);
+        }
+    }
+    
+    protected void deleteObjects(final String className) {
+        ParseQuery<ParseObject> query = ParseQuery.create(className);
+        try {
+            deleteObjects(query.find());
+        } catch (ParseException ex) {
+            fail("Deleting objects failed\n" + ex);
+        }
+    }
+    
+    protected void deleteObjects(List<? extends ParseObject> objects) {
+        // TODO: Replace with batch deletion when batch operations are implemented
+        for (ParseObject object : objects) {
+            if (object.getObjectId() != null) {
+                try {
+                    object.delete();
+                } catch (ParseException ex) {
+                    fail("Deleting object failed\n" + ex);
+                }
+            }
+        }
+    }
+    
+    protected void saveObjects(List<? extends ParseObject> objects) throws ParseException {
+        // TODO: Replace with batch creation when batch operations are implemented
+        for (ParseObject object: objects) {
+            object.save();
+        }
     }
     
     protected void fail() {

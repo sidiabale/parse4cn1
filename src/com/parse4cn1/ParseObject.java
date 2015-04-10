@@ -448,6 +448,8 @@ public class ParseObject {
     public void save() throws ParseException {
 
         if (!isDirty) {
+            Logger.getInstance().warn("Ignoring request to save unchanged/empty"
+                    + " object");
             return;
         }
         

@@ -1012,15 +1012,14 @@ public class ParseQuery<T extends ParseObject> {
     }
 
     /**
-     * @return The right end point based on the class name. This takes special
-     * Parse classes like the USER class into account.
+     * Creates an end point formed by concatenating 
+     * {@value ParseConstants#CLASSES_PATH} and the result of 
+     * {@link #getClassName()}
+     * 
+     * @return The end point.
      */
     private String getEndPoint() {
-        String endPoint = getClassName();
-        if (!Parse.isReservedEndPoint(endPoint)) {
-            endPoint = ParseConstants.CLASSES_PATH + endPoint;
-        }
-        return endPoint;
+        return ParseConstants.CLASSES_PATH + getClassName();
     }
 
     /**
