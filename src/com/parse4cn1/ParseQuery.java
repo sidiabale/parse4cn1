@@ -712,8 +712,11 @@ public class ParseQuery<T extends ParseObject> {
      *
      * @param objectId Object id of the ParseObject to fetch.
      * @return The first object returned found with {@code objectId} or
-     * {@code null} if none is found.
+     * {@code null} if none is found. <b>Note that this deviates from the 
+     * corresponding Parse Android API method where an exception is thrown when  
+     * there is no such object.</b>
      * @throws ParseException if anything goes wrong.
+     * @see <a href="http://www.parse.com/docs/android/api/com/parse/ParseQuery.html#get(java.lang.String)">Parse Android API get() method</a>
      */
     public T get(String objectId) throws ParseException {
 
@@ -762,8 +765,11 @@ public class ParseQuery<T extends ParseObject> {
      * Retrieves a list of ParseObjects that satisfy this query.
      *
      * @return A list of the ParseObjects matching the query or an empty list if
-     * none is found.
+     * none is found. <b>Note that this deviates from the 
+     * corresponding Parse Android API method where an exception is thrown when 
+     * the query returns no results.</b>
      * @throws ParseException if anything goes wrong.
+     * @see <a href="http://www.parse.com/docs/android/api/com/parse/ParseQuery.html#find()">Parse Android API find() method</a>
      */
     public List<T> find() throws ParseException {
         return find(encode());

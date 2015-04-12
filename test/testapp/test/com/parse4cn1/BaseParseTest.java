@@ -67,7 +67,7 @@ public class BaseParseTest extends AbstractTest {
      * methods of {@link BaseParseTest} class.
      */
     protected void resetClassData() {
-        
+        // Override in subclasses as needed
     }
     
     public boolean runTest() throws Exception {
