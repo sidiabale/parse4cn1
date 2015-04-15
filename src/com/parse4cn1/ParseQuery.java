@@ -51,10 +51,7 @@ public class ParseQuery<T extends ParseObject> {
     private int limit;
     private int skip;
     private String order;
-
-    private boolean trace;
     private boolean caseSensitive = true;
-    private String strTrace;
 
     /**
      * Creates a ParseQuery for the specified class type.
@@ -80,7 +77,6 @@ public class ParseQuery<T extends ParseObject> {
         this.skip = 0;
         this.where = new QueryConstraints();
         this.include = new ArrayList<String>();
-        this.trace = false;
     }
 
     /**
@@ -93,7 +89,7 @@ public class ParseQuery<T extends ParseObject> {
      * @param subclass The ParseObject subclass type.
      * @return The newly created ParseQuery.
      */
-    public static <T extends ParseObject> ParseQuery<T> create(Class<T> subclass) {
+    public static <T extends ParseObject> ParseQuery<T> getQuery(Class<T> subclass) {
         return new ParseQuery<T>(subclass);
     }
 
@@ -106,8 +102,54 @@ public class ParseQuery<T extends ParseObject> {
      * @param className The ParseObject subclass name.
      * @return The newly created ParseQuery.
      */
-    public static <T extends ParseObject> ParseQuery<T> create(String className) {
+    public static <T extends ParseObject> ParseQuery<T> getQuery(String className) {
         return new ParseQuery<T>(className);
+    }
+    
+    /**
+     * Create a ParseQuery whose where-clause is the disjunction of the 
+     * where-clauses of the provided {@code queries}.
+     * 
+     * @param <T> The type of the class to be associated with the newly created
+     * query.
+     * @param queries A collection of at least two queries to be combined. Each 
+     * of these queries must have a non-empty 'where' clause and have the same class.
+     * @return The newly created ParseQuery.
+     * @throws ParseException if the {@code queries} are not at least two, any 
+     * of them is missing a where-clause, or the target class is different.
+     */
+    public static <T extends ParseObject> ParseQuery<T> getOrQuery(
+            final Collection<ParseQuery> queries) throws ParseException {
+       if (queries.size() < 2) {
+           throw new ParseException(ParseException.OTHER_CAUSE, 
+                   "At least two queries must be provided");
+       } 
+       
+       String targetClass = null;
+       JSONArray array = new JSONArray();
+       for (ParseQuery query : queries) {
+           if (query.getQueryConstraints().isEmpty()) {
+              throw new ParseException(ParseException.OTHER_CAUSE, 
+                   "Query has no query constraints"); 
+           }
+           
+           if (targetClass == null) {
+               targetClass = query.getClassName();
+           } else if (!targetClass.equals(query.getClassName())) {
+              throw new ParseException(ParseException.OTHER_CAUSE, 
+                   "All queries should be of the same target class: " + targetClass);  
+           }
+           
+           array.put(query.getQueryConstraints());
+       }
+       
+       if (targetClass == null) {
+           throw new ParseException(ParseException.OTHER_CAUSE, 
+                   "Null target class"); 
+       }
+       ParseQuery query = ParseQuery.getQuery(targetClass);
+       query.whereEqualTo("$or", array);
+       return query;
     }
 
     /**
@@ -612,20 +654,6 @@ public class ParseQuery<T extends ParseObject> {
     }
 
     /**
-     * Turn on performance tracing of finds.
-     * <p>
-     * If performance tracing is already turned on this does nothing. In general
-     * you don't need to call trace.
-     *
-     * @param shouldTrace The new trace value.
-     * @return {@code this} object so that calls can be chained.
-     */
-    public ParseQuery<T> setTrace(boolean shouldTrace) {
-        this.trace = shouldTrace;
-        return this;
-    }
-
-    /**
      * Determines whether string constraints should be case-sensitive (default)
      * or case-insensitive.
      *
@@ -812,16 +840,20 @@ public class ParseQuery<T extends ParseObject> {
                 params.put("keys", Parse.join(this.selectedKeys, ","));
             }
 
-            if (this.trace) {
-                params.put("trace", "1");
-            }
-
         } catch (JSONException e) {
             LOGGER.error("Error parsing json: " + e.getMessage());
             throw new ParseException(e);
         }
 
         return params;
+    }
+    
+    /**
+     * Retrieves the query constraints (i.e., where-clause) of this ParseQuery.
+     * @return The QueryConstraints of this ParseQuery. 
+     */
+    QueryConstraints getQueryConstraints() {
+        return where;
     }
 
     /**
@@ -850,15 +882,6 @@ public class ParseQuery<T extends ParseObject> {
                 JSONArray objs = json.getJSONArray("results");
                 if (objs.length() == 0) {
                     return results;
-                }
-
-                // TODO: Does this work for the REST API? 
-                // It's not documented in the REST API but mentioned in the Android API.
-                if (trace) {
-                    strTrace = json.getString("trace");
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(strTrace);
-                    }
                 }
 
                 for (int i = 0; i < objs.length(); i++) {
@@ -1031,9 +1054,9 @@ public class ParseQuery<T extends ParseObject> {
     /**
      * Returns a literal pattern String for the specified String.
      * <p>
-     * This method produces a String that can be used to create a Pattern that
-     * would match the string s as if it were a literal pattern.
-     * <p>
+ This method produces a String that can be used to getQuery a Pattern that
+ would match the string s as if it were a literal pattern.
+ <p>
      * Metacharacters or escape sequences in the input sequence will be given no
      * special meaning.
      * <p>

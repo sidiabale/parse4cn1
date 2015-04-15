@@ -95,7 +95,7 @@ public class BaseParseTest extends AbstractTest {
     
     protected void deleteAllUsers() {
         // TODO: Replace with batch deletion when batch operations are implemented
-        ParseQuery<ParseUser> query = ParseQuery.create(ParseConstants.CLASS_NAME_USER);
+        ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseConstants.CLASS_NAME_USER);
         try {
             List<ParseUser> results = query.find();
             for (ParseUser user : results) {
@@ -109,7 +109,7 @@ public class BaseParseTest extends AbstractTest {
     }
     
     protected void deleteObjects(final String className) {
-        ParseQuery<ParseObject> query = ParseQuery.create(className);
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(className);
         try {
             deleteObjects(query.find());
         } catch (ParseException ex) {

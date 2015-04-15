@@ -40,7 +40,7 @@ public class ParseUserTest extends BaseParseTest {
     4. Retrieving users
        - By ID [OK]
        - By sessionToken [OK]
-       - By user root endpoint (all
+       - By user root endpoint (retrieve all)
     5. Updating users
        - Check uniqueness of username and email (nothing is mentioned in API doc
          about changing though I expect that to be possible)
@@ -155,7 +155,7 @@ public class ParseUserTest extends BaseParseTest {
             ParseUser user = ParseUser.create("user" + i, TEST_PASSWORD);
             user.signUp();
         }
-        ParseQuery<ParseUser> query = ParseQuery.create(ParseConstants.CLASS_NAME_USER);
+        ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseConstants.CLASS_NAME_USER);
         List<ParseUser> results = query.find();
         assertEqual(userCount, results.size(), "All users are returned by query");
     }
