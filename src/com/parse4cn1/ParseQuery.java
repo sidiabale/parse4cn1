@@ -502,9 +502,8 @@ public class ParseQuery<T extends ParseObject> {
      * @return {@code this} object so that calls can be chained.
      */
     public ParseQuery<T> whereStartsWith(String key, String prefix) {
-        whereMatches(key, new StringBuilder("^").
-                append(caseSensitive ? "" : "(?i)").
-                append(quote(prefix)).toString());
+        whereMatches(key, new StringBuilder("^").append(quote(prefix)).toString(),
+                (caseSensitive ? "" : "i"));
         return this;
     }
 
@@ -521,8 +520,8 @@ public class ParseQuery<T extends ParseObject> {
      * @return {@code this} object so that calls can be chained.
      */
     public ParseQuery<T> whereEndsWith(String key, String suffix) {
-        whereMatches(key, new StringBuilder(caseSensitive ? "" : "(?i)").
-                append(quote(suffix)).append("$").toString());
+        whereMatches(key, new StringBuilder(quote(suffix)).append("$").toString(),
+                (caseSensitive ? "" : "i"));
         return this;
     }
 

@@ -273,7 +273,7 @@ public class ParseUser extends ParseObject {
     }
 
     @Override
-    protected void setData(JSONObject jsonObject, boolean disableChecks) {
+    public void setData(JSONObject jsonObject, boolean disableChecks) {
         if (jsonObject.has(ParseConstants.FIELD_SESSION_TOKEN)) {
             setSessionToken(jsonObject.optString(ParseConstants.FIELD_SESSION_TOKEN));
             jsonObject.remove(ParseConstants.FIELD_SESSION_TOKEN);

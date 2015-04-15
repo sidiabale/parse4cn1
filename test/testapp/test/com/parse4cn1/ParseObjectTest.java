@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -234,14 +232,4 @@ public class ParseObjectTest extends BaseParseTest {
             obj.put(entry.getKey(), entry.getValue());
         }
     }
-    // TODO
-    // - Create object with complex types (pointers, relations, etc, etc)
-    // - Update object complex (counters, relation, etc)
-    // - Retrieve all
-    // - include children in retrieval
-    
-    
-//    private ParseObject testCreate
-  
-    
 }
