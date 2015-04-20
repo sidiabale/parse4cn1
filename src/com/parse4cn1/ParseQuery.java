@@ -483,8 +483,7 @@ public class ParseQuery<T extends ParseObject> {
      * @return {@code this} object so that calls can be chained.
      */
     public ParseQuery<T> whereContains(String key, String substring) {
-        whereMatches(key, new StringBuilder(caseSensitive ? "" : "(?i)").
-                append(quote(substring)).toString());
+        whereMatches(key, quote(substring), (caseSensitive ? "" : "i"));
         return this;
     }
 

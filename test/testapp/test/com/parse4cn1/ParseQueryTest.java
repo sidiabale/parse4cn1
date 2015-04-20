@@ -52,6 +52,7 @@ public class ParseQueryTest extends BaseParseTest {
     public boolean runTest() throws Exception {
         testQueryFormat();
         testRestApiExample();
+        // TODO: Test GeoPoint-related queries
         return true;
     }
 
@@ -146,32 +147,31 @@ public class ParseQueryTest extends BaseParseTest {
     private void testRestApiExample() throws ParseException {
         prepareData();
 
-//        checkEqualsAndNotEqualsConstraints();
-//        checkGreaterAndLessThanConstraints();
-//        checkInConstraint();
-//        checkNotInConstraints();
-//        checkExistsConstraints();
-//        checkNotExistsConstraints();
-//        checkMatchesOrDoesNotMatchKeyInQueryConstraints();
-//        checkSortConstraints();
-//        checkLimitAndSkipConstraints();
-//        checkKeyConstraints();
-//        checkArrayValueConstraints();
-        
+        checkEqualsAndNotEqualsConstraints();
+        checkGreaterAndLessThanConstraints();
+        checkInConstraint();
+        checkNotInConstraints();
+        checkExistsConstraints();
+        checkNotExistsConstraints();
+        checkMatchesOrDoesNotMatchKeyInQueryConstraints();
+        checkSortConstraints();
+        checkLimitAndSkipConstraints();
+        checkKeyConstraints();
+        checkArrayValueConstraints();
         // Relational Queries
-//        checkPointerFieldConstraints();
-//        checkInQueryAndNotInQueryConstraints();
-//        checkRelatedToConstraints();
-//        checkIncludeConstraints();
-//        checkCountConstraints();
-//        checkOrConstraint();
-        
+        checkPointerFieldConstraints();
+        checkInQueryAndNotInQueryConstraints();
+        checkRelatedToConstraints();
+        checkIncludeConstraints();
+        checkCountConstraints();
+        checkOrConstraint();
         // Regex Queries
         checkRegexConstraints();
     }
 
     private void testQueryFormat() throws ParseException, JSONException {
         System.out.println("============== testQueryFormat(): Start");
+
         final ParseGeoPoint geoPoint1 = new ParseGeoPoint(-10.0, 10.0);
         final ParseGeoPoint geoPoint2 = new ParseGeoPoint(18.0, 5.0);
 
@@ -194,28 +194,31 @@ public class ParseQueryTest extends BaseParseTest {
                 .whereLessThanOrEqualTo("score2", 2)
                 .whereContainedIn("playerName1", Arrays.asList(allowedNames))
                 .whereNotContainedIn("playerName2", Arrays.asList(disallowedNames))
-                //                .whereContains("stringKey", "substring")
+                .whereContains("stringKey", "substring")
                 .whereDoesNotExist("bestScore")
                 .whereExists("worstScore")
-                //                .setCaseSensitive(true)
-                //                .whereStartsWith("stringKey1", "prefix")
-                //                .whereEndsWith("stringKey2", "suffix")
+                .setCaseSensitive(false)
+                .whereStartsWith("stringKey1", "prefix")
+                .whereEndsWith("stringKey2", "suffix")
+                .setCaseSensitive(true)
+                .whereStartsWith("stringKey3", "prefix")
+                .whereEndsWith("stringKey4", "suffix")
                 .whereEqualTo("dob", "15-12-1900")
                 .whereNotEqualTo("rank", "amateur")
-                //                .setCaseSensitive(false)
-                //                .whereMatches("regexKey1", "^.*(p)?")
-                //                .whereMatches("regexKey2", "^.*", "m")
+                .setCaseSensitive(false)
+                .whereMatches("regexKey1", "^.*(p)?")
+                .whereMatches("regexKey2", "^.*", "m")
                 .whereMatchesKeyInQuery("player", "username", subQuery)
                 .whereDoesNotMatchKeyInQuery("opponent", "username", subQuery)
                 .whereContainsAll("arrayKey1", Arrays.asList(allowedNames))
                 .whereEqualTo("arrayKey2", "valueInArray")
                 .whereMatchesQuery("queryKey", subQuery)
                 .whereDoesNotMatchQuery("anotherQueryKey", subQuery)
-                //                .whereWithinGeoBox("bounds", geoPoint1, geoPoint2)
-                //                .whereWithinKilometers("home", geoPoint1, 6371.0D)
-                //                .whereWithinMiles("work", geoPoint1, 3958.8000000000002D)
-                //                .whereWithinRadians("city", geoPoint2, 10000)
-                //                .whereNear("tournament", geoPoint2)
+                .whereWithinGeoBox("bounds", geoPoint1, geoPoint2)
+                .whereWithinKilometers("home", geoPoint1, 6371.0D)
+                .whereWithinMiles("work", geoPoint1, 3958.8000000000002D)
+                .whereWithinRadians("city", geoPoint2, 10000)
+                .whereNear("tournament", geoPoint2)
                 .include("quotes")
                 .include("location.x")
                 .selectKeys(Arrays.asList(keys));
@@ -253,59 +256,26 @@ public class ParseQueryTest extends BaseParseTest {
                 where.getJSONObject("anotherQueryKey").toString());
         assertEqual("{\"$ne\":\"amateur\"}", where.getJSONObject("rank").toString());
         assertEqual("15-12-1900", where.get("dob").toString());
-//        assertEqual("", where.getJSONObject("").toString());
+        assertEqual("{\"$regex\":\"\\\\Qsubstring\\\\E\"}", where.getJSONObject("stringKey").toString());
+        assertEqual("{\"$regex\":\"^\\\\Qprefix\\\\E\",\"$options\":\"i\"}", where.getJSONObject("stringKey1").toString());
+        assertEqual("{\"$regex\":\"\\\\Qsuffix\\\\E$\",\"$options\":\"i\"}", where.getJSONObject("stringKey2").toString());
+        assertEqual("{\"$regex\":\"^\\\\Qprefix\\\\E\"}", where.getJSONObject("stringKey3").toString());
+        assertEqual("{\"$regex\":\"\\\\Qsuffix\\\\E$\"}", where.getJSONObject("stringKey4").toString());
+        assertEqual("{\"$regex\":\"^.*(p)?\"}", where.getJSONObject("regexKey1").toString());
+        assertEqual("{\"$regex\":\"^.*\",\"$options\":\"m\"}", where.getJSONObject("regexKey2").toString());
+       
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5},\"$maxDistance\":10000}", 
+                where.getJSONObject("city").toString());
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}}", 
+                where.getJSONObject("tournament").toString());
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}", 
+                where.getJSONObject("work").toString());
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}", 
+                where.getJSONObject("home").toString());
+        assertEqual("{\"$within\":{\"$box\":[{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},"
+                + "{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}]}}", 
+                where.getJSONObject("bounds").toString());
 
-        /* Raw result
-        
-         {
-         "where":{    
-         "city":{"$nearSphere":{"__type":"GeoPoint","latitude":18,"longitude":5},"$maxDistance":10000},
-         "tournament":{"$nearSphere":{"__type":"GeoPoint","latitude":18,"longitude":5}},
-         "regexKey2":{"$regex":"^.*","$options":"m"},
-         "regexKey1":{"$regex":"^.*(p)?"},
-         "stringKey1":{"$regex":"^\\Qprefix\\E"},
-         "stringKey2":{"$regex":"\\Qsuffix\\E$"},
-         "work":{"$nearSphere":{"__type":"GeoPoint","latitude":-10,"longitude":10},"$maxDistance":1},
-         "home":{"$nearSphere":{"__type":"GeoPoint","latitude":-10,"longitude":10},"$maxDistance":1},
-         "bounds":{"$within":{"$box":[{"__type":"GeoPoint","latitude":-10,"longitude":10},{"__type":"GeoPoint","latitude":18,"longitude":5}]}},
-         "stringKey":{"$regex":"(?i)\\Qsubstring\\E"},
-         }
-         */
-        /* Raw result
-        
-         {"include":"quotes,location.x",
-         "keys":"key1,key2",
-         "limit":10,
-         "className":"games",
-         "skip":5,
-         "order":"-tournaments,loosingScore,-score2,
-         "where":{    
-         "queryKey":{"$inQuery":{"className":"players","where":{"games":{"$exists":true}}}},
-         "score2":{"$lte":2},
-         "city":{"$nearSphere":{"__type":"GeoPoint","latitude":18,"longitude":5},"$maxDistance":10000},
-         "tournament":{"$nearSphere":{"__type":"GeoPoint","latitude":18,"longitude":5}},
-         "losses":{"$lt":2},
-         "regexKey2":{"$regex":"^.*","$options":"m"},
-         "regexKey1":{"$regex":"^.*(p)?"},
-         "opponent":{"$dontSelect":{"query":{"className":"players","where":{"games":{"$exists":true}}},"key":"username"}},
-         "playerName1":{"$in":["Jang Min Chul","Sean Plott"]},
-         "rank":{"$ne":"amateur"},
-         "playerName2":{"$nin":["Don't Allow"]},
-         "stringKey1":{"$regex":"^\\Qprefix\\E"},
-         "stringKey2":{"$regex":"\\Qsuffix\\E$"},
-         "player":{"$select":{"query":{"className":"players","where":{"games":{"$exists":true}}},"key":"username"}},
-         "wins":{"$gte":10},
-         "worstScore":{"$exists":true},
-         "bestScore":{"$exists":false},
-         "work":{"$nearSphere":{"__type":"GeoPoint","latitude":-10,"longitude":10},"$maxDistance":1},
-         "query":{"$inQuery":{"className":"players","where":{"games":{"$exists":true}}}},
-         "home":{"$nearSphere":{"__type":"GeoPoint","latitude":-10,"longitude":10},"$maxDistance":1},
-         "anotherQueryKey":{"$notInQuery":{"className":"players","where":{"games":{"$exists":true}}}},
-         "dob":"15-12-1900",
-         "bounds":{"$within":{"$box":[{"__type":"GeoPoint","latitude":-10,"longitude":10},{"__type":"GeoPoint","latitude":18,"longitude":5}]}},
-         "stringKey":{"$regex":"(?i)\\Qsubstring\\E"},
-         "score1":{"$gt":-6}}"}
-         */
         System.out.println("============== testQueryFormat(): End");
     }
 
@@ -321,8 +291,8 @@ public class ParseQueryTest extends BaseParseTest {
         for (ParseObject output : results) {
             assertTrue(output.getInt(fieldScore) == 1000,
                     "Retrieved output should meet equals query constraints");
-        }  
-        
+        }
+
         query = ParseQuery.getQuery(classGameScore);
         query.whereNotEqualTo(fieldScore, 1000);
         results = query.find();
@@ -336,7 +306,7 @@ public class ParseQueryTest extends BaseParseTest {
         }
         System.out.println("============== checkEqualsAndNotEqualsConstraints(): End");
     }
-    
+
     private void checkGreaterAndLessThanConstraints() throws ParseException {
         System.out.println("============== checkGreaterAndLessThanConstraints(): Start");
         query = ParseQuery.getQuery(classGameScore);
@@ -813,7 +783,7 @@ public class ParseQueryTest extends BaseParseTest {
         post1.delete();
         post2.delete();
         deleteAllUsers();
-        
+
         System.out.println("============== checkRelatedToConstraints(): End");
     }
 
@@ -853,7 +823,7 @@ public class ParseQueryTest extends BaseParseTest {
                 "All top-level data matches (deep include)");
         assertTrue(dataMatches(reply, deepIncludedPost.getParseObject(fieldNestedComment)),
                 "Nested field is also fully included");
-        
+
         System.out.println("============== checkIncludeConstraints(): End");
     }
 
@@ -905,36 +875,45 @@ public class ParseQueryTest extends BaseParseTest {
         System.out.println("============== checkRegexConstraints(): Start");
         // starts with
         query = ParseQuery.getQuery(classGameScore);
-        query.whereStartsWith(fieldPlayerName, "S");        
+        query.whereStartsWith(fieldPlayerName, "S");
         assertTrue(query.find().size() > 0, "starts with 'S' returns results (case-sensitive)");
-        
+
         query.whereStartsWith(fieldPlayerName, "s");
         assertTrue(query.find().isEmpty(), "starts with 's' returns no results (case-sensitive)");
-        
+
         query.setCaseSensitive(false).whereStartsWith(fieldPlayerName, "s");
         assertTrue(query.find().size() > 0, "starts with 's' returns results (case-insensitive)");
-        
+
         // ends with
         query = ParseQuery.getQuery(classGameScore);
         query.whereEndsWith(fieldPlayerName, "sh");
         assertTrue(query.find().size() > 0, "ends with 'sh' returns results (case-sensitive)");
-        
+
         query.whereEndsWith(fieldPlayerName, "Sh");
         assertTrue(query.find().isEmpty(), "ends with 'Sh' returns no results (case-sensitive)");
-        
+
         query.setCaseSensitive(false).whereEndsWith(fieldPlayerName, "Sh");
         assertTrue(query.find().size() > 0, "ends with 'Sh' returns results (case-insensitive)");
-        
+
         // matches
         final String mrWinnerRegex = "^.*[.].*Ner$";
         query = ParseQuery.getQuery(classGameScore);
         query.whereMatches(fieldPlayerName, mrWinnerRegex, "i");
         assertTrue(query.find().size() > 0, "regex match returns results (case-insensitive)");
-        
+
         query = ParseQuery.getQuery(classGameScore);
         query.whereMatches(fieldPlayerName, mrWinnerRegex);
         assertTrue(query.find().isEmpty(), "regex match returns no results (case-sensitive)");
-        
+
+        // contains
+        query = ParseQuery.getQuery(classGameScore);
+        query.whereContains(fieldPlayerName, "bro");
+        assertTrue(query.find().size() > 0, "contains query returns results");
+
+        query = ParseQuery.getQuery(classGameScore);
+        query.whereContains(fieldPlayerName, "Bro");
+        assertTrue(query.find().isEmpty(), "contains query returns no results (case-sensitive by default)");
+
         System.out.println("============== checkRegexConstraints(): End");
     }
 }
