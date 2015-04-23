@@ -66,8 +66,10 @@ public class ParseDecoder {
         } else if ("Object".equals(typeString)) {
             return decodeObject(jsonObject);
         } else if ("File".equals(typeString)) {
-            return new ParseFile(jsonObject.optString("name"),
+            final ParseFile file = new ParseFile(jsonObject.optString("name"),
                     jsonObject.optString("url"));
+            file.setDirty(false);
+            return file;
         } else if ("GeoPoint".equals(typeString)) {
             double latitude, longitude;
             try {
@@ -124,7 +126,7 @@ public class ParseDecoder {
         ParseObject obj = ParseRegistry.getObjectFactory(className).create(className);
         jsonObject.remove(ParseConstants.FIELD_CLASSNAME);
         jsonObject.remove(ParseConstants.KEYWORD_TYPE);
-        obj.setData(jsonObject, true);
+        obj.setData(jsonObject);
         return obj;
     }
 }

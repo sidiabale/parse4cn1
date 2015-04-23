@@ -885,12 +885,7 @@ public class ParseQuery<T extends ParseObject> {
                 for (int i = 0; i < objs.length(); i++) {
                     T po = ParseRegistry.getObjectFactory(getClassName()).create(getClassName());
                     JSONObject obj = (JSONObject) objs.get(i);
-                    /*
-                     We disable some checks while setting data in objects during fetch because
-                     those checks are useful only when setting data from client
-                     code. The "true" argument disables such checks.
-                     */
-                    po.setData(obj, true);
+                    po.setData(obj);
                     results.add((T) po);
                 }
 

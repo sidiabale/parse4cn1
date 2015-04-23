@@ -13,38 +13,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Original implementation adapted from Thiago Locatelli's Parse4J project
- * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1.command;
 
 import com.codename1.io.ConnectionRequest;
+import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
+import com.parse4cn1.util.MimeType;
 
-public class ParseGetCommand extends ParseCommand {
+public class ParseDownloadCommand extends ParseCommand {
 
-    private final String endPoint;
-    private String objectId;
+    private final String url;
+    private final String contentType;
 
-    public ParseGetCommand(String endPoint, String objectId) {
-        this.endPoint = endPoint;
-        this.objectId = objectId;
-    }
+    public ParseDownloadCommand(final String url, final String contentType) {
+        if (url == null) {
+            throw new NullPointerException("Null URL");
+        }
 
-    public ParseGetCommand(String endPoint) {
-        this(endPoint, null);
+        this.url = url;
+        
+        if (contentType != null) {
+            this.contentType = contentType;
+        } else {
+            this.contentType = MimeType.getMimeType(MimeType.getFileExtension(url));
+        }
     }
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(request, addJson);
         request.setPost(false);
         request.setHttpMethod("GET");
-        request.setUrl(getUrl(endPoint, objectId));
-    }
+        request.setUrl(url);
 
-    public void addJson(boolean addJson) {
-        this.addJson = addJson;
+        if (contentType != null) {
+            request.addRequestHeader(ParseConstants.HEADER_CONTENT_TYPE, contentType);
+        }
     }
 }

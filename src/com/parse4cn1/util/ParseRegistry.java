@@ -19,7 +19,7 @@
 
 package com.parse4cn1.util;
 
-import com.parse4cn1.DefaultParseObjectFactory;
+import com.parse4cn1.Parse.DefaultParseObjectFactory;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
 import java.util.Map;

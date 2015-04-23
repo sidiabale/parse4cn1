@@ -16,25 +16,19 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1.command;
 
 import com.codename1.io.ConnectionRequest;
-import com.codename1.io.MultipartRequest;
-import com.codename1.io.NetworkEvent;
-import com.codename1.io.NetworkManager;
-import com.codename1.ui.events.ActionEvent;
-import com.codename1.ui.events.ActionListener;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
-import com.parse4cn1.callback.ProgressCallback;
+import java.io.IOException;
+import java.io.OutputStream;
 
 public class ParseUploadCommand extends ParseCommand {
 
     private final String endPoint;
     private String contentType;
     private byte[] uploadData;
-    private ProgressCallback progressCallback;
 
     public ParseUploadCommand(String endPoint) {
         this.endPoint = endPoint;
@@ -54,23 +48,23 @@ public class ParseUploadCommand extends ParseCommand {
         request.setPost(true);
         request.setHttpMethod("POST");
         request.setUrl(getUrl(endPoint, null));
-        
+
         if (contentType != null) {
             request.addRequestHeader(ParseConstants.HEADER_CONTENT_TYPE, contentType);
         }
-
-        // TODO Check if this works!!! Not sure what the key (currently 'data') should be
-        if (uploadData != null) {
-            if (!(request instanceof MultipartRequest)) {
-                throw new ParseException(ParseException.INCORRECT_TYPE, 
-                        "Request is not a MultipartRequest");
-            }
-            ((MultipartRequest) request).addData("data", uploadData, contentType);
-        }
     }
 
+    @Override
     protected ConnectionRequest getConnectionRequest(final ParseResponse response) {
-        final MultipartRequest request = new MultipartRequest() {
+        /*
+         Normally, a multipart request is typically used for uploading files.
+         However, using with the parse API results in some extra bytes at the 
+         beginning and end of the retrieved files. This results in corrupted 
+         files upon attempting to read or download via the URL returned upon creation.
+        (See also: http://stackoverflow.com/questions/21966299/uploading-image-to-parse-com-with-afnetworking-causing-corrupt-image)
+         Instead, sending the raw bytes in the payload as done below works just fine.
+        */
+        final ConnectionRequest request = new ConnectionRequest() {
 
             @Override
             protected void handleErrorResponseCode(int code, String message) {
@@ -82,27 +76,14 @@ public class ParseUploadCommand extends ParseCommand {
             protected void handleException(Exception err) {
                 response.setError(new ParseException(ParseException.CONNECTION_FAILED, err.getMessage()));
             }
+
+            @Override
+            protected void buildRequestBody(OutputStream os) throws IOException {
+                os.write(uploadData);
+            }
         };
-
-        if (progressCallback != null) {
-            NetworkManager.getInstance().addProgressListener(new ActionListener() {
-
-                public void actionPerformed(ActionEvent evt) {
-                    if (evt instanceof NetworkEvent) {
-                        final NetworkEvent networkEvent = (NetworkEvent) evt;
-                        if (request.equals(networkEvent.getConnectionRequest())) {
-                            progressCallback.done(networkEvent.getProgressPercentage());
-                        }
-                    }
-                }
-            });
-        }
 
         request.setReadResponseForErrors(true);
         return request;
-    }
-
-    public void setProgressCallback(ProgressCallback progressCallback) {
-        this.progressCallback = progressCallback;
     }
 }

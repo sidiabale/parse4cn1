@@ -48,10 +48,11 @@ public class ParseConstants {
     public static final String ENDPOINT_ROLES = "roles";
     public static final String ENDPOINT_SESSIONS = "sessions";
     public static final String CLASSES_PATH = "classes/";
+    public static final String FILES_PATH = "files/";
     
     public static final String KEYWORD_OP = "__op";
     public static final String KEYWORD_TYPE = "__type";
 
-    public static int MAX_PARSE_FILE_SIZE = 10485760;
+    public static int MAX_PARSE_FILE_SIZE_IN_BYTES = 10485760; //10 MB
 
 }
