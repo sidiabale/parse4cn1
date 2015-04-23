@@ -17,6 +17,9 @@
 package com.parse4cn1;
 
 import com.codename1.testing.AbstractTest;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -134,6 +137,18 @@ public class BaseParseTest extends AbstractTest {
         // TODO: Replace with batch creation when batch operations are implemented
         for (ParseObject object: objects) {
             object.save();
+        }
+    }
+    
+    protected byte[] getBytes(String fileName) throws ParseException {
+        try {
+            RandomAccessFile f = new RandomAccessFile(getClass().getResource(fileName).getFile(), "r");
+            byte[] b = new byte[(int) f.length()];
+            f.read(b);
+            f.close();
+            return b;
+        } catch (IOException e) {
+            throw new ParseException(e);
         }
     }
     

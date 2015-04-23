@@ -24,17 +24,38 @@ import com.parse4cn1.operation.OperationUtil;
 import com.parse4cn1.operation.ParseOperationDecoder;
 import com.parse4cn1.util.ParseRegistry;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 
 public class Parse {
 
+    public interface IPersistable {
+        /**
+         *  An object is dirty if a change has been made to it that requires it to be persisted.
+         * @return {@code true} if the object is dirty; otherwise {@code false}.
+         */
+        boolean isDirty();
+        
+        /**
+         * Sets the dirty flag.
+         * 
+         * @param dirty {@code true} if the object should be marked as dirty; otherwise {@code false}. 
+         */
+        void setDirty(boolean dirty);
+        
+        /**
+         * Saves the object. Calling this method on an object that is not dirty
+         * should have no side effects.
+         * 
+         * @throws ParseException if anything goes wrong during the save operation.
+         */
+        void save() throws ParseException;
+    }
+    
     /**
      * A factory for instantiating ParseObjects of various concrete types
      */
@@ -49,6 +70,27 @@ public class Parse {
          * @return The newly created Parse object.
          */
         <T extends ParseObject> T create(final String className);
+    }
+    
+    public static class DefaultParseObjectFactory implements IParseObjectFactory {
+
+        public <T extends ParseObject> T create(String className) {
+            T obj;
+
+            if (ParseConstants.ENDPOINT_USERS.equals(className)
+                    || ParseConstants.CLASS_NAME_USER.equals(className)) {
+                obj = (T) new ParseUser();
+            } else if (ParseConstants.ENDPOINT_ROLES.equals(className)
+                    || ParseConstants.CLASS_NAME_ROLE.equals(className)) {
+                obj = (T) new ParseRole();
+            } else {
+                obj = (T) new ParseObject(className);
+            }
+        // TODO: Extend with other 'default' parse object subtypes
+            // e.g. ParseFile, ParseGeoPoint.
+
+            return obj;
+        }
     }
     
     private static String mApplicationId;
@@ -92,7 +134,7 @@ public class Parse {
     public static synchronized Date parseDate(String dateString) {
         try {
             return dateFormat.parse(dateString);
-        } catch (ParseException e) {
+        } catch (java.text.ParseException e) {
             return null;
         }
     }

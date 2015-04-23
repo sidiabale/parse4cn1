@@ -21,6 +21,7 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.parse4cn1.Parse.IPersistable;
 import com.parse4cn1.callback.GetCallback;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParseDeleteCommand;
@@ -50,14 +51,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class ParseObject {
+public class ParseObject implements IPersistable {
 
     private static final Logger LOGGER = Logger.getInstance();
 
     private String objectId;
     private String className;
     private String endPoint;
-    boolean isDirty = false;
+    boolean dirty = false;
 
     private Map<String, Object> data;
     private Map<String, ParseOperation> operations;
@@ -309,21 +310,6 @@ public class ParseObject {
     }
 
     public void put(String key, Object value) {
-        put(key, value, false);
-    }
-
-    protected void validateSave() throws ParseException {
-    }
-    
-    /**
-     *
-     * @param key
-     * @param value
-     * @param disableChecks some checks have to be skipped during fetch.
-     * Currently the only effect of passing true here is to disable the check on
-     * uploaded files. See issue #17 on github (https://github.com/thiagolocatelli/parse4j/issues/17).
-     */
-    protected void put(String key, Object value, boolean disableChecks) {
 
         if (key == null) {
             LOGGER.error("key may not be null.");
@@ -335,16 +321,10 @@ public class ParseObject {
             throw new IllegalArgumentException("value may not be null.");
         }
 
-        if (value instanceof ParseObject && ((ParseObject) value).isDirty) {
-            LOGGER.error("ParseObject must be saved before being set on another ParseObject.");
+        if (value instanceof IPersistable && ((IPersistable) value).isDirty()) {
+            LOGGER.error("Persistable object must be saved before being set on a ParseObject.");
             throw new IllegalArgumentException(
-                    "ParseObject must be saved before being set on another ParseObject.");
-        }
-
-        if (value instanceof ParseFile && !((ParseFile) value).isUploaded() && !disableChecks) {
-            LOGGER.error("ParseFile must be saved before being set on a ParseObject.");
-            throw new IllegalArgumentException(
-                    "ParseFile must be saved before being set on a ParseObject.");
+                    "Persistable object must be saved before being set on a ParseObject.");
         }
 
         if (Parse.isReservedKey(key)) {
@@ -362,51 +342,38 @@ public class ParseObject {
         performOperation(key, new SetFieldOperation(value));
     }
 
-    protected void performSave(final ParseCommand command) throws ParseException {
-        
-        command.setData(getParseData());
-        ParseResponse response = command.perform();
-        if (!response.isFailed()) {
-            JSONObject jsonResponse = response.getJsonObject();
-            if (jsonResponse == null) {
-                LOGGER.error("Empty response");
-                throw response.getException();
-            }
 
-            setData(jsonResponse);
-            if (getUpdatedAt() == null) {
-                setUpdatedAt(getCreatedAt());
-            }
-        } else {
-            LOGGER.error("Request failed.");
-            throw response.getException();
-        }
+    @Override
+    public boolean isDirty() {
+        return dirty;
+    }
+
+    @Override
+    public void setDirty(boolean dirty) {
+       this.dirty = dirty;
     }
     
-    void performOperation(String key, ParseOperation operation) {
+    @Override
+    public void save() throws ParseException {
 
-        if (has(key)) {
-            operations.remove(key);
-            data.remove(key);
-        }
-
-        Object value = null;
-        try {
-            value = operation.apply(null, this, key);
-        } catch (ParseException ex) {
-            throw new IllegalArgumentException(ex.getMessage());
+        if (!isDirty()) {
+            Logger.getInstance().warn("Ignoring request to save unchanged/empty"
+                    + " object");
+            return;
         }
         
-        if (value != null) {
-            data.put(key, value);
-        } else {
-            data.remove(key);
-        }
-        operations.put(key, operation);
-        dirtyKeys.add(key);
-        isDirty = true;
-    }
+        validateSave();
 
+        ParseCommand command;
+        if (objectId == null) {
+            command = new ParsePostCommand(getEndPoint());
+        } else {
+            command = new ParsePutCommand(getEndPoint(), getObjectId());
+        }
+        
+        performSave(command);
+    }
+    
     public void deleteField(String key) {
 
         if (has(key)) {
@@ -418,7 +385,7 @@ public class ParseObject {
             }
             data.remove(key);
             dirtyKeys.add(key);
-            isDirty = true;
+            setDirty(true);
         }
     }
 
@@ -442,27 +409,7 @@ public class ParseObject {
         data.put(key, newValue);
         operations.put(key, operation);
         dirtyKeys.add(key);
-        isDirty = true;
-    }
-
-    public void save() throws ParseException {
-
-        if (!isDirty) {
-            Logger.getInstance().warn("Ignoring request to save unchanged/empty"
-                    + " object");
-            return;
-        }
-        
-        validateSave();
-
-        ParseCommand command;
-        if (objectId == null) {
-            command = new ParsePostCommand(getEndPoint());
-        } else {
-            command = new ParsePutCommand(getEndPoint(), getObjectId());
-        }
-        
-        performSave(command);
+        setDirty(true);
     }
 
     public void delete() throws ParseException {
@@ -523,6 +470,56 @@ public class ParseObject {
 
         return parseData;
     }
+
+    protected void validateSave() throws ParseException {
+    }
+ 
+    protected void performSave(final ParseCommand command) throws ParseException {
+        
+        command.setData(getParseData());
+        ParseResponse response = command.perform();
+        if (!response.isFailed()) {
+            JSONObject jsonResponse = response.getJsonObject();
+            if (jsonResponse == null) {
+                LOGGER.error("Empty response");
+                throw response.getException();
+            }
+
+            setData(jsonResponse);
+            if (getUpdatedAt() == null) {
+                setUpdatedAt(getCreatedAt());
+            }
+        } else {
+            LOGGER.error("Request failed.");
+            throw response.getException();
+        }
+    }
+    
+    void performOperation(String key, ParseOperation operation) {
+
+        if (has(key)) {
+            operations.remove(key);
+            data.remove(key);
+        }
+
+        Object value = null;
+        try {
+            value = operation.apply(null, this, key);
+        } catch (ParseException ex) {
+            throw new IllegalArgumentException(ex.getMessage());
+        }
+        
+        if (value != null) {
+            data.put(key, value);
+        } else {
+            data.remove(key);
+        }
+        operations.put(key, operation);
+        dirtyKeys.add(key);
+        setDirty(true);
+    }
+
+    
 // TODO: Fix all save- and deleteInBackground() methods
 //    public void saveInBackground() {
 //        saveInBackground(null);
@@ -546,9 +543,9 @@ public class ParseObject {
         updatedAt = null;
         createdAt = null;
         objectId = null;
-        isDirty = false;
-        operations.clear();
+        setDirty(false);
         dirtyKeys.clear();
+        operations.clear();
         data.clear();
     }
 
@@ -629,14 +626,14 @@ public class ParseObject {
     }
     
     public <T extends ParseObject> T fetchIfNeeded() throws ParseException {
-        // TODO: Why is unconditional fetch done for a method that says ~IF NEEDED?
-        // Perhaps we need to first check if the object is dirty?
-        return fetch(getEndPoint(), getObjectId());
+        if (data.isEmpty() && !isDirty()) {
+            return fetch(getEndPoint(), getObjectId());
+        } else {
+            return (T) this;
+        }
     }
 
     public final <T extends ParseObject> void fetchIfNeeded(GetCallback<T> callback) {
-        // TODO: Why is unconditional fetch done for a method that says ~IF NEEDED?
-        // Perhaps we need to first check if the object is dirty?
         ParseException exception = null;
         T object = null;
 
@@ -652,10 +649,6 @@ public class ParseObject {
     }
 
     public void setData(JSONObject jsonObject) {
-        setData(jsonObject, false);
-    }
-
-    public void setData(JSONObject jsonObject, boolean disableChecks) {
    
         Iterator<?> it = jsonObject.keys();
         while (it.hasNext()) {
@@ -664,11 +657,11 @@ public class ParseObject {
             if (Parse.isReservedKey(key)) {
                 setReservedKey(key, value);
             } else {
-                put(key, ParseDecoder.decode(value), disableChecks);
+                put(key, ParseDecoder.decode(value));
             }
         }
 
-        this.isDirty = false;
+        setDirty(false);
         this.operations.clear();
         this.dirtyKeys.clear();
     }

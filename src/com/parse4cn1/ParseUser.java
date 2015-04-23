@@ -91,7 +91,7 @@ public class ParseUser extends ParseObject {
 
     public void setPassword(String password) {
         this.password = password;
-        isDirty = true;
+        dirty = true;
     }
 
     public void setEmail(String email) {
@@ -273,12 +273,12 @@ public class ParseUser extends ParseObject {
     }
 
     @Override
-    public void setData(JSONObject jsonObject, boolean disableChecks) {
+    public void setData(JSONObject jsonObject) {
         if (jsonObject.has(ParseConstants.FIELD_SESSION_TOKEN)) {
             setSessionToken(jsonObject.optString(ParseConstants.FIELD_SESSION_TOKEN));
             jsonObject.remove(ParseConstants.FIELD_SESSION_TOKEN);
         }
-        super.setData(jsonObject, disableChecks);
+        super.setData(jsonObject);
     }
 
     @Override
@@ -290,7 +290,7 @@ public class ParseUser extends ParseObject {
                     "Cannot save a ParseUser until it has been signed up. Call signUp first.");
         }
 
-        if ((!isAuthenticated()) && isDirty && getObjectId() != null) {
+        if ((!isAuthenticated()) && dirty && getObjectId() != null) {
             LOGGER.error("Cannot save a ParseUser that is not authenticated.");
             throw new ParseException(ParseException.SESSION_MISSING,
                     "Cannot save a ParseUser that is not authenticated.");

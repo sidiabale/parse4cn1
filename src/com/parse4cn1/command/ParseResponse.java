@@ -32,7 +32,7 @@ public class ParseResponse {
     private static final Logger LOGGER = Logger.getInstance();
     
     private ParseException error;
-    private String responseBody;
+    private byte[] responseBody;
     private int statusCode;
 
     static ParseException getConnectionFailedException(String message) {
@@ -47,7 +47,6 @@ public class ParseResponse {
     public boolean isFailed() {
         return hasConnectionFailed() || hasError();
     }
-
 
     public ParseException getException() {
 
@@ -108,9 +107,13 @@ public class ParseResponse {
                 : new ParseException(code, errorMsg);
     }
 
+    public byte[] getResponseData() {
+        return responseBody;
+    }
+    
     public JSONObject getJsonObject() throws ParseException {
         try {
-            return new JSONObject(responseBody);
+            return new JSONObject(new String(responseBody));
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, 
                     "Unable to parse the response to JSON", ex);
@@ -119,9 +122,9 @@ public class ParseResponse {
     
     protected void extractResponseData(final ConnectionRequest request) {
         if (request.getResponseData() != null) {
-            responseBody = new String(request.getResponseData());
+            responseBody = request.getResponseData();
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Raw response: " + responseBody);
+                LOGGER.debug("Raw response (as string): " + new String(responseBody));
             }
             setStatusCode(request.getResponseCode());
         }

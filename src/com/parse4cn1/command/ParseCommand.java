@@ -21,10 +21,14 @@ package com.parse4cn1.command;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.ConnectionRequest;
+import com.codename1.io.NetworkEvent;
 import com.codename1.io.NetworkManager;
+import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.events.ActionListener;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
+import com.parse4cn1.callback.ProgressCallback;
 import com.parse4cn1.util.Logger;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -37,6 +41,8 @@ public abstract class ParseCommand {
 
     private final JSONObject data = new JSONObject();
     private final JSONObject headers = new JSONObject();
+    private ProgressCallback progressCallback;
+    
     protected boolean addJson;
 
     abstract void setUpRequest(final ConnectionRequest request) throws ParseException;
@@ -49,8 +55,22 @@ public abstract class ParseCommand {
 
         long commandStart = System.currentTimeMillis();
         final ParseResponse response = new ParseResponse();
-        ConnectionRequest request = getConnectionRequest(response);
+        final ConnectionRequest request = getConnectionRequest(response);
         setUpRequest(request);
+        
+        if (progressCallback != null) {
+            NetworkManager.getInstance().addProgressListener(new ActionListener() {
+
+                public void actionPerformed(ActionEvent evt) {
+                    if (evt instanceof NetworkEvent) {
+                        final NetworkEvent networkEvent = (NetworkEvent) evt;
+                        if (request.equals(networkEvent.getConnectionRequest())) {
+                            progressCallback.done(networkEvent.getProgressPercentage());
+                        }
+                    }
+                }
+            });
+        }
 
         Iterator keys = headers.keys();
         while (keys.hasNext()) {
@@ -170,9 +190,9 @@ public abstract class ParseCommand {
             throw new ParseException(ParseException.INVALID_JSON, ex);
         }
     }
-
-    public void putHeader(String key, String value) {
-
+    
+    public void setProgressCallback(ProgressCallback progressCallback) {
+        this.progressCallback = progressCallback;
     }
 
 //    public void put(String key, int value) throws ParseException {
