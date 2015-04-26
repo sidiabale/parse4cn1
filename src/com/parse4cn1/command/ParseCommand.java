@@ -65,7 +65,10 @@ public abstract class ParseCommand {
                     if (evt instanceof NetworkEvent) {
                         final NetworkEvent networkEvent = (NetworkEvent) evt;
                         if (request.equals(networkEvent.getConnectionRequest())) {
-                            progressCallback.done(networkEvent.getProgressPercentage());
+                            int progressPercentage = networkEvent.getProgressPercentage();
+                            if (progressPercentage >= 0) {
+                                progressCallback.done(progressPercentage);
+                            }
                         }
                     }
                 }
