@@ -231,15 +231,17 @@ public class ParseFile implements Parse.IPersistable {
 //    }
 
     public byte[] getData() throws ParseException {
-        final ParseDownloadCommand command = 
-                new ParseDownloadCommand(getUrl(), getContentType());
+        if (data == null) {
+            final ParseDownloadCommand command
+                    = new ParseDownloadCommand(getUrl(), getContentType());
 
-        ParseResponse response = command.perform();
-        if (!response.isFailed()) {
-            data = response.getResponseData();
-        } else {
-            LOGGER.error("Request failed.");
-            throw response.getException();
+            ParseResponse response = command.perform();
+            if (!response.isFailed()) {
+                data = response.getResponseData();
+            } else {
+                LOGGER.error("Request failed.");
+                throw response.getException();
+            }
         }
         return data;
     }
