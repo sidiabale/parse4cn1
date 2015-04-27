@@ -67,17 +67,16 @@ public class ParseQueryTest extends BaseParseTest {
 
     @Override
     protected void resetClassData() {
-        System.out.println("============== resetClassData(): Begin");
+        System.out.println("============== resetClassData()");
         deleteAllUsers();
         deleteObjects(classGameScore);
         deleteObjects(classTeam);
         deleteObjects(classPost);
         deleteObjects(classComment);
-        System.out.println("============== resetClassData(): End");
     }
 
     private void prepareData() throws ParseException {
-        System.out.println("============== prepareData(): Begin");
+        System.out.println("============== prepareData()");
         ParseObject object = ParseObject.create(classGameScore);
         object.put(fieldScore, 4);
         gameScoreObjects.add(object);
@@ -141,7 +140,6 @@ public class ParseQueryTest extends BaseParseTest {
             }
         }
         saveObjects(comments);
-        System.out.println("============== prepareData(): End");
     }
 
     private void testRestApiExample() throws ParseException {
@@ -170,7 +168,7 @@ public class ParseQueryTest extends BaseParseTest {
     }
 
     private void testQueryFormat() throws ParseException, JSONException {
-        System.out.println("============== testQueryFormat(): Start");
+        System.out.println("============== testQueryFormat()");
 
         final ParseGeoPoint geoPoint1 = new ParseGeoPoint(-10.0, 10.0);
         final ParseGeoPoint geoPoint2 = new ParseGeoPoint(18.0, 5.0);
@@ -275,12 +273,10 @@ public class ParseQueryTest extends BaseParseTest {
         assertEqual("{\"$within\":{\"$box\":[{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},"
                 + "{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}]}}", 
                 where.getJSONObject("bounds").toString());
-
-        System.out.println("============== testQueryFormat(): End");
     }
 
     private void checkEqualsAndNotEqualsConstraints() throws ParseException {
-        System.out.println("============== checkEqualsAndNotEqualsConstraints(): Start");
+        System.out.println("============== checkEqualsAndNotEqualsConstraints()");
         query = ParseQuery.getQuery(classGameScore);
         query.whereEqualTo(fieldScore, 1000);
         List<ParseObject> results = query.find();
@@ -304,11 +300,10 @@ public class ParseQueryTest extends BaseParseTest {
             assertTrue((output.getInt(fieldScore) == null) || (output.getInt(fieldScore) != 1000),
                     "Retrieved output should meet $ne query constraints");
         }
-        System.out.println("============== checkEqualsAndNotEqualsConstraints(): End");
     }
 
     private void checkGreaterAndLessThanConstraints() throws ParseException {
-        System.out.println("============== checkGreaterAndLessThanConstraints(): Start");
+        System.out.println("============== checkGreaterAndLessThanConstraints()");
         query = ParseQuery.getQuery(classGameScore);
         query.whereGreaterThanOrEqualTo(fieldScore, 1000);
         query.whereLessThanOrEqualTo(fieldScore, 3000);
@@ -338,11 +333,10 @@ public class ParseQueryTest extends BaseParseTest {
                         + "constraints but not found");
             }
         }
-        System.out.println("============== checkGreaterAndLessThanConstraints(): End");
     }
 
     private void checkInConstraint() throws ParseException {
-        System.out.println("============== checkInConstraint(): Start");
+        System.out.println("============== checkInConstraint()");
         List<Integer> allowedScores = Arrays.asList(new Integer[]{1, 3, 5, 9});
         query = ParseQuery.getQuery(classGameScore);
         query.whereContainedIn(fieldScore, allowedScores);
@@ -371,12 +365,12 @@ public class ParseQueryTest extends BaseParseTest {
                         + "but not found");
             }
         }
-        System.out.println("============== checkInConstraint(): End");
     }
 
     private void checkNotInConstraints() throws ParseException {
-        System.out.println("============== checkNotInConstraint(): Start");
-        List<String> allowedPlayers = Arrays.asList(new String[]{"Jonathan Walsh", "Dario Wunsch", "Shawn Simon"});
+        System.out.println("============== checkNotInConstraint()");
+        List<String> allowedPlayers = Arrays.asList(new String[]{
+            "Jonathan Walsh", "Dario Wunsch", "Shawn Simon"});
         query = ParseQuery.getQuery(classGameScore);
         query.whereNotContainedIn(fieldPlayerName, allowedPlayers);
         List<ParseObject> results = query.find();
@@ -404,11 +398,10 @@ public class ParseQueryTest extends BaseParseTest {
                         + "but not found");
             }
         }
-        System.out.println("============== checkInConstraint(): End");
     }
 
     private void checkExistsConstraints() throws ParseException {
-        System.out.println("============== checkExistsConstraints(): Start");
+        System.out.println("============== checkExistsConstraints()");
         query = ParseQuery.getQuery(classGameScore);
         query.whereExists(fieldScore);
         List<ParseObject> results = query.find();
@@ -436,11 +429,10 @@ public class ParseQueryTest extends BaseParseTest {
                         + "but not found");
             }
         }
-        System.out.println("============== checkExistsConstraints(): End");
     }
 
     private void checkNotExistsConstraints() throws ParseException {
-        System.out.println("============== checkNotExistsConstraints(): Start");
+        System.out.println("============== checkNotExistsConstraints()");
         query = ParseQuery.getQuery(classGameScore);
         query.whereDoesNotExist(fieldScore);
         List<ParseObject> results = query.find();
@@ -468,11 +460,10 @@ public class ParseQueryTest extends BaseParseTest {
                         + "constraints but not found");
             }
         }
-        System.out.println("============== checkNotExistsConstraints(): End");
     }
 
     private void checkMatchesOrDoesNotMatchKeyInQueryConstraints() throws ParseException {
-        System.out.println("============== checkMatchesOrDoesNotMatchKeyInQueryConstraints(): Start");
+        System.out.println("============== checkMatchesOrDoesNotMatchKeyInQueryConstraints()");
         List<ParseUser> users = new ArrayList<ParseUser>();
         List<ParseObject> teams = new ArrayList<ParseObject>();
         final String fieldWinRecord = "winPct";
@@ -553,11 +544,10 @@ public class ParseQueryTest extends BaseParseTest {
 
         deleteObjects(users);
         deleteObjects(teams);
-        System.out.println("============== checkMatchesOrDoesNotMatchKeyInQueryConstraints(): End");
     }
 
     private void checkSortConstraints() throws ParseException {
-        System.out.println("============== checkSortConstraints(): Start");
+        System.out.println("============== checkSortConstraints()");
         query = ParseQuery.getQuery(classGameScore);
         query.addAscendingOrder(fieldScore).addDescendingOrder(fieldPlayerName);
         List<ParseObject> results = query.find();
@@ -585,11 +575,10 @@ public class ParseQueryTest extends BaseParseTest {
             score = output.getInt(fieldScore);
             playerName = output.getString(fieldPlayerName);
         }
-        System.out.println("============== checkSortConstraints(): End");
     }
 
     private void checkLimitAndSkipConstraints() throws ParseException {
-        System.out.println("============== checkLimitAndSkipConstraints(): Start");
+        System.out.println("============== checkLimitAndSkipConstraints()");
         final int limit = gameScoreObjects.size() / 2;
         final int skip = Math.min(2, limit);
 
@@ -614,11 +603,10 @@ public class ParseQueryTest extends BaseParseTest {
             assertTrue(found, "Output with objectId " + output.getObjectId()
                     + " is expected in result (non-skipped objects) but not found");
         }
-        System.out.println("============== checkLimitAndSkipConstraints(): End");
     }
 
     private void checkKeyConstraints() throws ParseException {
-        System.out.println("============== checkKeyConstraints(): Start");
+        System.out.println("============== checkKeyConstraints()");
         query = ParseQuery.getQuery(classGameScore);
         final Set<String> targetKeys = new HashSet<String>();
         targetKeys.add(fieldPlayerName);
@@ -636,11 +624,10 @@ public class ParseQueryTest extends BaseParseTest {
                     + "' are the only fields expected in output with objectId "
                     + output.getObjectId() + " but found " + output.keySet());
         }
-        System.out.println("============== checkKeyConstraints(): End");
     }
 
     private void checkArrayValueConstraints() throws ParseException {
-        System.out.println("============== checkArrayValueConstraints(): Start");
+        System.out.println("============== checkArrayValueConstraints()");
         query = ParseQuery.getQuery(classGameScore);
         query.whereEqualTo(fieldArrayField, 2);
         List<ParseObject> results = query.find();
@@ -665,7 +652,6 @@ public class ParseQueryTest extends BaseParseTest {
                     "Expected array field of output to contain target list of values "
                     + values + " but found " + output.getList(fieldArrayField));
         }
-        System.out.println("============== checkArrayValueConstraints(): End");
     }
 
     private ParseObject getPostByCommentId(final String commentId) {
@@ -678,7 +664,7 @@ public class ParseQueryTest extends BaseParseTest {
     }
 
     private void checkPointerFieldConstraints() throws ParseException {
-        System.out.println("============== checkPointerFieldConstraints(): Start");
+        System.out.println("============== checkPointerFieldConstraints()");
         ParseQuery<ParseObject> commentQuery = ParseQuery.getQuery(classComment);
 
         for (ParseObject comment : comments) {
@@ -690,11 +676,10 @@ public class ParseQueryTest extends BaseParseTest {
                     + " should be among results for the post with id "
                     + post.getObjectId());
         }
-        System.out.println("============== checkPointerFieldConstraints(): End");
     }
 
     private void checkInQueryAndNotInQueryConstraints() throws ParseException {
-        System.out.println("============== checkInQueryAndNotInQueryConstraints(): Start");
+        System.out.println("============== checkInQueryAndNotInQueryConstraints()");
         ParseQuery<ParseObject> commentQuery;
 
         // Comments on posts having an image field
@@ -724,11 +709,10 @@ public class ParseQueryTest extends BaseParseTest {
             assertNull(post.getString(fieldImage),
                     "All results should belong to a post without an image field");
         }
-        System.out.println("============== checkInQueryAndNotInQueryConstraints(): End");
     }
 
     private void checkRelatedToConstraints() throws ParseException {
-        System.out.println("============== checkRelatedToConstraints(): Start");
+        System.out.println("============== checkRelatedToConstraints()");
         final ParseUser user1
                 = ParseUser.create("user1" + getCurrentTimeInHex(), TEST_PASSWORD);
         final ParseUser user2
@@ -783,12 +767,10 @@ public class ParseQueryTest extends BaseParseTest {
         post1.delete();
         post2.delete();
         deleteAllUsers();
-
-        System.out.println("============== checkRelatedToConstraints(): End");
     }
 
     private void checkIncludeConstraints() throws ParseException {
-        System.out.println("============== checkIncludeConstraints(): Start");
+        System.out.println("============== checkIncludeConstraints()");
         final String fieldNestedComment = "reply";
         final ParseObject comment = comments.get(0);
 
@@ -823,8 +805,6 @@ public class ParseQueryTest extends BaseParseTest {
                 "All top-level data matches (deep include)");
         assertTrue(dataMatches(reply, deepIncludedPost.getParseObject(fieldNestedComment)),
                 "Nested field is also fully included");
-
-        System.out.println("============== checkIncludeConstraints(): End");
     }
 
     private boolean dataMatches(final ParseObject ref, final ParseObject other) {
@@ -844,16 +824,15 @@ public class ParseQueryTest extends BaseParseTest {
     }
 
     private void checkCountConstraints() throws ParseException {
-        System.out.println("============== checkCountConstraints(): Start");
+        System.out.println("============== checkCountConstraints()");
         assertTrue(!gameScoreObjects.isEmpty(), "There should be elements to be counted");
         query = ParseQuery.getQuery(classGameScore);
         assertEqual(gameScoreObjects.size(), query.count(),
                 "Count query returns correct # of results");
-        System.out.println("============== checkCountConstraints(): End");
     }
 
     private void checkOrConstraint() throws ParseException {
-        System.out.println("============== checkOrConstraint(): Start");
+        System.out.println("============== checkOrConstraint()");
         ParseQuery lessThan5Query = ParseQuery.getQuery(classGameScore);
         lessThan5Query.whereLessThan(fieldScore, 5);
 
@@ -868,11 +847,10 @@ public class ParseQueryTest extends BaseParseTest {
             final int score = obj.getInt(fieldScore);
             assertTrue((score < 5) || (score > 1000), "score meets $or constraint");
         }
-        System.out.println("============== checkOrConstraint(): End");
     }
 
     private void checkRegexConstraints() throws ParseException {
-        System.out.println("============== checkRegexConstraints(): Start");
+        System.out.println("============== checkRegexConstraints()");
         // starts with
         query = ParseQuery.getQuery(classGameScore);
         query.whereStartsWith(fieldPlayerName, "S");
@@ -913,7 +891,5 @@ public class ParseQueryTest extends BaseParseTest {
         query = ParseQuery.getQuery(classGameScore);
         query.whereContains(fieldPlayerName, "Bro");
         assertTrue(query.find().isEmpty(), "contains query returns no results (case-sensitive by default)");
-
-        System.out.println("============== checkRegexConstraints(): End");
     }
 }
