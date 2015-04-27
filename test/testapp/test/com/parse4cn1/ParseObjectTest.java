@@ -62,24 +62,24 @@ public class ParseObjectTest extends BaseParseTest {
         // Retrieve
         ParseObject retrieved = ParseObject.fetch(gameScore.getClassName(), 
                 gameScore.getObjectId());
-        assertEqual(1337, gameScore.getInt("score"));
+        assertEqual(Integer.valueOf(1337), gameScore.getInt("score"));
         assertEqual("Sean Plott", gameScore.getString("playerName"));
         assertFalse(gameScore.getBoolean("cheatMode"));
         
         // Update
         retrieved.put("score", 73453);
         retrieved.save();
-        assertEqual(73453, retrieved.getInt("score"));
+        assertEqual(Integer.valueOf(73453), retrieved.getInt("score"));
         
         // Increment / decrement
         retrieved.increment("score");
         retrieved.save();
-        assertEqual(73454, retrieved.getInt("score"));
+        assertEqual(Integer.valueOf(73454), retrieved.getInt("score"));
         
         // Decrement
         retrieved.increment("score", -4);
         retrieved.save();
-        assertEqual(73450, retrieved.getInt("score"));
+        assertEqual(Integer.valueOf(73450), retrieved.getInt("score"));
         
         // Increment non-number field
         try {
@@ -89,7 +89,7 @@ public class ParseObjectTest extends BaseParseTest {
         } catch (IllegalArgumentException ex) {
             assertTrue(ex.getMessage().startsWith("You cannot increment a non-number"));
         }
-        
+
         // Relations
         ParseObject opponent = ParseObject.create(classPlayer);
         opponent.put("playerName", "Sean Plott");

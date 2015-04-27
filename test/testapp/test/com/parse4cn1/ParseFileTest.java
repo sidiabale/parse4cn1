@@ -49,6 +49,7 @@ public class ParseFileTest extends BaseParseTest {
     }
 
     private void testRestApiExample() throws ParseException {
+        System.out.println("============== testRestApiExample()");
         final ParseFile textFile = new ParseFile("hello.txt", "Hello World!".getBytes());
         textFile.save();
 
@@ -74,20 +75,24 @@ public class ParseFileTest extends BaseParseTest {
      System.out.println("root is:" + getClass().getResource("/"));
      */
     private void testImageUpload() throws ParseException, FileNotFoundException, IOException {
+        System.out.println("============== testImageUpload()");
         uploadAndCheck("parse.jpg");
         uploadAndCheck("parse.png");
     }
 
     private void testDataFileUpload() throws ParseException, IOException {
+        System.out.println("============== testDataFileUpload()");
         uploadAndCheck("parse.docx");
         uploadAndCheck("parse.pdf");
     }
 
     private void testArbitraryExtensionFileUpload() throws ParseException, IOException {
+        System.out.println("============== testArbitraryExtensionFileUpload()");
         uploadAndCheck("parse.exr");
     }
     
     private void testSaveWithProgressListener() throws ParseException {
+        System.out.println("============== testSaveWithProgressListener()");
         final String fileName = "parse.pdf";
         assertNotNull(getClass().getResource("/" + fileName), "Test file missing");
 
@@ -107,7 +112,6 @@ public class ParseFileTest extends BaseParseTest {
         });
         
         assertEqual(100, percentDone.get(), "100% expected after successful upload");
-
         deleteFile(file.getName());
     }
 
