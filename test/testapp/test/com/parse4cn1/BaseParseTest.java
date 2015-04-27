@@ -152,62 +152,76 @@ public class BaseParseTest extends AbstractTest {
         }
     }
     
-    protected void fail() {
+    @Override
+    public void fail() {
         assertTrue(false);
     }
     
-    protected void fail(String errorMessage) {
+    @Override
+    public void fail(String errorMessage) {
         assertTrue(false, errorMessage);
     }
     
-    protected void assertTrue(boolean value) {
+    @Override
+    public void assertTrue(boolean value) {
         assertTrue(value, "");
     }
     
-    protected void assertTrue(boolean value, String errorMessage) {
+    @Override
+    public void assertTrue(boolean value, String errorMessage) {
         assertBool(value, errorMessage);
     }
     
-    protected void assertFalse(boolean value) {
+    @Override
+    public void assertFalse(boolean value) {
         assertTrue(!value);
     }
     
-    protected void assertFalse(boolean value, String errorMessage) {
+    @Override
+    public void assertFalse(boolean value, String errorMessage) {
         assertTrue(!value, errorMessage);
     }
     
-    protected void assertNotNull(Object obj) {
+    @Override
+    public void assertNotNull(Object obj) {
         assertNotNull(obj != null, "Object is null but should not be");
     } 
     
-    protected void assertNotNull(Object obj, String errorMessage) {
+    @Override
+    public void assertNotNull(Object obj, String errorMessage) {
         assertBool((obj != null), errorMessage + " (obj=" + obj + ")");
     }
     
-    protected void assertNull(Object obj) {
+    @Override
+    public void assertNull(Object obj) {
         assertBool(obj == null, "Object '" + obj + "' should be null but is not");
     } 
     
-    protected void assertNull(Object obj, String errorMessage) {
+    @Override
+    public void assertNull(Object obj, String errorMessage) {
         assertBool((obj == null), errorMessage + " (obj=" + obj + ")");
     }
     
-    protected void assertEqual(Object obj1, Object obj2) {
+    @Override
+    public void assertEqual(Object obj1, Object obj2) {
         assertBool((obj1 == null) ? (obj2 == null) : (obj1.equals(obj2)), 
                 "Objects '" + obj1 + "' and '" + obj2 + "' are not equal");
     }
     
-    protected void assertEqual(Object obj1, Object obj2, String errorMessage) {
+    @Override
+    public void assertEqual(Object obj1, Object obj2, String errorMessage) {
         assertBool((obj1 == null) ? (obj2 == null) : (obj1.equals(obj2)),
                 errorMessage + " (obj1=" + obj1 + ", obj2=" + obj2 + ")");
     }
     
-    protected void assertNotEqual(Object obj1, Object obj2) {
+    @Override
+    public void assertNotEqual(Object obj1, Object obj2) {
         assertBool((obj1 == null) ? (obj2 != null) : !(obj1.equals(obj2)), 
                 "Objects '" + obj1 + "' and '" + obj2 + "' are equal (expected to be unequal)");
     }
     
-    protected void assertNotEqual(Object obj1, Object obj2, String errorMessage) {
+    @Override
+    public void assertNotEqual(Object obj1, Object obj2, String errorMessage) {
         assertBool((obj1 == null) ? (obj2 != null) : !(obj1.equals(obj2)),
                 errorMessage + " (obj1=" + obj1 + ", obj2=" + obj2 + ")");
     }
