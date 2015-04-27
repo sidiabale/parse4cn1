@@ -52,7 +52,4 @@ public class ParseConstants {
     
     public static final String KEYWORD_OP = "__op";
     public static final String KEYWORD_TYPE = "__type";
-
-    public static int MAX_PARSE_FILE_SIZE_IN_BYTES = 10485760; //10 MB
-
 }

@@ -59,15 +59,6 @@ public class ParseFile implements Parse.IPersistable {
      * @param contentType The file content type specified as a MIME type.
      */
     public ParseFile(String name, byte[] data, String contentType) {
-        if (data.length > ParseConstants.MAX_PARSE_FILE_SIZE_IN_BYTES) {
-            LOGGER.error("ParseFile must be less than "
-                    + ParseConstants.MAX_PARSE_FILE_SIZE_IN_BYTES
-                    + " bytes, current " + data.length);
-            throw new IllegalArgumentException("ParseFile must be less than "
-                    + ParseConstants.MAX_PARSE_FILE_SIZE_IN_BYTES
-                    + " bytes, current " + data.length);
-        }
-
         this.endPoint = ParseConstants.FILES_PATH + ((name != null) ? name : "file.dat");
         this.name = name;
         this.data = data;
