@@ -18,6 +18,10 @@
  */
 package com.parse4cn1.operation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.ParseConstants;
@@ -25,24 +29,24 @@ import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
 import com.parse4cn1.util.ParseEncoder;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Set;
 
-public class AddOperation implements ParseOperation {
+public class AddUniqueToArrayOperation implements ParseOperation {
 
-    protected final ArrayList<Object> objects = new ArrayList<Object>();
+    protected Set<Object> objects = new HashSet<Object>();
 
-    public AddOperation(Collection<?> coll) {
+    public AddUniqueToArrayOperation(Collection<?> coll) {
         this.objects.addAll(coll);
     }
 
-    public AddOperation(Object o) {
+    public AddUniqueToArrayOperation(Object o) {
         this.objects.add(o);
     }
 
     @Override
     public Object apply(Object oldValue, ParseObject parseObject, String key) {
-        throw new IllegalArgumentException("not implemented!");
+        // Return old value; it will be automatically updated when this operation is persisted.
+        return oldValue;
     }
 
     @Override
@@ -50,11 +54,12 @@ public class AddOperation implements ParseOperation {
             throws ParseException {
         JSONObject output = new JSONObject();
         try {
-            output.put(ParseConstants.KEYWORD_OP, "Add");
-            output.put("objects", ParseEncoder.encode(this.objects, objectEncoder));
+            output.put(ParseConstants.KEYWORD_OP, "AddUnique");
+            output.put("objects", ParseEncoder.encode(new ArrayList<Object>(this.objects), objectEncoder));
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ex);
         }
         return output;
     }
+
 }

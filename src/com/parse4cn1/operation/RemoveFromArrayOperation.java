@@ -29,22 +29,24 @@ import com.parse4cn1.util.ParseEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Set;
 
-public class RemoveOperation implements ParseOperation {
+public class RemoveFromArrayOperation implements ParseOperation {
 
-    protected HashSet<Object> objects = new HashSet<Object>();
+    protected Set<Object> objects = new HashSet<Object>();
 
-    public RemoveOperation(Collection<?> coll) {
+    public RemoveFromArrayOperation(Collection<?> coll) {
         this.objects.addAll(coll);
     }
 
-    public RemoveOperation(Object o) {
+    public RemoveFromArrayOperation(Object o) {
         this.objects.add(o);
     }
 
     @Override
     public Object apply(Object oldValue, ParseObject parseObject, String key) {
-        throw new IllegalArgumentException("not implemented!");
+        // Return old value; it will be automatically updated when this operation is persisted.
+        return oldValue;
     }
 
     @Override

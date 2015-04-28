@@ -16,9 +16,13 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1;
 
+/**
+ * An exception class for the library. 
+ * 
+ * @author sidiabale
+ */
 public class ParseException extends Exception {
 
     private static final long serialVersionUID = 1L;
@@ -65,31 +69,66 @@ public class ParseException extends Exception {
 
     private int code;
 
-    public ParseException(int theCode, String theMessage,
-            Throwable causeThrowable) {
-        this(theCode, theMessage + " Cause: " + causeThrowable.getMessage());
-    }
-    
-    public ParseException(int theCode, Throwable causeThrowable) {
-        super(causeThrowable.getMessage());
-        this.code = theCode;
-    }
-
-    public ParseException(int theCode, String theMessage) {
-        super(theMessage);
-        this.code = theCode;
+    /**
+     * Creates an exception with the specified error code, message and cause.
+     * 
+     * @param code The error code associated with this exception.
+     * @param message The human-readable exception message.
+     * @param cause The cause of the exception.
+     */
+    public ParseException(int code, String message,
+            Throwable cause) {
+        this(code, message + " Cause: " + cause.getMessage());
     }
 
+    /**
+     * Creates an exception with the specified error code and cause. 
+     * 
+     * @param code The error code associated with this exception.
+     * @param cause The cause of the exception.
+     */
+    public ParseException(int code, Throwable cause) {
+        super(cause.getMessage());
+        this.code = code;
+    }
+
+    /**
+     * Creates an exception with the specified error code and message.
+     * 
+     * @param code The error code associated with this exception.
+     * @param message The human-readable exception message.
+     */
+    public ParseException(int code, String message) {
+        super(message);
+        this.code = code;
+    }
+
+    /**
+     * Creates an exception with the specified message and cause.
+     * 
+     * @param message The human-readable exception message.
+     * @param cause The cause of the exception.
+     */
     public ParseException(String message, Throwable cause) {
         super(message + " Cause: " + cause.getMessage());
         this.code = -1;
     }
 
+    /**
+     * Creates an exception with the specified cause.
+     * 
+     * @param cause The cause of the exception.
+     */
     public ParseException(Throwable cause) {
         super(cause.getMessage());
         this.code = -1;
     }
 
+    /**
+     * 
+     * @return The error code associated with this exception 
+     * (defaults to -1 if none is specified).
+     */
     public int getCode() {
         return this.code;
     }
@@ -98,5 +137,4 @@ public class ParseException extends Exception {
     public String toString() {
         return "ParseException [code=" + code + ", error=" + getMessage() + "]";
     }
-
 }

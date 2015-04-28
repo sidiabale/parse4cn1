@@ -77,17 +77,17 @@ public class ParseOperationDecoder {
         });
         registerDecoder("Add", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
-                return new AddOperation(object.opt("objects"));
+                return new AddToArrayOperation(object.opt("objects"));
             }
         });
         registerDecoder("AddUnique", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
-                return new AddUniqueOperation(object.opt("objects"));
+                return new AddUniqueToArrayOperation(object.opt("objects"));
             }
         });
         registerDecoder("Remove", new IParseFieldOperationFactory() {
             public ParseOperation decode(JSONObject object) throws JSONException {
-                return new RemoveOperation(object.opt("objects"));
+                return new RemoveFromArrayOperation(object.opt("objects"));
             }
         });
         registerDecoder("AddRelation", new IParseFieldOperationFactory() {
