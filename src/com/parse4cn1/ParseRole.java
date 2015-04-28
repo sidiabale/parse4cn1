@@ -20,6 +20,20 @@ package com.parse4cn1;
 
 import com.parse4cn1.util.Logger;
 
+// Inherited from Parse4J
+// TODO: Port to CN1 i.e. review/extend, document, test and release
+/**
+ * Represents a Role on the Parse server. ParseRoles represent groupings of 
+ * ParseUsers for the purposes of granting permissions 
+ * (e.g. specifying a ParseACL for a ParseObject). Roles are specified by their 
+ * sets of child users and child roles, all of which are granted any permissions 
+ * that the parent role has.
+ * <p>
+ * Roles must have a name (which cannot be changed after creation of the role),
+ * and must specify an ACL.
+ * 
+ * @author sidiabale
+ */
 public class ParseRole extends ParseObject {
 
     private static final Logger LOGGER = Logger.getInstance();

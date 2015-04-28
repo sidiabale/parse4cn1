@@ -16,7 +16,6 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONException;
@@ -28,11 +27,32 @@ import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
 import java.util.HashMap;
 
+/**
+ * The ParseCloud class defines provides methods for interacting with Parse
+ * Cloud Functions. and triggering Cloud Jobs.
+ * <p>
+ * <b>Note:</b> Since triggering Cloud Jobs requires the Master Key which is
+ * deliberately not exposed via this client-side library for security
+ * considerations, the only way to trigger jobs using this library is to write a
+ * wrapper Cloud Function, that does the necessary authentication and forwards
+ * the request to the Job API.
+ *
+ * @author sidiabale
+ */
 public class ParseCloud {
 
     private static final Logger LOGGER = Logger.getInstance();
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Calls a cloud function.
+     * 
+     * @param <T> The type of result expected by this function call.
+     * @param name The name of the function to call.
+     * @param params The parameters to pass to the function. These parameters 
+     * are sent as JSON data in the body of the resulting POST request.
+     * @return The result returned by the function call.
+     * @throws ParseException if anything goes wrong, for example with JSON parsing.
+     */
     public static <T> T callFunction(String name, Map<String, ?> params)
             throws ParseException {
 
@@ -56,39 +76,4 @@ public class ParseCloud {
             throw response.getException();
         }
     }
-    
-// //TODO: Implement background operations
-//    public static <T> void callFunctionInBackground(String name,
-//            Map<String, ?> params, FunctionCallback<T> callback) {
-//
-//        CallFunctionInBackgroundThread<T> task = new CallFunctionInBackgroundThread<T>(name, params, callback);
-//        ParseExecutor.runInBackground(task);
-//    }
-//
-//    private static class CallFunctionInBackgroundThread<T> extends Thread {
-//
-//        Map<String, ?> params;
-//        FunctionCallback<T> functionCallback;
-//        String name;
-//
-//        public CallFunctionInBackgroundThread(String name, Map<String, ?> params, FunctionCallback<T> functionCallback) {
-//            this.functionCallback = functionCallback;
-//            this.params = params;
-//            this.name = name;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            T result = null;
-//            try {
-//                result = callFunction(name, params);
-//            } catch (ParseException e) {
-//                LOGGER.debug("Request failed {}", e.getMessage());
-//                exception = e;
-//            }
-//            if (functionCallback != null) {
-//                functionCallback.done(result, exception);
-//            }
-//        }
-//    }
 }

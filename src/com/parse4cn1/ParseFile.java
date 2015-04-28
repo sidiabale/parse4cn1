@@ -19,32 +19,24 @@
 package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONException;
-import com.parse4cn1.callback.GetDataCallback;
 import com.parse4cn1.callback.ProgressCallback;
-import com.parse4cn1.callback.SaveCallback;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.command.ParseUploadCommand;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.util.MimeType;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-//import org.apache.http.Header;
-//import org.apache.http.HttpResponse;
-//import org.apache.http.client.ClientProtocolException;
-//import org.apache.http.client.HttpClient;
-//import org.apache.http.client.methods.HttpGet;
-//import org.apache.http.impl.client.DefaultHttpClient;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.command.ParseDownloadCommand;
 
-@SuppressWarnings("deprecation")
+/**
+ * ParseFile is a local representation of a file that is saved to the Parse cloud.
+ * 
+ * @author sidiabale
+ */
 public class ParseFile implements Parse.IPersistable {
 
     private static final Logger LOGGER = Logger.getInstance();
 
     private String endPoint;
-    private boolean uploaded = false;
     private boolean dirty = false;
     private String name = null;
     private String url = null;
@@ -114,6 +106,13 @@ public class ParseFile implements Parse.IPersistable {
         return name;
     }
 
+    /**
+     * Sets the file's name. Before save is called, this is just the filename 
+     * given by the user (if any). After save is called, that name gets prefixed 
+     * with a unique identifier.
+     * 
+     * @param name The file name.
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -122,6 +121,13 @@ public class ParseFile implements Parse.IPersistable {
         return url;
     }
 
+    /**
+     * Sets the URL of the uploaded Parse file. This URL will be used to retrieve 
+     * the file's data.
+     * 
+     * @param url The URL of the Parse file's data.
+     * @see #getData() 
+     */
     public void setUrl(String url) {
         this.url = url;
     }
@@ -134,10 +140,23 @@ public class ParseFile implements Parse.IPersistable {
         return contentType;
     }
 
+    /**
+     * Sets the content type associated with this file.
+     * 
+     * @param contentType The content type to be set.
+     * @see MimeType#getMimeType(java.lang.String)
+     */
     public void setContentType(String contentType) {
         this.contentType = contentType;
     }
 
+    /**
+     * Sets the data associated with this object which also causes the object to
+     * become dirty.
+     * 
+     * @param data The data to be set.
+     * @see #isDirty() 
+     */
     public void setData(byte[] data) {
         this.data = data;
         setDirty(true);
@@ -145,10 +164,6 @@ public class ParseFile implements Parse.IPersistable {
 
     protected String getEndPoint() {
         return this.endPoint;
-    }
-
-    public boolean isUploaded() {
-        return uploaded;
     }
 
     @Override
@@ -160,15 +175,27 @@ public class ParseFile implements Parse.IPersistable {
     public final void setDirty(boolean dirty) {
         this.dirty = dirty;
     }
+    
+    @Override
+    public boolean isDataAvailable() {
+        return data != null;
+    }
 
     @Override
     public void save() throws ParseException {
         save(null);
     }
 
+    /**
+     * Synchronously saves the file to the Parse cloud with 
+     * progress notifications sent to the provided {@code progressCallback}.
+     * 
+     * @param progressCallback The callback to retrieve progress notifications.
+     * @throws ParseException if anything goes wrong while saving the file.
+     */
     public void save(ProgressCallback progressCallback) throws ParseException {
 
-        if (!isDirty() || data == null) {
+        if (!isDirty() || !isDataAvailable()) {
             return;
         }
 
@@ -185,12 +212,11 @@ public class ParseFile implements Parse.IPersistable {
                 LOGGER.error("Empty response.");
                 throw response.getException();
             }
-            
+
             try {
                 this.name = jsonResponse.getString("name");
                 this.url = jsonResponse.getString("url");
                 this.dirty = false;
-                this.uploaded = true;
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
             }
@@ -199,30 +225,16 @@ public class ParseFile implements Parse.IPersistable {
             throw response.getException();
         }
     }
-    // TODO: Fix all saveInBackground methods
-//    public void saveInBackground() {
-//        saveInBackground(null, null);
-//    }
-//
-//    public void saveInBackground(SaveCallback saveCallback) {
-//        saveInBackground(saveCallback, null);
-//    }
-//
-//    public void saveInBackground(ProgressCallback progressCallback) {
-//        saveInBackground(null, progressCallback);
-//    }
-//
-//    public void saveInBackground(SaveCallback saveCallback,
-//            ProgressCallback progressCallback) {
-//
-//        SaveInBackgroundThread task = new SaveInBackgroundThread(saveCallback,
-//                progressCallback);
-//        ParseExecutor.runInBackground(task);
-//
-//    }
 
+    /**
+     * Synchronously gets the data for this object if no file data is present;
+     * otherwise returns the data available for this object.
+     * 
+     * @return The data associated with this object.
+     * @throws ParseException if retrieving file data from the Parse cloud fails.
+     */
     public byte[] getData() throws ParseException {
-        if (data == null) {
+        if (!isDataAvailable()) {
             final ParseDownloadCommand command
                     = new ParseDownloadCommand(getUrl(), getContentType());
 
@@ -236,71 +248,4 @@ public class ParseFile implements Parse.IPersistable {
         }
         return data;
     }
-    
-    // TODO: Fix all getDataInBackground() methods
-//    public void getDataInBackground() {
-//        getDataInBackground(null);
-//    }
-//
-//    public void getDataInBackground(GetDataCallback dataCallback) throws ParseException {
-//
-//        try {
-//            byte[] result = getData();
-//            dataCallback.done(result, null);
-//        } catch (ParseException pe) {
-//            dataCallback.done(null, pe);
-//        }
-//    }
-    
-//    class SaveInBackgroundThread extends Thread {
-//
-//        SaveCallback saveCallback;
-//        ProgressCallback progressCallback;
-//
-//        public SaveInBackgroundThread(SaveCallback saveCallback,
-//                ProgressCallback progressCallback) {
-//            this.saveCallback = saveCallback;
-//            this.progressCallback = progressCallback;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            try {
-//                save(saveCallback, progressCallback);
-//            } catch (ParseException e) {
-//                LOGGER.debug("Request failed " + e.getMessage());
-//                exception = e;
-//            }
-//            if (saveCallback != null) {
-//                saveCallback.done(exception);
-//            }
-//        }
-//    }
-//
-//    class GetDataInBackgroundThread extends Thread {
-//
-//        GetDataCallback getDataCallback;
-//        byte[] data;
-//
-//        public GetDataInBackgroundThread(byte[] data, GetDataCallback getDataCallback) {
-//            this.getDataCallback = getDataCallback;
-//            this.data = data;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            // TODO Fix;
-//            exception = new ParseException(
-//                    new RuntimeException("Implement getData()!")); // Remove when lines below are fixed
-////            try {
-////                getData(getDataCallback);
-////            } catch (ParseException e) {
-////                LOGGER.debug("Request failed " + e.getMessage());
-////                exception = e;
-////            }
-//            if (getDataCallback != null) {
-//                getDataCallback.done(data, exception);
-//            }
-//        }
-//    }
 }

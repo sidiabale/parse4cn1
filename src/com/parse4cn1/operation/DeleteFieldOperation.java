@@ -30,7 +30,7 @@ public class DeleteFieldOperation implements ParseOperation {
 
     @Override
     public Object apply(Object oldValue, ParseObject paramParseObject, String key) {
-        return null;
+        return null; // Trigger local removal of value to be deleted even before it is persisted.
     }
 
     @Override

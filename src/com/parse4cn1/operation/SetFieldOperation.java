@@ -34,7 +34,7 @@ public class SetFieldOperation implements ParseOperation {
 
     @Override
     public Object apply(Object oldValue, ParseObject parseObject, String key) {
-        return value;
+        return value; // Trigger local update of value even before it is persisted.
     }
 
     @Override

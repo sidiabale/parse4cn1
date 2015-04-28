@@ -31,47 +31,73 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The Parse class contains static functions, classes and interfaces that handle
+ * global configuration for the Parse library.
+ */
 public class Parse {
 
+    /**
+     * An interface for a persistable entity.
+     */
     public interface IPersistable {
+
         /**
-         *  An object is dirty if a change has been made to it that requires it to be persisted.
+         * An object is dirty if a change has been made to it that requires it
+         * to be persisted.
+         *
          * @return {@code true} if the object is dirty; otherwise {@code false}.
          */
         boolean isDirty();
-        
+
         /**
          * Sets the dirty flag.
-         * 
-         * @param dirty {@code true} if the object should be marked as dirty; otherwise {@code false}. 
+         *
+         * @param dirty {@code true} if the object should be marked as dirty;
+         * otherwise {@code false}.
          */
         void setDirty(boolean dirty);
-        
+
+        /**
+         * Checks whether this persistable object has any data. This data may 
+         * (isDirty() = true) or may not (isDirty() = false) need to be persisted.
+         *
+         * @return {@code true} if this object has data.
+         */
+        boolean isDataAvailable();
+
         /**
          * Saves the object. Calling this method on an object that is not dirty
          * should have no side effects.
-         * 
-         * @throws ParseException if anything goes wrong during the save operation.
+         *
+         * @throws ParseException if anything goes wrong during the save
+         * operation.
          */
         void save() throws ParseException;
     }
-    
+
     /**
      * A factory for instantiating ParseObjects of various concrete types
      */
     public interface IParseObjectFactory {
+
         /**
          * Creates a Parse object of the type matching the provided class name.
-         * Defaults to the base ParseObject, i.e., call must always return a 
+         * Defaults to the base ParseObject, i.e., call must always return a
          * non-null object.
-         * 
+         *
          * @param <T> The type of ParseObject to be instantiated
          * @param className The class name associated with type T
          * @return The newly created Parse object.
          */
         <T extends ParseObject> T create(final String className);
     }
-    
+
+    /**
+     * A factory for instantiating reserved Parse Object classes such as users,
+     * roles, installations and sessions. Such a factory is used to instantiate
+     * the correct type upon retrieval of data, for example, via a query.
+     */
     public static class DefaultParseObjectFactory implements IParseObjectFactory {
 
         public <T extends ParseObject> T create(String className) {
@@ -87,50 +113,103 @@ public class Parse {
                 obj = (T) new ParseObject(className);
             }
         // TODO: Extend with other 'default' parse object subtypes
-            // e.g. ParseFile, ParseGeoPoint.
+            // e.g. Session and Installation.
 
             return obj;
         }
     }
-    
+
     private static String mApplicationId;
     private static String mClientKey;
     private static final DateFormat dateFormat;
 
-    // TODO: Test
     static {
         DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-//        format.setTimeZone(TimeZone.getTimeZone("GMT")); // Not supported in CN1; TODO: Check if it's really needed
         dateFormat = format;
 
         ParseRegistry.registerDefaultSubClasses();
         ParseOperationDecoder.registerDefaultDecoders();
     }
 
+    /**
+     * Authenticates this client as belonging to your application.
+     * <p>
+     * This method must be called before your application can use the Parse
+     * library. The recommended way is to put a call to Parse.initialize in your
+     * CN! Application's state machine as follows:
+     * <pre>
+     * <code>
+     * public class StateMachine extends StateMachineBase {
+     *   protected void initVars(Resources res) {
+     *     Parse.initialize(APP_ID, APP_REST_API_ID);
+     *   }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param applicationId The application id provided in the Parse dashboard.
+     * @param clientKey The client key provided in the Parse dashboard.
+     * <p>
+     * <b>Note:</b> Developers are advised to use the CLIENT KEY instead of
+     * using the REST API in production code (cf.
+     * <a href='https://parse.com/docs/rest#general-callfromclient'>https://parse.com/docs/rest#general-callfromclient</a>).
+     * Hence, the latter is not exposed via this library. The same security
+     * consideration explains why the MASTER KEY is not exposed either.
+     */
     static public void initialize(String applicationId, String clientKey) {
         mApplicationId = applicationId;
         mClientKey = clientKey;
     }
 
+    /**
+     * @return The application ID if one has been set or null.
+     * @see #initialize(java.lang.String, java.lang.String)
+     */
     static public String getApplicationId() {
         return mApplicationId;
     }
 
+    /**
+     * @return The client key if one has been set or null.
+     * @see #initialize(java.lang.String, java.lang.String)
+     */
     static public String getClientKey() {
         return mClientKey;
     }
 
-    static public String getParseAPIUrl(String context) {
+    /**
+     * Creates a valid Parse REST API URL using the predefined
+     * {@link ParseConstants#API_ENDPOINT} and
+     * {@link ParseConstants#API_VERSION}.
+     *
+     * @param endPoint The target endpoint/class name.
+     * @return The created URL.
+     */
+    static public String getParseAPIUrl(String endPoint) {
         return ParseConstants.API_ENDPOINT + "/" + ParseConstants.API_VERSION
-                + "/" + ((context != null) ? context : "");
+                + "/" + ((endPoint != null) ? endPoint : "");
     }
-	
-    // TODO: Test
+
+    /**
+     * Encodes the provided date in the format required by Parse.
+     *
+     * @param date The date to be encoded.
+     * @return {@code date} expressed in the format required by Parse.
+     * @see <a href='https://www.parse.com/docs/rest#objects-types'>Parse date
+     * type</a>.
+     */
     static public synchronized String encodeDate(Date date) {
         return dateFormat.format(date);
     }
-        
-    // TODO: Test
+
+    /**
+     * Converts a Parse date string value into a Date object.
+     *
+     * @param dateString A string matching the Parse date type.
+     * @return The date object corresponding to {@code dateString}.
+     * @see <a href='https://www.parse.com/docs/rest#objects-types'>Parse date
+     * type</a>.
+     */
     public static synchronized Date parseDate(String dateString) {
         try {
             return dateFormat.parse(dateString);
@@ -139,22 +218,44 @@ public class Parse {
         }
     }
 
+    /**
+     * Checks if the provided {@code key} is a key with a special meaning in
+     * Parse, for example {@code objectId}.
+     *
+     * @param key The key to be checked.
+     * @return {@code true} if and only if {@code key} is a reserved key.
+     */
     public static boolean isReservedKey(String key) {
         return ParseConstants.FIELD_OBJECT_ID.equals(key)
                 || ParseConstants.FIELD_CREATED_AT.equals(key)
                 || ParseConstants.FIELD_UPDATED_AT.equals(key);
     }
 
-    // TODO: Test
+    /**
+     * Checks if the provided {@code endPoint} is the name of an in-built Parse
+     * end point, for examples (users and /classes/_User).
+     *
+     * @param endPoint The endpoint to be checked.
+     * @return {@code true} if {@code endPoint} is a reserved class end point.
+     */
     public static boolean isReservedEndPoint(String endPoint) {
         // Parse-reserved end points and classes
+        // TODO: Extend with other endpoints when implemented.
         return ParseConstants.CLASS_NAME_USER.equals(endPoint)
-            || ParseConstants.CLASS_NAME_ROLE.equals(endPoint)
-            || ParseConstants.ENDPOINT_USERS.equals(endPoint)
-            || ParseConstants.ENDPOINT_ROLES.equals(endPoint)
-            || ParseConstants.ENDPOINT_SESSIONS.equals(endPoint); 
+                || ParseConstants.CLASS_NAME_ROLE.equals(endPoint)
+                || ParseConstants.ENDPOINT_USERS.equals(endPoint)
+                || ParseConstants.ENDPOINT_ROLES.equals(endPoint)
+                || ParseConstants.ENDPOINT_SESSIONS.equals(endPoint);
     }
-    
+
+    /**
+     * Checks if the provided type is a valid type for a Parse Object or any one
+     * of its fields.
+     *
+     * @param value The object to be checked
+     * @return {@code true} if {@code value} is valid as per the data types
+     * supported by ParseObjects and their child fields.
+     */
     public static boolean isValidType(Object value) {
         return ((value instanceof JSONObject))
                 || ((value instanceof JSONArray))
@@ -171,10 +272,17 @@ public class Parse {
                 || ((value instanceof List))
                 || ((value instanceof Map));
     }
-    
-    @SuppressWarnings("rawtypes")
-    public static String join(Collection<String> items, String delimiter) {
-        StringBuffer buffer = new StringBuffer();
+
+    /**
+     * Utility to concatenate the strings in {@code items} using the provided
+     * {@code delimieter}.
+     *
+     * @param items The strings to be concatenated.
+     * @param delimiter The delimiter.
+     * @return The concatenated string.
+     */
+    public static String join(final Collection<String> items, final String delimiter) {
+        StringBuilder buffer = new StringBuilder();
         Iterator iter = items.iterator();
         if (iter.hasNext()) {
             buffer.append((String) iter.next());

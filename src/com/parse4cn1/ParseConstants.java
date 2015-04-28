@@ -19,6 +19,11 @@
 
 package com.parse4cn1;
 
+/**
+ * This class defines various constants used in the library.
+ * 
+ * @author sidiabale
+ */
 public class ParseConstants {
 
     public static final String API_ENDPOINT = "https://api.parse.com";
@@ -27,10 +32,6 @@ public class ParseConstants {
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String HEADER_APPLICATION_ID = "X-Parse-Application-Id";
     public static final String HEADER_CLIENT_KEY = "X-Parse-Client-Key";
-    // Note: Developers are advised to use the CLIENT KEY instead of using the 
-    // REST API in production code (cf. https://parse.com/docs/rest#general-callfromclient)
-    // Hence, the latter is not exposed via this library. The same security 
-    // consideration explains why the MASTER KEY is not exposed either.
     public static final String HEADER_SESSION_TOKEN = "X-Parse-Session-Token";
 
     public static final String CONTENT_TYPE_JSON = "application/json";

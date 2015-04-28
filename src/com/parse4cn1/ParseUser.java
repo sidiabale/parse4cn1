@@ -31,6 +31,12 @@ import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
 
+/**
+ * The ParseUser is a local representation of user data that can be saved and 
+ * retrieved from the Parse cloud.
+ * 
+ * @author sidiabale
+ */
 public class ParseUser extends ParseObject {
 
     private static final Logger LOGGER = Logger.getInstance();
@@ -50,13 +56,13 @@ public class ParseUser extends ParseObject {
     }
 
     @Override
-    public void deleteField(String key) {
+    public void remove(String key) {
         if (KEY_USERNAME.equals(key)) {
             LOGGER.error("Can't remove the username key.");
             throw new IllegalArgumentException("Can't remove the username key.");
         }
 
-        super.deleteField(key);
+        super.remove(key);
     }
 
     @Override
@@ -77,10 +83,10 @@ public class ParseUser extends ParseObject {
         reset();
     }
 
-    public void setSessionToken(String sessionToken) {
-        this.sessionToken = sessionToken;
-    }
-
+    /**
+     * Sets the username. Usernames cannot be null or blank.
+     * @param username The username to be set.
+     */
     public void setUsername(String username) {
         put(KEY_USERNAME, username);
     }
@@ -102,6 +108,12 @@ public class ParseUser extends ParseObject {
         return getString(KEY_EMAIL);
     }
 
+    /**
+     * Retrieves the session token associated with this user. Only logged in 
+     * users have a valid session.
+     * 
+     * @return The session token associated with this user.
+     */
     public String getSessionToken() {
         return sessionToken;
     }
@@ -113,6 +125,13 @@ public class ParseUser extends ParseObject {
         return user;
     }
     
+    /**
+     * Retrieves the user associated with {@code sessionToken}.
+     * 
+     * @param sessionToken A session token associated with a ParseUser.
+     * @return The ParseUsser associated with {@code sessionToken}.
+     * @throws ParseException if anything goes wrong.
+     */
     public static ParseUser fetchBySession(final String sessionToken) throws ParseException {
         ParseUser user = null;
         ParseCommand command = 
@@ -136,6 +155,14 @@ public class ParseUser extends ParseObject {
         return user;
     }
 
+    /**
+     * Requests a password reset email to be sent to the specified email address 
+     * associated with the user account. This email allows the user to securely 
+     * reset their password on the Parse site.
+     * 
+     * @param email The email address associated with the user that forgot their password.
+     * @throws ParseException if anything goes wrong.
+     */
     public static void requestPasswordReset(String email) throws ParseException {
 
         try {
@@ -158,16 +185,26 @@ public class ParseUser extends ParseObject {
             throw new ParseException(ex);
         }
     }
-    
-    public static void requestPasswordResetInBackground(String email,
-        RequestPasswordResetCallback callback) {
-        throw new RuntimeException("Not implemented");
-    }
-    
+
+    /**
+     * Checks whether the ParseUser has been authenticated on this device. 
+     * This will be true if the ParseUser was obtained via a logIn or signUp method. 
+     * Only an authenticated ParseUser can be saved (with altered attributes) and deleted.
+     * 
+     * @return {@code true} if this user is authenticated.
+     */
     public boolean isAuthenticated() {
         return (getSessionToken() != null && getObjectId() != null);
     }
     
+    /**
+     * Signs up a new user. You should call this instead of {@link ParseObject#save()} 
+     * for new ParseUsers.
+     * <p>
+     * A username and password must be set before calling signUp.
+     * 
+     * @throws ParseException if anything goes wrong
+     */
     public void signUp() throws ParseException {
 
         if ((getUsername() == null) || (getUsername().length() == 0)) {
@@ -220,6 +257,12 @@ public class ParseUser extends ParseObject {
         }
     }
 
+    /**
+     * Logs the current user in. If successful, a session is created for this 
+     * user which can be retrieved via {@link #getSessionToken()}.
+     * 
+     * @throws ParseException if anything goes wrong.
+     */
     public void login() throws ParseException {
 
         ParseGetCommand command = new ParseGetCommand(ENDPOINT_LOGIN);
@@ -250,6 +293,12 @@ public class ParseUser extends ParseObject {
         }
     }
 
+    /**
+     * Logs this user out if they were previously logged in, for example, 
+     * via a {@link #signUp()} or {@link #login()} call.
+     * 
+     * @throws ParseException if anything goes wrong.
+     */
     public void logout() throws ParseException {
 
         if (isAuthenticated()) {
@@ -261,15 +310,6 @@ public class ParseUser extends ParseObject {
             }
             setSessionToken(null);
         }
-    }
-
-    public void signUpInBackground(SignUpCallback callback) {
-        throw new RuntimeException("Not implemented");
-    }
-
-    public static void loginInBackground(String username, String password,
-            LoginCallback callback) {
-        throw new RuntimeException("Not implemented");
     }
 
     @Override
@@ -301,5 +341,9 @@ public class ParseUser extends ParseObject {
     protected void performSave(final ParseCommand command) throws ParseException {
         command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, getSessionToken());
         super.performSave(command);
+    }
+    
+    protected void setSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
     }
 }

@@ -30,18 +30,19 @@ import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParsePutCommand;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.encode.PointerEncodingStrategy;
-import com.parse4cn1.operation.AddOperation;
-import com.parse4cn1.operation.AddUniqueOperation;
+import com.parse4cn1.operation.AddToArrayOperation;
+import com.parse4cn1.operation.AddUniqueToArrayOperation;
 import com.parse4cn1.operation.DeleteFieldOperation;
 import com.parse4cn1.operation.IncrementFieldOperation;
 import com.parse4cn1.operation.ParseOperation;
 import com.parse4cn1.operation.RelationOperation;
-import com.parse4cn1.operation.RemoveOperation;
+import com.parse4cn1.operation.RemoveFromArrayOperation;
 import com.parse4cn1.operation.SetFieldOperation;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.util.ParseDecoder;
 import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -51,6 +52,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * The ParseObject is a local representation of data that can be saved and
+ * retrieved from the Parse cloud.
+ * <p>
+ * The basic workflow for creating new data is to construct a new ParseObject,
+ * use {@link #put(java.lang.String, java.lang.Object)} to fill it with data,
+ * and then use {@link #save()} to persist to the cloud.
+ * <p>
+ * The basic workflow for accessing existing data is to use a {@link ParseQuery}
+ * to specify which existing data to retrieve.
+ *
+ * @author sidiabale
+ */
 public class ParseObject implements IPersistable {
 
     private static final Logger LOGGER = Logger.getInstance();
@@ -74,7 +88,7 @@ public class ParseObject implements IPersistable {
             throw new IllegalArgumentException(
                     "You must specify a Parse class name when creating a new ParseObject.");
         }
-        
+
         this.className = className;
         this.data = new Hashtable<String, Object>();
         this.operations = new Hashtable<String, ParseOperation>();
@@ -82,38 +96,92 @@ public class ParseObject implements IPersistable {
         setEndPoint(toEndPoint(className));
     }
 
-    public static ParseObject create(String className) {
-        return new ParseObject(className);
+    /**
+     * Creates a parse object for the specified class.
+     *
+     * @param <T> The type of ParseObject to be created.
+     * @param className The name of the class associated with this Parse object.
+     * @return The newly created Parse object.
+     */
+    public static <T extends ParseObject> T create(String className) {
+        return ParseRegistry.getObjectFactory(className).create(className);
     }
-    
+
+    /**
+     * Setter for the object id. In general you do not need to use this.
+     * However, in some cases this can be convenient. For example, if you are
+     * serializing a ParseObject yourself and wish to recreate it, you can use
+     * this to recreate the ParseObject exactly.
+     *
+     * @param objectId The object ID to set.
+     */
     public void setObjectId(String objectId) {
         this.objectId = objectId;
     }
-    
+
+    /**
+     * Accessor to the object id. An object id is assigned as soon as an object
+     * is saved to the server. The combination of a className and an objectId
+     * uniquely identifies an object in your application.
+     *
+     * @return This Parse object's Id.
+     */
     public String getObjectId() {
         return this.objectId;
     }
 
+    /**
+     * @return The last time this object was updated on the server.
+     */
     public Date getUpdatedAt() {
         return this.updatedAt;
     }
 
+    /**
+     * @return The first time this object was saved on the server.
+     */
     public Date getCreatedAt() {
         return this.createdAt;
     }
 
+    /**
+     * @return The name of the class associated with this Parse object.
+     */
     public String getClassName() {
         return this.className;
     }
-    
+
+    /**
+     * Retrieves the end point associated with this ParseObject. For classes,
+     * the endpoint is {@code classes/<className>}.
+     *
+     * @return The endpoint associated with this object.
+     */
     public String getEndPoint() {
         return this.endPoint;
     }
 
+    /**
+     * Returns a set view of the keys contained in this object. This does not
+     * reserved keys like createdAt, updatedAt or objectId.
+     *
+     * @return The keys contained in this object.
+     */
     public Set<String> keySet() {
         return Collections.unmodifiableSet(this.data.keySet());
     }
 
+    /**
+     * Retrieves the {@link ParseFile} value associated with {@code key}.
+     * <p>
+     * This function will not perform a network request. Unless the ParseFile
+     * has been downloaded (e.g. by calling {@link ParseFile#getData()}),
+     * {@link ParseFile#isDataAvailable()} will return {@code false}.
+     *
+     * @param key The key associated with the file.
+     * @return The retrieved file or null if there is no such {@code key} or if
+     * it is not associated with a ParseFile.
+     */
     public ParseFile getParseFile(String key) {
 
         if (!this.data.containsKey(key)) {
@@ -127,6 +195,14 @@ public class ParseObject implements IPersistable {
         return (ParseFile) value;
     }
 
+    /**
+     * Retrieves the {@link ParseGeoPoint} value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the geo point.
+     * @return The retrieved point or null if there is no such {@code key} or if
+     * it is not associated with a ParseGeoPoint.
+     */
     public ParseGeoPoint getParseGeoPoint(String key) {
 
         if (!this.data.containsKey(key)) {
@@ -140,6 +216,14 @@ public class ParseObject implements IPersistable {
         return (ParseGeoPoint) value;
     }
 
+    /**
+     * Retrieves the {@link Date} value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the date value.
+     * @return The retrieved date or null if there is no such {@code key} or if
+     * it is not associated with a Date.
+     */
     public Date getDate(String key) {
 
         if (!this.data.containsKey(key)) {
@@ -153,6 +237,14 @@ public class ParseObject implements IPersistable {
         return (Date) value;
     }
 
+    /**
+     * Retrieves the {@link Boolean} value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the boolean value.
+     * @return The retrieved boolean value or null if there is no such
+     * {@code key} or if it is not associated with a Boolean.
+     */
     public Boolean getBoolean(String key) {
 
         if (!this.data.containsKey(key)) {
@@ -167,6 +259,14 @@ public class ParseObject implements IPersistable {
         return (Boolean) value;
     }
 
+    /**
+     * Retrieves the {@link Integer} value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the integer value.
+     * @return The retrieved integer value or null if there is no such
+     * {@code key} or if it is not associated with a Integer.
+     */
     public Integer getInt(String key) {
         if (!this.data.containsKey(key)) {
             return null;
@@ -180,6 +280,14 @@ public class ParseObject implements IPersistable {
         return (Integer) value;
     }
 
+    /**
+     * Retrieves the {@link Double} value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the double value.
+     * @return The retrieved boolean value or null if there is no such
+     * {@code key} or if it is not associated with a Double.
+     */
     public Double getDouble(String key) {
         if (!this.data.containsKey(key)) {
             return null;
@@ -193,6 +301,14 @@ public class ParseObject implements IPersistable {
         return (Double) value;
     }
 
+    /**
+     * Retrieves the {@link Long} value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the long value.
+     * @return The retrieved boolean value or null if there is no such
+     * {@code key} or if it is not associated with a Long.
+     */
     public Long getLong(String key) {
         if (!this.data.containsKey(key)) {
             return null;
@@ -206,6 +322,14 @@ public class ParseObject implements IPersistable {
         return (Long) value;
     }
 
+    /**
+     * Retrieves the {@link String} value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the string value.
+     * @return The retrieved boolean value or null if there is no such
+     * {@code key} or if it is not associated with a String.
+     */
     public String getString(String key) {
 
         if (!this.data.containsKey(key)) {
@@ -219,6 +343,14 @@ public class ParseObject implements IPersistable {
         return (String) value;
     }
 
+    /**
+     * Retrieves the list or JSONArray value associated with {@code key}.
+     *
+     * @param <T> The type of the list elements.
+     * @param key The key associated with the list value.
+     * @return The retrieved list or null if there is no such {@code key} or if
+     * the value cannot be converted to a list.
+     */
     public <T> List<T> getList(String key) {
 
         if (!this.data.containsKey(key)) {
@@ -238,7 +370,19 @@ public class ParseObject implements IPersistable {
         List<T> returnValue = (List<T>) value;
         return returnValue;
     }
-    
+
+    /**
+     * Retrieves the {@link ParseObject} value associated with {@code key}.
+     * <p>
+     * This function will not perform a network request. Unless the ParseObject
+     * has been downloaded (e.g. by a
+     * {@link ParseQuery#include(java.lang.String)} or by calling
+     * {@link #fetchIfNeeded()}), {@link #isDataAvailable()} will return false.
+     *
+     * @param key The key associated with the Parse object.
+     * @return The retrieved Parse object or null if there is no such
+     * {@code key} or if it is not associated with a ParseObject.
+     */
     public ParseObject getParseObject(String key) {
         if (!this.data.containsKey(key)) {
             return null;
@@ -251,6 +395,13 @@ public class ParseObject implements IPersistable {
         return (ParseObject) value;
     }
 
+    /**
+     * Retrieves the object value associated with {@code key}.
+     *
+     *
+     * @param key The key associated with the object.
+     * @return The retrieved object or null if there is no such {@code key}.
+     */
     public Object get(String key) {
 
         if (!this.data.containsKey(key)) {
@@ -262,12 +413,13 @@ public class ParseObject implements IPersistable {
     }
 
     /**
-     * Creates a <i>temporary</i> ParseRelation object for defining/updating
-     * relations associated with {@code key}. 
-     * 
-     * <p><b>Note:</b> Relations defined via the returned object will override 
-     * any existing relations previously defined for the same {@code key}!</p>
-     * 
+     * Creates a ParseRelation object for defining/updating relations associated
+     * with {@code key}.
+     *
+     * <p>
+     * <b>Note:</b> Relations defined via the returned object will override any
+     * existing relations previously defined for the same {@code key}!</p>
+     *
      * @param <T> A {@link ParseObject} or its sub-type.
      * @param key The key associated with this relation.
      * @return The newly created object.
@@ -280,32 +432,120 @@ public class ParseObject implements IPersistable {
         return new ParseRelation<T>(this, key, targetClass);
     }
 
+    /**
+     * Checks if the specified {@code key} is defined for this Parse object.
+     *
+     * @param key The key to be checked.
+     * @return {@code true} if {@code key} is defined for this object.
+     */
     public boolean has(String key) {
         return containsKey(key);
     }
 
+    /**
+     * @see #has(java.lang.String)
+     */
     public boolean containsKey(String key) {
         return this.data.containsKey(key);
     }
 
+    /**
+     * Checks if this ParseObject has the same class name and objectId as this
+     * one.
+     *
+     * @param other The ParseObject to compare this one to.
+     * @return {@code true} if the {@code other} is the same as this Parse
+     * object.
+     */
     public boolean hasSameId(ParseObject other) {
         return (getClassName() != null) && (getObjectId() != null)
                 && (getClassName().equals(other.getClassName()))
                 && (getObjectId().equals(other.getObjectId()));
     }
 
-    public void addToArrayField(String key, Collection<?> values) {
-        AddOperation operation = new AddOperation(values);
+    /**
+     * Atomically adds an object to the end of the array associated with a given
+     * {@code key}.
+     * <p>
+     * <b>Note:</b> The corresponding method in the Parse Java SDK is called
+     * <a href='http://www.parse.com/docs/android/api/com/parse/ParseObject.html#add(java.lang.String,%20java.lang.Object)'>add</a>.
+     *
+     * @param key The array field key.
+     * @param value The object to add.
+     */
+    public void addToArrayField(String key, Object value) {
+        addAllToArrayField(key, Arrays.asList(value));
+    }
+
+    /**
+     * Atomically adds the objects contained in {@code values} to the end of the
+     * array associated with a given {@code key}.
+     * <p>
+     * <b>Note:</b> The corresponding method in the Parse Java SDK is called
+     * <a href='http://www.parse.com/docs/android/api/com/parse/ParseObject.html#addAll(java.lang.String,%20java.util.Collection)'>addAll</a>.
+     *
+     * @param key The array field key.
+     * @param values The objects to add.
+     */
+    public void addAllToArrayField(String key, Collection<?> values) {
+        AddToArrayOperation operation = new AddToArrayOperation(values);
         performOperation(key, operation);
     }
 
-    public void addUniqueToArrayField(String key, Collection<?> values) {
-        AddUniqueOperation operation = new AddUniqueOperation(values);
+    /**
+     * Atomically adds an object to the array associated with a given key, only
+     * if it is not already present in the array. The position of the insert is
+     * not guaranteed.
+     * <p>
+     * <b>Note:</b> The corresponding method in the Parse Java SDK is called
+     * <a href='http://www.parse.com/docs/android/api/com/parse/ParseObject.html#addUnique(java.lang.String,%20java.lang.Object)'>addUnique</a>.
+     *
+     * @param key The array field key.
+     * @param value The object to add.
+     */
+    public void addUniqueToArrayField(String key, Object value) {
+        addAllUniqueToArrayField(key, Arrays.asList(value));
+    }
+
+    /**
+     * Atomically adds the objects contained in {@code values} to the array
+     * associated with a given key, only if it is not already present in the
+     * array. The position of the insert is not guaranteed.
+     * <p>
+     * <b>Note:</b> The corresponding method in the Parse Java SDK is called
+     * <a href='http://www.parse.com/docs/android/api/com/parse/ParseObject.html#addAllUnique(java.lang.String,%20java.util.Collection)'>addAllUnique</a>.
+     *
+     * @param key The array field key.
+     * @param values The objects to add.
+     */
+    public void addAllUniqueToArrayField(String key, Collection<?> values) {
+        AddUniqueToArrayOperation operation = new AddUniqueToArrayOperation(values);
         performOperation(key, operation);
     }
 
-    public void removeFromArrayField(String key, Collection<?> values) {
-        RemoveOperation operation = new RemoveOperation(values);
+    /**
+     * Atomically removes an object to the end of the array associated with a
+     * given {@code key}.
+     *
+     * @param key The array field key.
+     * @param value The object to remove.
+     */
+    public void removeFromArrayField(String key, Object value) {
+        removeAllFromArrayField(key, Arrays.asList(value));
+    }
+
+    /**
+     * Atomically removes all instances of the objects contained in
+     * {@code values} from the array associated with a given key.
+     * <p>
+     * <b>Note:</b> The corresponding method in the Parse Java SDK is called
+     * <a href='http://www.parse.com/docs/android/api/com/parse/ParseObject.html#removeAll(java.lang.String,%20java.util.Collection)'>removeAll</a>.
+     *
+     * @param key The array field key.
+     * @param values The objects to remove.
+     */
+    public void removeAllFromArrayField(String key, Collection<?> values) {
+        RemoveFromArrayOperation operation = new RemoveFromArrayOperation(values);
         performOperation(key, operation);
     }
 
@@ -342,7 +582,12 @@ public class ParseObject implements IPersistable {
         performOperation(key, new SetFieldOperation(value));
     }
 
-
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@code true} if any key-value pair in this object (or its
+     * children) has been added/updated/removed and not saved yet.
+     */
     @Override
     public boolean isDirty() {
         return dirty;
@@ -350,9 +595,14 @@ public class ParseObject implements IPersistable {
 
     @Override
     public void setDirty(boolean dirty) {
-       this.dirty = dirty;
+        this.dirty = dirty;
     }
-    
+
+    @Override
+    public boolean isDataAvailable() {
+        return (data != null) && (!data.isEmpty());
+    }
+
     @Override
     public void save() throws ParseException {
 
@@ -361,7 +611,7 @@ public class ParseObject implements IPersistable {
                     + " object");
             return;
         }
-        
+
         validateSave();
 
         ParseCommand command;
@@ -370,11 +620,11 @@ public class ParseObject implements IPersistable {
         } else {
             command = new ParsePutCommand(getEndPoint(), getObjectId());
         }
-        
+
         performSave(command);
     }
-    
-    public void deleteField(String key) {
+
+    public void remove(String key) {
 
         if (has(key)) {
             if (objectId != null) {
@@ -412,6 +662,11 @@ public class ParseObject implements IPersistable {
         setDirty(true);
     }
 
+    /**
+     * Deletes this object on the server.
+     *
+     * @throws ParseException if anything goes wrong.
+     */
     public void delete() throws ParseException {
 
         if (getObjectId() == null) {
@@ -425,7 +680,7 @@ public class ParseObject implements IPersistable {
         if (response.isFailed()) {
             throw response.getException();
         }
-        
+
         reset();
     }
 
@@ -435,30 +690,7 @@ public class ParseObject implements IPersistable {
         for (String key : operations.keySet()) {
             ParseOperation operation = (ParseOperation) operations.get(key);
             try {
-                if (operation instanceof SetFieldOperation) {
-                    parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
-                } else if (operation instanceof IncrementFieldOperation) {
-                    parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
-                } else if (operation instanceof DeleteFieldOperation) {
-                    parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
-                } else if (operation instanceof RelationOperation) {
-                    parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
-                } else {
-                    // TODO: I don't get the original (now commented out) code 
-                    // below. Every modification of a ParseObject is done via operations
-                    // so if we get here, I expect that we've encountered an unsupported 
-                    // operation NOT a sub-ParseObject.
-                    throw new ParseException("Unsupported operation " + operation, null);
-                    
-                    /*
-                    //here we deal will sub objects like ParseObject;
-                    Object obj = data.get(key);
-                    if (obj instanceof ParseObject) {
-                        ParseObject pob = (ParseObject) obj;
-                        parseData.put(key, pob.getParseData());
-                    }
-                    */
-                }
+                parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ex);
             }
@@ -473,9 +705,9 @@ public class ParseObject implements IPersistable {
 
     protected void validateSave() throws ParseException {
     }
- 
+
     protected void performSave(final ParseCommand command) throws ParseException {
-        
+
         command.setData(getParseData());
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
@@ -494,23 +726,25 @@ public class ParseObject implements IPersistable {
             throw response.getException();
         }
     }
-    
+
     void performOperation(String key, ParseOperation operation) {
 
+        Object oldValue = null;
         if (has(key)) {
+            oldValue = data.get(key);
             operations.remove(key);
             data.remove(key);
         }
 
-        Object value = null;
+        Object newValue = null;
         try {
-            value = operation.apply(null, this, key);
+            newValue = operation.apply(oldValue, this, key);
         } catch (ParseException ex) {
             throw new IllegalArgumentException(ex.getMessage());
         }
-        
-        if (value != null) {
-            data.put(key, value);
+
+        if (newValue != null) {
+            data.put(key, newValue);
         } else {
             data.remove(key);
         }
@@ -519,95 +753,11 @@ public class ParseObject implements IPersistable {
         setDirty(true);
     }
 
-    
-// TODO: Fix all save- and deleteInBackground() methods
-//    public void saveInBackground() {
-//        saveInBackground(null);
-//    }
-//
-//    public void deleteInBackground() {
-//        deleteInBackground(null);
-//    }
-//
-//    public void saveInBackground(SaveCallback saveCallback) {
-//        SaveInBackgroundThread task = new SaveInBackgroundThread(saveCallback);
-//        ParseExecutor.runInBackground(task);
-//    }
-//
-//    public void deleteInBackground(DeleteCallback deleteCallback) {
-//        DeleteInBackgroundThread task = new DeleteInBackgroundThread(deleteCallback);
-//        ParseExecutor.runInBackground(task);
-//    }
+    public static <T extends ParseObject> T fetch(final String className,
+            final String objectId) throws ParseException {
 
-    protected void reset() {
-        updatedAt = null;
-        createdAt = null;
-        objectId = null;
-        setDirty(false);
-        dirtyKeys.clear();
-        operations.clear();
-        data.clear();
-    }
-
-    protected void setCreatedAt(Date createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    protected void setUpdatedAt(Date updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-    
-    protected final void setEndPoint(String endPoint) {
-        this.endPoint = endPoint;
-    }
-
-//    class DeleteInBackgroundThread extends Thread {
-//
-//        DeleteCallback mDeleteCallback;
-//
-//        public DeleteInBackgroundThread(DeleteCallback callback) {
-//            mDeleteCallback = callback;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            try {
-//                delete();
-//            } catch (ParseException e) {
-//                exception = e;
-//            }
-//            if (mDeleteCallback != null) {
-//                mDeleteCallback.done(exception);
-//            }
-//        }
-//    }
-//
-//    class SaveInBackgroundThread extends Thread {
-//
-//        SaveCallback mSaveCallback;
-//
-//        public SaveInBackgroundThread(SaveCallback callback) {
-//            mSaveCallback = callback;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            try {
-//                save();
-//            } catch (ParseException e) {
-//                exception = e;
-//            }
-//            if (mSaveCallback != null) {
-//                mSaveCallback.done(exception);
-//            }
-//        }
-//    }
-
-     public static <T extends ParseObject> T fetch(final String className, 
-             final String objectId) throws ParseException {
-        
-        ParseGetCommand command = 
-                new ParseGetCommand(toEndPoint(className), objectId);
+        ParseGetCommand command
+                = new ParseGetCommand(toEndPoint(className), objectId);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             JSONObject jsonResponse = response.getJsonObject();
@@ -624,9 +774,9 @@ public class ParseObject implements IPersistable {
             throw response.getException();
         }
     }
-    
+
     public <T extends ParseObject> T fetchIfNeeded() throws ParseException {
-        if (data.isEmpty() && !isDirty()) {
+        if (!isDataAvailable() && !isDirty()) {
             return fetch(getEndPoint(), getObjectId());
         } else {
             return (T) this;
@@ -649,7 +799,7 @@ public class ParseObject implements IPersistable {
     }
 
     public void setData(JSONObject jsonObject) {
-   
+
         Iterator<?> it = jsonObject.keys();
         while (it.hasNext()) {
             String key = (String) it.next();
@@ -666,7 +816,29 @@ public class ParseObject implements IPersistable {
         this.dirtyKeys.clear();
     }
 
-    protected void setReservedKey(String key, Object value) {        
+    protected void reset() {
+        updatedAt = null;
+        createdAt = null;
+        objectId = null;
+        setDirty(false);
+        dirtyKeys.clear();
+        operations.clear();
+        data.clear();
+    }
+
+    protected void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    protected void setUpdatedAt(Date updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+
+    protected final void setEndPoint(String endPoint) {
+        this.endPoint = endPoint;
+    }
+
+    protected void setReservedKey(String key, Object value) {
         if (ParseConstants.FIELD_OBJECT_ID.equals(key)) {
             setObjectId(value.toString());
         } else if (ParseConstants.FIELD_CREATED_AT.equals(key)) {
@@ -679,7 +851,7 @@ public class ParseObject implements IPersistable {
     private static String toEndPoint(final String className) {
         return ParseConstants.CLASSES_PATH + className;
     }
-    
+
     private void logGetValueError(final String methodName, final String key, final Object value) {
         LOGGER.error("Called " + methodName + "(" + key
                 + "') but the value is of class type '"

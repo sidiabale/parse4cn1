@@ -24,7 +24,6 @@ import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.encode.ParseObjectEncodingStrategy;
 import com.parse4cn1.operation.RelationOperation;
-import com.parse4cn1.util.ParseDecoder;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;

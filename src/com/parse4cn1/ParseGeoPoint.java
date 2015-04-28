@@ -21,6 +21,13 @@ package com.parse4cn1;
 
 import com.codename1.util.MathUtil;
 
+/**
+ * ParseGeoPoint represents a latitude / longitude point that may be associated 
+ * with a key in a ParseObject or used as a reference point for geo queries. 
+ * This allows proximity based queries on the key.
+ * 
+ * @author sidiabale
+ */
 public class ParseGeoPoint {
 
     static double EARTH_MEAN_RADIUS_KM = 6371.0D;
@@ -29,12 +36,23 @@ public class ParseGeoPoint {
     private double latitude = 0.0D;
     private double longitude = 0.0D;
 
+    /**
+     * Creates a new point with the specified latitude and longitude.
+     * 
+     * @param latitude The point's latitude.
+     * @param longitude The point's longitude.
+     */
     public ParseGeoPoint(double latitude, double longitude) {
         setLatitude(latitude);
         setLongitude(longitude);
     }
 
-    public void setLatitude(double latitude) {
+    /**
+     * Set latitude. Valid range is (-90.0, 90.0). Extremes should not be used.
+     * 
+     * @param latitude The point's latitude
+     */
+    public final void setLatitude(double latitude) {
         if ((latitude > 90.0D) || (latitude < -90.0D)) {
             throw new IllegalArgumentException(
                     "Latitude must be within the range (-90.0, 90.0).");
@@ -42,7 +60,12 @@ public class ParseGeoPoint {
         this.latitude = latitude;
     }
 
-    public void setLongitude(double longitude) {
+    /**
+     * Set longitude. Valid range is (-180.0, 180.0). Extremes should not be used.
+     * 
+     * @param longitude The point's longitude.
+     */
+    public final void setLongitude(double longitude) {
         if ((longitude > 180.0D) || (longitude < -180.0D)) {
             throw new IllegalArgumentException(
                     "Longitude must be within the range (-180.0, 180.0).");
@@ -58,6 +81,13 @@ public class ParseGeoPoint {
         return this.longitude;
     }
 
+    /**
+     * Get distance in radians between this point and another ParseGeoPoint. 
+     * This is the smallest angular distance between the two points.
+     * 
+     * @param point ParseGeoPoint describing the other point being measured against.
+     * @return The distance between this point and {@code point} in radians.
+     */
     public double distanceInRadiansTo(ParseGeoPoint point) {
         double d2r = 0.0174532925199433D;
         double lat1rad = this.latitude * d2r;
@@ -76,10 +106,24 @@ public class ParseGeoPoint {
         return 2.0D * MathUtil.asin(Math.sqrt(a));
     }
 
+    /**
+     * Get distance between this point and another ParseGeoPoint in kilometers.
+     * 
+     * @param point ParseGeoPoint describing the other point being measured against.
+     * @return The distance between this point and {@code point} in kilometers.
+     * @see #distanceInRadiansTo(com.parse4cn1.ParseGeoPoint)
+     */
     public double distanceInKilometersTo(ParseGeoPoint point) {
         return distanceInRadiansTo(point) * EARTH_MEAN_RADIUS_KM;
     }
 
+    /**
+     * Get distance between this point and another ParseGeoPoint in miles.
+     * 
+     * @param point ParseGeoPoint describing the other point being measured against.
+     * @return The distance between this point and {@code point} in miles.
+     * @see #distanceInRadiansTo(com.parse4cn1.ParseGeoPoint)
+     */
     public double distanceInMilesTo(ParseGeoPoint point) {
         return distanceInRadiansTo(point) * EARTH_MEAN_RADIUS_MILE;
     }
