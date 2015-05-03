@@ -16,13 +16,12 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-
 package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 import com.parse4cn1.operation.RelationOperation;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,10 +29,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A class that is used to define, modify and/or access all of the children of a 
- * many-to-many relationship. Each instance of ParseRelation is associated with 
+ * A class that is used to define, modify and/or access all of the children of a
+ * many-to-many relationship. Each instance of ParseRelation is associated with
  * a particular parent object and key.
- * 
+ *
  * @param <T> The type of {@link ParseObject}
  */
 public class ParseRelation<T extends ParseObject> {
@@ -45,10 +44,10 @@ public class ParseRelation<T extends ParseObject> {
     private final Set<T> removedObjects = new HashSet<T>();
 
     /**
-     * Creates a ParseRelation object from JSON data, for example, retrieved 
+     * Creates a ParseRelation object from JSON data, for example, retrieved
      * from a Parse API call.
-     * 
-     * @param jsonObject The JSON data that defines the ParseRelation. It must 
+     *
+     * @param jsonObject The JSON data that defines the ParseRelation. It must
      * contains at least a {@value ParseConstants#FIELD_CLASSNAME} field for the
      * target class and optionally an "objects" array field.
      */
@@ -62,16 +61,16 @@ public class ParseRelation<T extends ParseObject> {
     }
 
     /**
-     * Creates a ParseRelation between the {@code parent} and {@code targetClass}
-     * using the specified {@code key} in the parent.
-     * 
+     * Creates a ParseRelation between the {@code parent} and
+     * {@code targetClass} using the specified {@code key} in the parent.
+     *
      * @param parent The ParseObject on which this ParseRelation is defined.
      * @param key The key in {@code parent} on which the relation is defined.
-     * @param targetClass The name of the ParseObject class whose objects are 
+     * @param targetClass The name of the ParseObject class whose objects are
      * involved in relation.
-     * 
-     * @throws IllegalArgumentException if the {@code targetClass} is null or the
-     * provided {@code parent} and/or {@code key} do not match those
+     *
+     * @throws IllegalArgumentException if the {@code targetClass} is null or
+     * the provided {@code parent} and/or {@code key} do not match those
      */
     public ParseRelation(final ParseObject parent, final String key,
             final String targetClass) {
@@ -90,26 +89,26 @@ public class ParseRelation<T extends ParseObject> {
 
     /**
      * Adds an object to this relation.
-     * 
+     *
      * @param object The object to be added.
      * @throws IllegalArgumentException if {@code object} is null.
-     * @throws IllegalStateException if any of the members required to getQuery 
- the relation is uninitialized or mismatching.
+     * @throws IllegalStateException if any of the members required to getQuery
+     * the relation is uninitialized or mismatching.
      */
     public void add(T object) {
         if (object == null) {
             throw new IllegalArgumentException("Cannot add a null object");
         }
-        
+
         if (contains(object.getObjectId(), addedObjects)) {
             return;
         }
-        
+
         this.addedObjects.add(object);
         this.removedObjects.remove(object);
 
         RelationOperation<T> operation = new RelationOperation<T>(
-                Collections.unmodifiableSet(this.addedObjects), 
+                Collections.unmodifiableSet(this.addedObjects),
                 RelationOperation.ERelationType.AddRelation);
 
         validate(operation.getTargetClass());
@@ -118,26 +117,26 @@ public class ParseRelation<T extends ParseObject> {
 
     /**
      * Removes an object from this relation.
-     * 
+     *
      * @param object The object to be removed.
      * @throws IllegalArgumentException if {@code object} is null.
-     * @throws IllegalStateException if any of the members required to remove 
+     * @throws IllegalStateException if any of the members required to remove
      * the relation is uninitialized or mismatching.
      */
     public void remove(T object) {
         if (object == null) {
             throw new IllegalArgumentException("Cannot remove a null object");
         }
-        
+
         if (contains(object.getObjectId(), removedObjects)) {
             return;
         }
-        
+
         this.addedObjects.remove(object);
         this.removedObjects.add(object);
 
         RelationOperation<T> operation = new RelationOperation<T>(
-            Collections.unmodifiableSet(this.removedObjects), 
+                Collections.unmodifiableSet(this.removedObjects),
                 RelationOperation.ERelationType.RemoveRelation);
 
         validate(operation.getTargetClass());
@@ -146,6 +145,7 @@ public class ParseRelation<T extends ParseObject> {
 
     /**
      * Gets a query that can be used to query the objects in this relation.
+     *
      * @return the query.
      */
     public ParseQuery<T> getQuery() {
@@ -158,12 +158,12 @@ public class ParseRelation<T extends ParseObject> {
 
     /**
      * Converts the objects in this relation to JSON.
-     * 
+     *
      * @param objectEncoder The encoder to be used to encode the objects.
      * @return The objects in this relation encoded as a Parse "Relation".
      * @throws JSONException if anything goes wrong with JSON encoding.
      */
-    public JSONObject encode(ParseObjectEncodingStrategy objectEncoder) throws JSONException {
+    public JSONObject encode(IParseObjectEncodingStrategy objectEncoder) throws JSONException {
         JSONObject relation = new JSONObject();
         relation.put(ParseConstants.KEYWORD_TYPE, "Relation");
         relation.put(ParseConstants.FIELD_CLASSNAME, this.targetClass);
@@ -180,12 +180,13 @@ public class ParseRelation<T extends ParseObject> {
     }
 
     /**
-     * Checks if an element with {@code objectId} is contained in {@code collection}.
-     * 
+     * Checks if an element with {@code objectId} is contained in
+     * {@code collection}.
+     *
      * @param objectId The objectId to be checked for.
      * @param collection The collection to be searched for {@code objectId}.
-     * @return {@code true} if an element with {@code objectId} is found in {@code collection}.
-     * Otherwise, returns {@code false}.
+     * @return {@code true} if an element with {@code objectId} is found in
+     * {@code collection}. Otherwise, returns {@code false}.
      */
     private boolean contains(final String objectId, final Collection<T> collection) {
         if (objectId == null) {
@@ -202,18 +203,19 @@ public class ParseRelation<T extends ParseObject> {
 
     /**
      * Validates the state of this ParseRelation.
-     * 
-     * @param targetClass The new target class to be set if none was previously defined.
-     * @throws IllegalStateException if any of the required relation fields is 
-     * null or if the provided {@code targetClass} is different from the previously
-     * defined one.
+     *
+     * @param targetClass The new target class to be set if none was previously
+     * defined.
+     * @throws IllegalStateException if any of the required relation fields is
+     * null or if the provided {@code targetClass} is different from the
+     * previously defined one.
      */
     private void validate(final String targetClass) {
-        
+
         if (targetClass == null) {
             throw new IllegalStateException("Target class is null");
         }
-        
+
         if (this.parent == null) {
             throw new IllegalStateException("Parent ParseObject is null");
         }
@@ -221,7 +223,7 @@ public class ParseRelation<T extends ParseObject> {
         if (this.key == null) {
             throw new IllegalStateException("Relation key is null");
         }
-        
+
         if (this.targetClass == null) {
             this.targetClass = targetClass;
         }

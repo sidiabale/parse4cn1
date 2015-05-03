@@ -21,6 +21,9 @@ import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.util.MimeType;
 
+/**
+ * This class defines a command for downloading resources from the Parse server.
+ */
 public class ParseDownloadCommand extends ParseCommand {
 
     private final String url;

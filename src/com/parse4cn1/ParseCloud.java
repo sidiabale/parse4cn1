@@ -36,8 +36,6 @@ import java.util.HashMap;
  * considerations, the only way to trigger jobs using this library is to write a
  * wrapper Cloud Function, that does the necessary authentication and forwards
  * the request to the Job API.
- *
- * @author sidiabale
  */
 public class ParseCloud {
 
@@ -59,7 +57,7 @@ public class ParseCloud {
         T result = null;
         ParsePostCommand command = new ParsePostCommand("functions", name);
         if (params != null) {
-            command.setData(new JSONObject((HashMap) params));
+            command.setMessageBody(new JSONObject((HashMap) params));
         }
         ParseResponse response = command.perform();
 

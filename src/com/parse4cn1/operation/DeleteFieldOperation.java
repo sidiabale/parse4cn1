@@ -24,8 +24,11 @@ import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 
+/**
+ * This class defines an operation to delete a field (key-value pair) from a ParseObject.
+ */
 public class DeleteFieldOperation implements ParseOperation {
 
     @Override
@@ -34,7 +37,7 @@ public class DeleteFieldOperation implements ParseOperation {
     }
 
     @Override
-    public Object encode(ParseObjectEncodingStrategy objectEncoder)
+    public Object encode(IParseObjectEncodingStrategy objectEncoder)
             throws ParseException {
         JSONObject output = new JSONObject();
         try {
@@ -44,5 +47,4 @@ public class DeleteFieldOperation implements ParseOperation {
         }
         return output;
     }
-
 }

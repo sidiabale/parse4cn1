@@ -21,8 +21,6 @@ package com.parse4cn1;
 
 /**
  * This class defines various constants used in the library.
- * 
- * @author sidiabale
  */
 public class ParseConstants {
 

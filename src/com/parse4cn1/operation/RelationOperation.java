@@ -26,13 +26,17 @@ import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.ParseRelation;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 import static com.parse4cn1.operation.RelationOperation.ERelationType.AddRelation;
-import com.parse4cn1.util.ParseEncoder;
+import com.parse4cn1.encode.ParseEncoder;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This class defines an operation to create or remove a relation between ParseObjects.
+ * @param <T> The type of ParseObject for which the relation operation is to be defined.
+ */
 public class RelationOperation<T extends ParseObject> implements ParseOperation {
 
     public enum ERelationType {
@@ -109,7 +113,7 @@ public class RelationOperation<T extends ParseObject> implements ParseOperation 
     }
 
     @Override
-    public JSONObject encode(ParseObjectEncodingStrategy objectEncoder) throws ParseException {
+    public JSONObject encode(IParseObjectEncodingStrategy objectEncoder) throws ParseException {
 
         JSONObject newRelations = null;
 
@@ -134,7 +138,7 @@ public class RelationOperation<T extends ParseObject> implements ParseOperation 
     
     
     private JSONArray convertSetToArray(Set<ParseObject> set, 
-            ParseObjectEncodingStrategy objectEncoder) throws ParseException {
+            IParseObjectEncodingStrategy objectEncoder) throws ParseException {
         JSONArray array = new JSONArray();
         for (ParseObject obj : set) {
             array.put(ParseEncoder.encode(obj, objectEncoder));

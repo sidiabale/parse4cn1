@@ -22,6 +22,9 @@ package com.parse4cn1.command;
 import com.codename1.io.ConnectionRequest;
 import com.parse4cn1.ParseException;
 
+/**
+ * This class defines a POST command typically used for creating objects on the Parse server.
+ */
 public class ParsePostCommand extends ParseCommand {
 
     private final String endPoint;
@@ -38,7 +41,7 @@ public class ParsePostCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(request, addJson);
+        setupDefaultHeaders(addJson);
         request.setPost(true);
         request.setHttpMethod("POST");
         request.setUrl(getUrl(endPoint, objectId));

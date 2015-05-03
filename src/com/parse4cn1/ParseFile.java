@@ -29,8 +29,6 @@ import com.parse4cn1.command.ParseDownloadCommand;
 
 /**
  * ParseFile is a local representation of a file that is saved to the Parse cloud.
- * 
- * @author sidiabale
  */
 public class ParseFile implements Parse.IPersistable {
 

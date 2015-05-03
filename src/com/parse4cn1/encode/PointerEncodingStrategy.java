@@ -23,11 +23,17 @@ import com.parse4cn1.ParseObject;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.ParseException;
 
-// TODO: Document
+/**
+ * This class defines a Parse object encoding strategy based on pointers.
+ * @see <a href="https://www.parse.com/docs/rest#objects-types">The Parse REST API Pointer data type</a>.
+ */
 public class PointerEncodingStrategy extends PointerOrLocalIdEncodingStrategy {
 
     private static final PointerEncodingStrategy instance = new PointerEncodingStrategy();
 
+    /**
+     * @return The singleton instance of this class.
+     */
     public static PointerEncodingStrategy get() {
         return instance;
     }

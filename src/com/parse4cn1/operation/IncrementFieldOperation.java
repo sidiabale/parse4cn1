@@ -24,15 +24,19 @@ import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 
+/**
+ * This class defines an operation to increment or decrement the value of a 
+ * field of a ParseObject.
+ */
 public class IncrementFieldOperation implements ParseOperation {
 
     private Object amount;
     private boolean needIncrement = true;
 
     public IncrementFieldOperation(Object amount) {
-        if (!OperationUtil.isSupportedNumberType(amount)) {
+        if (!ParseOperationUtil.isSupportedNumberType(amount)) {
             throw new IllegalArgumentException("Type '" + amount.getClass() 
                     + "' is not a supported number type");
         }
@@ -48,8 +52,8 @@ public class IncrementFieldOperation implements ParseOperation {
             return amount;
         }
 
-        if (OperationUtil.isSupportedNumberType(oldValue)) {
-           return OperationUtil.addNumbers(oldValue, this.amount); 
+        if (ParseOperationUtil.isSupportedNumberType(oldValue)) {
+           return ParseOperationUtil.addNumbers(oldValue, this.amount); 
         }
 
         throw new IllegalArgumentException("You cannot increment a non-number."
@@ -57,7 +61,7 @@ public class IncrementFieldOperation implements ParseOperation {
     }
 
     @Override
-    public Object encode(ParseObjectEncodingStrategy objectEncoder) {
+    public Object encode(IParseObjectEncodingStrategy objectEncoder) {
         if (needIncrement) {
             JSONObject output = new JSONObject();
             try {

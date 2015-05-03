@@ -23,6 +23,7 @@ import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.Parse.IPersistable;
 import com.parse4cn1.callback.GetCallback;
+import com.parse4cn1.callback.ParseCallback;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParseDeleteCommand;
 import com.parse4cn1.command.ParseGetCommand;
@@ -35,11 +36,10 @@ import com.parse4cn1.operation.AddUniqueToArrayOperation;
 import com.parse4cn1.operation.DeleteFieldOperation;
 import com.parse4cn1.operation.IncrementFieldOperation;
 import com.parse4cn1.operation.ParseOperation;
-import com.parse4cn1.operation.RelationOperation;
 import com.parse4cn1.operation.RemoveFromArrayOperation;
 import com.parse4cn1.operation.SetFieldOperation;
 import com.parse4cn1.util.Logger;
-import com.parse4cn1.util.ParseDecoder;
+import com.parse4cn1.encode.ParseDecoder;
 import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -62,8 +62,6 @@ import java.util.Set;
  * <p>
  * The basic workflow for accessing existing data is to use a {@link ParseQuery}
  * to specify which existing data to retrieve.
- *
- * @author sidiabale
  */
 public class ParseObject implements IPersistable {
 
@@ -624,6 +622,11 @@ public class ParseObject implements IPersistable {
         performSave(command);
     }
 
+    /**
+     * Removes a key from this object's data if it exists.
+     * 
+     * @param key The key to be removed.
+     */
     public void remove(String key) {
 
         if (has(key)) {
@@ -639,14 +642,31 @@ public class ParseObject implements IPersistable {
         }
     }
 
+    /**
+     * Atomically decrements the number field associated with {@code key} by 1.
+     * 
+     * @param key The key of the number field to decrement.
+     */
     public void decrement(String key) {
         increment(key, -1);
     }
 
+    /**
+     * Atomically increments the number field associated with {@code key} by 1.
+     * 
+     * @param key The key of the number field to increment.
+     */
     public void increment(String key) {
         increment(key, 1);
     }
 
+    /**
+     * Atomically increments the number field associated with {@code key} by the 
+     * stated {@code amount}.
+     * 
+     * @param key The key of the number field to increment.
+     * @param amount The amount to increment the key's value.
+     */
     public void increment(String key, Object amount) {
         IncrementFieldOperation operation = new IncrementFieldOperation(amount);
         Object oldValue = data.get(key);
@@ -684,6 +704,13 @@ public class ParseObject implements IPersistable {
         reset();
     }
 
+    /**
+     * Encodes the data present in this object in a JSONObject that complies to 
+     * the Parse API specification. 
+     * 
+     * @return The JSON equivalent of this object as expected by Parse.
+     * @throws ParseException If anything goes wrong.
+     */
     public JSONObject getParseData() throws ParseException {
         JSONObject parseData = new JSONObject();
 
@@ -703,12 +730,25 @@ public class ParseObject implements IPersistable {
         return parseData;
     }
 
+    /**
+     * Checks the validity of this object's state just before a save operation 
+     * is performed. Sub-classes should override this method to implement class-
+     * specific validation.
+     * 
+     * @throws ParseException if anything goes wrong.
+     */
     protected void validateSave() throws ParseException {
     }
 
+    /**
+     * Saves this object.
+     * 
+     * @param command The ParseCommand to be used to issue the save request.
+     * @throws ParseException if anything goes wrong.
+     */
     protected void performSave(final ParseCommand command) throws ParseException {
 
-        command.setData(getParseData());
+        command.setMessageBody(getParseData());
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             JSONObject jsonResponse = response.getJsonObject();
@@ -727,6 +767,13 @@ public class ParseObject implements IPersistable {
         }
     }
 
+    /**
+     * Performs the specified ParseOperation on this object.
+     * 
+     * @param key The field to which the result of {@code operation} will be 
+     * stored, if application.
+     * @param operation The ParseOperation to be performed.
+     */
     void performOperation(String key, ParseOperation operation) {
 
         Object oldValue = null;
@@ -753,6 +800,19 @@ public class ParseObject implements IPersistable {
         setDirty(true);
     }
 
+    /**
+     * Fetches this object with the data from the server. 
+     * Call this whenever you want the state of the object to reflect exactly
+     * what is on the server.
+     * 
+     * @param <T> The concrete type of ParseObject to be fetched.
+     * @param className The name of the class associated with this Parse object.
+     * @param objectId The id of the object to be fetched. This is the same id 
+     * that was returned from the server when the object was created.
+     * @return The ParseObject that was fetched. 
+     * 
+     * @throws ParseException if anything goes wrong.
+     */
     public static <T extends ParseObject> T fetch(final String className,
             final String objectId) throws ParseException {
 
@@ -775,6 +835,16 @@ public class ParseObject implements IPersistable {
         }
     }
 
+    /**
+     * Fetches this object's data from the server if it has not been fetched 
+     * (i.e. {@link #isDataAvailable()} and {@link #isDirty()} both return false).
+     * 
+     * @param <T> The concrete type of ParseObject to be fetched.
+     * @return The ParseObject that was fetched or this object if the criteria 
+     * for fetching are not met.
+     * 
+     * @throws ParseException if anything goes wrong.
+     */
     public <T extends ParseObject> T fetchIfNeeded() throws ParseException {
         if (!isDataAvailable() && !isDirty()) {
             return fetch(getEndPoint(), getObjectId());
@@ -783,6 +853,13 @@ public class ParseObject implements IPersistable {
         }
     }
 
+    /**
+     * Same as {@link #fetchIfNeeded()} with the option to get notified when 
+     * the fetch is completed. 
+     * 
+     * @param callback The objects whose {@link GetCallback#done(com.parse4cn1.ParseObject, com.parse4cn1.ParseException)}
+     * method is invoked when the fetch operation is completed.
+     */
     public final <T extends ParseObject> void fetchIfNeeded(GetCallback<T> callback) {
         ParseException exception = null;
         T object = null;
@@ -798,6 +875,12 @@ public class ParseObject implements IPersistable {
         }
     }
 
+    /**
+     * Sets the data for this ParseObject. This method is typically invoked after 
+     * this object's data is retrieved from the server.
+     * 
+     * @param jsonObject The JSON object containing the data to be set.
+     */
     public void setData(JSONObject jsonObject) {
 
         Iterator<?> it = jsonObject.keys();
@@ -816,6 +899,11 @@ public class ParseObject implements IPersistable {
         this.dirtyKeys.clear();
     }
 
+    /**
+     * Resets this ParseObject's state. After invoking this method, the ParseObject 
+     * state is comparable to a newly constructed ParseObject 
+     * (see: {@link ParseObject#create(java.lang.String)}).
+     */
     protected void reset() {
         updatedAt = null;
         createdAt = null;

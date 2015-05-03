@@ -20,7 +20,7 @@ package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONObject;
-import com.parse4cn1.operation.OperationUtil;
+import com.parse4cn1.operation.ParseOperationUtil;
 import com.parse4cn1.operation.ParseOperationDecoder;
 import com.parse4cn1.util.ParseRegistry;
 import java.text.DateFormat;
@@ -59,8 +59,9 @@ public class Parse {
         void setDirty(boolean dirty);
 
         /**
-         * Checks whether this persistable object has any data. This data may 
-         * (isDirty() = true) or may not (isDirty() = false) need to be persisted.
+         * Checks whether this persistable object has any data. This data may
+         * (isDirty() = true) or may not (isDirty() = false) need to be
+         * persisted.
          *
          * @return {@code true} if this object has data.
          */
@@ -112,7 +113,7 @@ public class Parse {
             } else {
                 obj = (T) new ParseObject(className);
             }
-        // TODO: Extend with other 'default' parse object subtypes
+            // TODO: Extend with other 'default' parse object subtypes
             // e.g. Session and Installation.
 
             return obj;
@@ -260,7 +261,7 @@ public class Parse {
         return ((value instanceof JSONObject))
                 || ((value instanceof JSONArray))
                 || ((value instanceof String))
-                || (OperationUtil.isSupportedNumberType(value))
+                || (ParseOperationUtil.isSupportedNumberType(value))
                 || ((value instanceof Boolean))
                 || (value == JSONObject.NULL)
                 || ((value instanceof ParseObject))
