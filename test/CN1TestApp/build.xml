@@ -408,6 +408,9 @@
     </target>
 
     <target name="-post-clean" depends="refresh-libs">
+        <delete file="lib/CN1JSON.cn1lib"/>
+        <delete file="lib/CN1JSON.jar"/>
+        <delete file="lib/parse4cn1.cn1lib"/>
     </target>
 
     <target name="refresh-libs">

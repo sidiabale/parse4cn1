@@ -75,6 +75,9 @@ public class CN1TestJavaApplication {
     }
 
     private static void runTests() {
+        // Auto-detect defined test classes
+        // cf. lib/reflections-0.9.9-RC1-uberjar.jar and its dependencies 
+        // (lib/javassist.jar, lib/guava-18.0.jar)
         Reflections reflections = new Reflections("com.parse4cn1");
         final Set<Class<? extends BaseParseTest>> testClasses
                 = reflections.getSubTypesOf(BaseParseTest.class);
