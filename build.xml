@@ -89,10 +89,17 @@
         <antcall target="buildNativeME" />       
         <mkdir dir="dist" />
         <zip basedir="build/lib" compress="true" destfile="dist/${application.title}.cn1lib" />
-        <copy file="dist/${application.title}.cn1lib" todir="test/testapp/lib" failonerror="true" />
+        <copy file="dist/${application.title}.cn1lib" todir="test/CN1TestApp/lib" failonerror="true" />
 		<copy file="lib/VERSIONS.txt" todir="dist" failonerror="true" />
         <copy file="lib/CN1JSON.cn1lib" todir="dist" failonerror="true" />
-        <copy file="lib/CN1JSON.cn1lib" todir="test/testapp/lib" failonerror="true" />
+        <copy file="lib/CN1JSON.cn1lib" todir="test/CN1TestApp/lib" failonerror="true" />
+        <copy file="lib/CN1JSON.jar" todir="test/CN1TestApp/lib" failonerror="true" />
+        <copy file="lib/CN1JSON.jar" todir="test/JavaTestApplication/lib" failonerror="true" />
+        <copy file="test/CN1TestApp/JavaSE.jar" todir="test/JavaTestApplication/lib" failonerror="true" />
+    </target>
+    
+    <target name="-post-jar">
+        <copy file="dist/parse4cn1.jar" todir="test/JavaTestApplication/lib" failonerror="true" />
     </target>
     
     <target name="buildNativeRIM">

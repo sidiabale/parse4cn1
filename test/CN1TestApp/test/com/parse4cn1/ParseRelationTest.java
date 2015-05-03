@@ -123,7 +123,7 @@ public class ParseRelationTest extends BaseParseTest {
             relation = new ParseRelation<ParseObject>(relationObject);
             fail("An exception should occur if the JSON data has no className field");
         } catch (IllegalArgumentException ex) {
-            assertTrue(ex.getMessage().contains("A target class must be specified"));
+            assertTrue(ex.getMessage().startsWith("A target class must be specified"));
         }
         
         relationObject.put(ParseConstants.FIELD_CLASSNAME, targetClass);
@@ -171,7 +171,7 @@ public class ParseRelationTest extends BaseParseTest {
             relation.add(contributor);
             fail("Expected exception on target class mismatch");
         } catch (IllegalStateException ex) {
-            assertTrue(ex.getMessage().contains("Target class mismatch"));
+            assertTrue(ex.getMessage().startsWith("Target class mismatch"));
         }
         
         contributor = ParseObject.create(targetClass);
@@ -182,7 +182,7 @@ public class ParseRelationTest extends BaseParseTest {
             relation.add(contributor);
             fail("Expected exception on null parent");
         } catch (IllegalStateException ex) {
-            assertTrue(ex.getMessage().contains("Parent ParseObject is null"));
+            assertTrue(ex.getMessage().equals("Parent ParseObject is null"));
         }
         
         relation = new ParseRelation<ParseObject>(report, null, null);
@@ -190,7 +190,7 @@ public class ParseRelationTest extends BaseParseTest {
             relation.add(contributor);
             fail("Expected exception on null key");
         } catch (IllegalStateException ex) {
-            assertTrue(ex.getMessage().contains("Relation key is null"));
+            assertTrue(ex.getMessage().equals("Relation key is null"));
         }
     }
 

@@ -17,13 +17,11 @@
 package com.parse4cn1;
 
 import com.codename1.testing.AbstractTest;
-import java.io.FileNotFoundException;
+import com.parse4cn1.util.Logger;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Ideally, this test should have been abstract but when that is done,
@@ -87,6 +85,7 @@ public class BaseParseTest extends AbstractTest {
      * to provide if not present. In this way, own keys are never exposed
      */
     protected final void init() {
+        Logger.getInstance().info("Initializing " + getClass().getCanonicalName());
         Parse.initialize(TEST_APPLICATION_ID, TEST_CLIENT_KEY);
     }
     /**
