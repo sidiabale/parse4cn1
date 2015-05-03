@@ -70,4 +70,9 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-post-clean">
+        <delete file="lib/JavaSE.jar"/>
+        <delete file="lib/CN1JSON.jar"/>
+        <delete file="lib/parse4cn1.jar"/>
+    </target>
 </project>

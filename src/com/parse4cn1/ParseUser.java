@@ -88,6 +88,9 @@ public class ParseUser extends ParseObject {
      * @param username The username to be set.
      */
     public void setUsername(String username) {
+        if (username == null || username.trim().length() == 0) {
+            throw new IllegalArgumentException("Username cannot be null or blank");
+        }
         put(KEY_USERNAME, username);
     }
 

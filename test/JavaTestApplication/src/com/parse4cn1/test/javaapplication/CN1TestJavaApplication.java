@@ -30,9 +30,9 @@ public class CN1TestJavaApplication {
     /**
      * A helper class to initialize the application's main frame.
      */
-    public static class CNOJFrame extends JFrame {
+    public static class MainFrame extends JFrame {
 
-        public CNOJFrame() {
+        public MainFrame() {
             setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
             BorderLayout layout = new BorderLayout();
             getContentPane().setLayout(layout);
@@ -59,7 +59,7 @@ public class CN1TestJavaApplication {
     private static void createAppWithProperContext() {
         // This approach is recommended for a GUI-application or in the case
         // where the blank frame shown for createAppWithoutProperContext() is an issue.
-        final JFrame f = new CNOJFrame();
+        final JFrame f = new MainFrame();
         Display.init(f.getContentPane());
 
         Display.getInstance().callSeriallyAndWait(new Runnable() {
