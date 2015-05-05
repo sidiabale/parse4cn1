@@ -11,7 +11,6 @@ nbproject/private/private.properties
 nbproject/private/private.xml
 test/testapp/nbproject/private/private.properties
 test/testapp/nbproject/private/private.xml
-/test/JavaApplication2/nbproject/private/
 /test/JavaTestApplication/nbproject/private/
 /test/JavaTestApplication/build/
 /test/CN1TestApp/build/
@@ -19,5 +18,7 @@ test/testapp/nbproject/private/private.xml
 /test/CN1TestApp/nbproject/private/
 test/CN1TestApp/lib/impl/cls/ca/weblite/codename1/json/JSONArray.class
 /test/JavaTestApplication/dist/
+/test/JavaTestApplication/lib/CN1JSON.cn1lib
+/test/JavaTestApplication/lib/JavaSE.jar
 test/CN1TestApp/lib/impl/
 /dist/
