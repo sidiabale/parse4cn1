@@ -48,7 +48,8 @@
             bootclasspath="lib/CLDC11.jar" excludes="${excludes}"
             classpath="${javac.classpath}:${build.classes.dir}">
             <src path="${src.dir}"/>
-        </javac>        
+        </javac>
+        <copy file="../../dist/CN1JSON.cn1lib" todir="lib" failonerror="true" overwrite="false"/>
     </target>
 
     <target name="-post-compile">
@@ -409,7 +410,6 @@
 
     <target name="-post-clean" depends="refresh-libs">
         <delete file="lib/CN1JSON.cn1lib"/>
-        <delete file="lib/CN1JSON.jar"/>
         <delete file="lib/parse4cn1.cn1lib"/>
     </target>
 

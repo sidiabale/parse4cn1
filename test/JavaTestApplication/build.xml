@@ -70,6 +70,11 @@
     nbproject/build-impl.xml file. 
 
     -->
+    <target name="-pre-compile">
+        <copy file="../../lib/CN1JSON.jar" todir="lib" failonerror="true" overwrite="false"/>
+        <copy file="../CN1TestApp/JavaSE.jar" todir="lib" failonerror="true" overwrite="false" />
+    </target> 
+   
     <target name="-post-clean">
         <delete file="lib/JavaSE.jar"/>
         <delete file="lib/CN1JSON.jar"/>
