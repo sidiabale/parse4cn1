@@ -24,6 +24,9 @@ import com.parse4cn1.ParseException;
 import java.io.IOException;
 import java.io.OutputStream;
 
+/**
+ * This class defines a command for uploading resources to the Parse server.
+ */
 public class ParseUploadCommand extends ParseCommand {
 
     private final String endPoint;
@@ -44,7 +47,7 @@ public class ParseUploadCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(request, false);
+        setupDefaultHeaders(false);
         request.setPost(true);
         request.setHttpMethod("POST");
         request.setUrl(getUrl(endPoint, null));
@@ -55,15 +58,15 @@ public class ParseUploadCommand extends ParseCommand {
     }
 
     @Override
-    protected ConnectionRequest getConnectionRequest(final ParseResponse response) {
+    protected ConnectionRequest createConnectionRequest(final ParseResponse response) {
         /*
          Normally, a multipart request is typically used for uploading files.
          However, using with the parse API results in some extra bytes at the 
          beginning and end of the retrieved files. This results in corrupted 
          files upon attempting to read or download via the URL returned upon creation.
-        (See also: http://stackoverflow.com/questions/21966299/uploading-image-to-parse-com-with-afnetworking-causing-corrupt-image)
+         (See also: http://stackoverflow.com/questions/21966299/uploading-image-to-parse-com-with-afnetworking-causing-corrupt-image)
          Instead, sending the raw bytes in the payload as done below works just fine.
-        */
+         */
         final ConnectionRequest request = new ConnectionRequest() {
 
             @Override

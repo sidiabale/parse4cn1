@@ -22,9 +22,18 @@ import com.parse4cn1.ParseObject;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.ParseException;
 
-// TODO: Document
-public interface ParseObjectEncodingStrategy {
+/**
+ * An interface that specifies a strategy for encoding ParseObject
+ * relationships.
+ */
+public interface IParseObjectEncodingStrategy {
 
-    public abstract JSONObject encodeRelatedObject(ParseObject parseObject) throws ParseException;
+    /**
+     * Encodes a relationship with the provided ParseObject.
+     * @param parseObject The related object whose relationship is to be encoded.
+     * @return The encoded Parse object relationship.
+     * @throws ParseException if anything goes wrong.
+     */
+    public abstract JSONObject encodeRelatedObject(final ParseObject parseObject) throws ParseException;
 
 }

@@ -27,10 +27,14 @@ import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
-import com.parse4cn1.util.ParseEncoder;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
+import com.parse4cn1.encode.ParseEncoder;
 import java.util.Set;
 
+/**
+ * This class defines an operation to 'atomically' add unique objects to an array field 
+ * of a ParseObject.
+ */
 public class AddUniqueToArrayOperation implements ParseOperation {
 
     protected Set<Object> objects = new HashSet<Object>();
@@ -50,7 +54,7 @@ public class AddUniqueToArrayOperation implements ParseOperation {
     }
 
     @Override
-    public Object encode(ParseObjectEncodingStrategy objectEncoder)
+    public Object encode(IParseObjectEncodingStrategy objectEncoder)
             throws ParseException {
         JSONObject output = new JSONObject();
         try {
@@ -61,5 +65,4 @@ public class AddUniqueToArrayOperation implements ParseOperation {
         }
         return output;
     }
-
 }

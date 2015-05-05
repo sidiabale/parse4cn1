@@ -20,9 +20,26 @@ package com.parse4cn1.operation;
 
 import com.parse4cn1.ParseException;
 
-public class OperationUtil {
+/**
+ * This class defines general utilities related to Parse operations.
+ */
+public class ParseOperationUtil {
 
+    /**
+     * Adds the specified objects if they are of a supported number type.
+     * 
+     * @param first The object to add.
+     * @param second The other object to add.
+     * @return The result of adding first and second.
+     * @throws ParseException if the addition could not be performed.
+     * @see #isSupportedNumberType(java.lang.Object)
+     */
     static Object addNumbers(Object first, Object second) throws ParseException {
+        if (!isSupportedNumberType(first) || !isSupportedNumberType(second)) {
+            throw new ParseException(ParseException.OTHER_CAUSE, 
+                    first + " and/or " + second + " is of an unsupported number type.");
+        }
+        
         if (((first instanceof Double)) || ((second instanceof Double))) {
             return (Double) first + (Double) second;
         }
@@ -41,9 +58,19 @@ public class OperationUtil {
         if (((first instanceof Byte)) || ((second instanceof Byte))) {
             return (Byte) first + (Byte) second;
         }
-        throw new ParseException(ParseException.OTHER_CAUSE, "Unknown number type.");
+        throw new ParseException(ParseException.OTHER_CAUSE, 
+                "Addition semantics not yet defined for the provided number types");
     }
 
+    /**
+     * Check is the provided object is of a supported number type. 
+     * <p>
+     * This approach is needed since at the time of writing, CN1 does not support 
+     * the Number Java class.
+     * 
+     * @param o The object whose type is to be checked.
+     * @return {@code true} if o is of type Double, Float, Long, Integer, Short or Byte.
+     */
     public static boolean isSupportedNumberType(Object o) {
         return (o instanceof Double) || (o instanceof Float) || (o instanceof Long)
                 || (o instanceof Integer) || (o instanceof Short) || (o instanceof Byte);

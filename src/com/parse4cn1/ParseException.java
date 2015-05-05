@@ -20,8 +20,6 @@ package com.parse4cn1;
 
 /**
  * An exception class for the library. 
- * 
- * @author sidiabale
  */
 public class ParseException extends Exception {
 

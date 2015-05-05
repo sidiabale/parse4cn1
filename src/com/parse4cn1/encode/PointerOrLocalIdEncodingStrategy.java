@@ -26,13 +26,16 @@ import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
 
-// TODO: Document
-// TODO: Test?
+/**
+ * This class defines a Parse object encoding strategy based on pointers. It may
+ * be used to define relations to both existing and newly created (i.e., objects
+ * having no {@link ParseObject#objectId}) Parse objects.
+ */
 public class PointerOrLocalIdEncodingStrategy implements
-        ParseObjectEncodingStrategy {
+        IParseObjectEncodingStrategy {
 
     @Override
-    public JSONObject encodeRelatedObject(ParseObject parseObject)  throws ParseException {
+    public JSONObject encodeRelatedObject(final ParseObject parseObject) throws ParseException {
         JSONObject json = new JSONObject();
         try {
             if (parseObject.getObjectId() != null) {
@@ -57,10 +60,7 @@ public class PointerOrLocalIdEncodingStrategy implements
 
         if (!isLocalId(localId)) {
             throw new IllegalStateException(
-                    "Generated an invalid local id: \""
-                    + localId
-                    + "\". "
-                    + "This should never happen. Contact us at https://parse.com/help");
+                    "Generated an invalid local id: \"" + localId + "\". ");
         }
 
         return localId;

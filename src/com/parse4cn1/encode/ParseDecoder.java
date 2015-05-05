@@ -16,7 +16,7 @@
  * Original implementation adapted from Thiago Locatelli's Parse4J project
  * (see https://github.com/thiagolocatelli/parse4j)
  */
-package com.parse4cn1.util;
+package com.parse4cn1.encode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,7 +35,11 @@ import com.parse4cn1.ParseGeoPoint;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.ParseRelation;
 import com.parse4cn1.operation.ParseOperationDecoder;
+import com.parse4cn1.util.ParseRegistry;
 
+/**
+ * This class decodes data retrieved from the Parse server.
+ */
 public class ParseDecoder {
 
     @SuppressWarnings("rawtypes")

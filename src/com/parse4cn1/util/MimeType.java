@@ -21,6 +21,10 @@ package com.parse4cn1.util;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class defines utilities for determining the MIME type of a file based 
+ * on its extension.
+ */
 public class MimeType {
 
     public static Map<String, String> mimeTypes = new HashMap<String, String>();
@@ -245,7 +249,6 @@ public class MimeType {
         mimeTypes.put("xyz", "chemical/x-xyz");
         mimeTypes.put("z", "application/x-compressed");
         mimeTypes.put("zip", "application/zip");
-
         mimeTypes.put("deepv", "application/x-deepv");
         mimeTypes.put("xgz", "xgl/drawing");
         mimeTypes.put("omcr", "application/x-omcregerator");
@@ -546,13 +549,25 @@ public class MimeType {
         mimeTypes.put("mme", "application/base64");
     }
 
-    public static String getMimeType(String extension) {
+    /**
+     * Gets the MIME type associated with the provided file extension.
+     * 
+     * @param extension The file extension
+     * @return The MIME type corresponding to {@code extension}. 
+     * Defaults to "application/octet-stream".
+     */
+    public static String getMimeType(final String extension) {
         if (mimeTypes.containsKey(extension)) {
             return mimeTypes.get(extension);
         }
         return "application/octet-stream";
     }
 
+    /**
+     * Extracts the extension part of a filename.
+     * @param fileName The file name
+     * @return The extension part of {@code fileName}.
+     */
     public static String getFileExtension(String fileName) {
         String extension = "";
         int i = fileName.lastIndexOf('.');

@@ -24,13 +24,17 @@ import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
-import com.parse4cn1.util.ParseEncoder;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
+import com.parse4cn1.encode.ParseEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This class defines an operation to 'atomically' remove objects from an array field 
+ * of a ParseObject.
+ */
 public class RemoveFromArrayOperation implements ParseOperation {
 
     protected Set<Object> objects = new HashSet<Object>();
@@ -50,7 +54,7 @@ public class RemoveFromArrayOperation implements ParseOperation {
     }
 
     @Override
-    public Object encode(ParseObjectEncodingStrategy objectEncoder)
+    public Object encode(IParseObjectEncodingStrategy objectEncoder)
             throws ParseException {
         JSONObject output = new JSONObject();
         try {

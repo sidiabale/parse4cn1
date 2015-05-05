@@ -18,7 +18,8 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.parse4cn1.util.ParseDecoder;
+import com.parse4cn1.encode.ParseDecoder;
+import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,11 +39,36 @@ public class ParseObjectTest extends BaseParseTest {
     private final String classCar = "Car";
     private final String classKitchen = "Kitchen";
 
+    private static class CustomParseObject extends ParseObject {
+
+        public static final String CLASS_NAME = "CustomParseObject";
+        public static final String CUSTOM_FIELD_NAME = "customField";
+
+        private CustomParseObject() {
+            super(CLASS_NAME);
+            put(CUSTOM_FIELD_NAME, "ReadOnly");
+        }
+
+        public String getCustomField() {
+            return getString(CUSTOM_FIELD_NAME);
+        }
+
+        @Override
+        public void put(String key, Object value) {
+            if (CUSTOM_FIELD_NAME.equals(key) && !"ReadOnly".equals(value)) {
+                throw new IllegalArgumentException("Field " + CUSTOM_FIELD_NAME
+                        + " must have value 'ReadOnly'");
+            }
+            super.put(key, value);
+        }
+    }
+
     @Override
     public boolean runTest() throws Exception {
         testRestApiExample();
         testCreateObjectExtended();
         testUpdateObjectExtended();
+        testCustomParseObjectClass();
         return true;
     }
 
@@ -52,6 +78,7 @@ public class ParseObjectTest extends BaseParseTest {
         deleteObjects(classPlayer);
         deleteObjects(classCar);
         deleteObjects(classKitchen);
+        deleteObjects(CustomParseObject.CLASS_NAME);
     }
 
     private void testRestApiExample() throws ParseException {
@@ -73,17 +100,17 @@ public class ParseObjectTest extends BaseParseTest {
         retrieved.put("score", 73453);
         retrieved.save();
         assertEqual(Integer.valueOf(73453), retrieved.getInt("score"));
-        
+
         // Increment / decrement
         retrieved.increment("score");
         retrieved.save();
         assertEqual(Integer.valueOf(73454), retrieved.getInt("score"));
-        
+
         // Decrement
         retrieved.increment("score", -4);
         retrieved.save();
         assertEqual(Integer.valueOf(73450), retrieved.getInt("score"));
-        
+
         // Increment non-number field
         try {
             retrieved.increment("playerName");
@@ -97,21 +124,21 @@ public class ParseObjectTest extends BaseParseTest {
         ParseObject opponent = ParseObject.create(classPlayer);
         opponent.put("playerName", "Sean Plott");
         opponent.save();
-        
+
         ParseRelation<ParseObject> opponentsRelation = retrieved.getRelation("opponents");
         opponentsRelation.add(opponent);
         retrieved.save();
-        
-        ParseRelation<ParseObject> retrievedRelation = 
-                (ParseRelation<ParseObject>) retrieved.get("opponents");
+
+        ParseRelation<ParseObject> retrievedRelation
+                = (ParseRelation<ParseObject>) retrieved.get("opponents");
         assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());
-        
+
         retrieved = ParseObject.fetch(retrieved.getClassName(), retrieved.getObjectId());
         retrievedRelation = (ParseRelation<ParseObject>) retrieved.getRelation("opponents");
         assertNotNull(retrievedRelation);
         assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());
         opponent.delete();
-        
+
         // Array operations (manually)
         List<String> skills = new ArrayList<String>();
         skills.add("flying");
@@ -119,12 +146,12 @@ public class ParseObjectTest extends BaseParseTest {
         retrieved.put("skills", skills);
         retrieved.save();
         assertEqual(skills, retrieved.getList("skills"));
-        
+
         // Delete field
         retrieved.remove("skills");
         retrieved.save();
         assertNull(retrieved.get("skills"));
-        
+
         // Array operation ('atomic')
         testArrayOperations(retrieved);
 
@@ -134,11 +161,11 @@ public class ParseObjectTest extends BaseParseTest {
 
     private void testArrayOperations(final ParseObject obj) throws ParseException {
         final String skillBoxing = "boxing";
-        
+
         List<String> skills = new ArrayList<String>();
         final String skillWrestling = "wrestling";
         final String skillKunfu = "kunfu";
-        
+
         skills.add("flying");
         skills.add(skillKunfu);
         skills.add(skillKunfu);
@@ -162,25 +189,25 @@ public class ParseObjectTest extends BaseParseTest {
         obj.addAllUniqueToArrayField(fieldSkills, extraSkills);
         obj.save();
         skills.add(skillWrestling);
-        assertEqual(skills, obj.getList(fieldSkills), 
+        assertEqual(skills, obj.getList(fieldSkills),
                 "Only wrestling skill is added; duplicate boxing skill is ignored");
 
         obj.removeFromArrayField(fieldSkills, skillKunfu);
         obj.save();
         skills.remove(skillKunfu);
         skills.remove(skillKunfu);
-        assertEqual(skills, obj.getList(fieldSkills), 
+        assertEqual(skills, obj.getList(fieldSkills),
                 "All kunfu skills are removed");
-        
+
         obj.removeAllFromArrayField(fieldSkills, extraSkills);
         obj.save();
         skills.removeAll(extraSkills);
-        
+
         final ParseObject retrieved = ParseObject.fetch(obj.getClassName(), obj.getObjectId());
-        assertEqual(skills, retrieved.getList(fieldSkills), 
+        assertEqual(skills, retrieved.getList(fieldSkills),
                 "All extra skills (" + extraSkills.toString() + ") are removed");
     }
-    
+
     private void testCreateObjectExtended() throws ParseException, JSONException {
         ParseObject obj = ParseObject.create(classCar);
         HashMap<String, Object> data = new HashMap<String, Object>();
@@ -286,5 +313,47 @@ public class ParseObjectTest extends BaseParseTest {
         for (Entry<String, Object> entry : dataToAdd.entrySet()) {
             obj.put(entry.getKey(), entry.getValue());
         }
+    }
+
+    private void testCustomParseObjectClass() throws ParseException {
+        try {
+            CustomParseObject obj = ParseObject.create(CustomParseObject.CLASS_NAME);
+            obj.put("purpose", "test");
+            obj.save();
+            fail("ClassCastException expected since custom sub-class has not been registered");
+        } catch (ClassCastException ex) {
+            System.out.println("Got expected ClassCastException: " + ex.getMessage());
+            assertTrue(true);
+        }
+
+        ParseRegistry.registerSubclass(CustomParseObject.class, CustomParseObject.CLASS_NAME);
+        ParseRegistry.registerParseFactory(CustomParseObject.CLASS_NAME, new Parse.IParseObjectFactory() {
+
+            @Override
+            public <T extends ParseObject> T create(String className) {
+                if (CustomParseObject.CLASS_NAME.equals(className)) {
+                    return (T) new CustomParseObject();
+                }
+                throw new IllegalArgumentException("Unsupported class name: " + className);
+            }
+        });
+
+        CustomParseObject obj = null;
+        try {
+            obj = ParseObject.create(CustomParseObject.CLASS_NAME);
+            obj.put("purpose", "test");
+            obj.save();
+        } catch (Exception ex) {
+            fail("No exception expected since custom sub-class has been registered "
+                    + "but got exception: " + ex);
+        }
+
+        assertNotNull(obj, "Class CustomParseObject should be instantiable");
+        final CustomParseObject retrieved = ParseObject.fetch(
+                CustomParseObject.CLASS_NAME, obj.getObjectId());
+        assertNotNull(retrieved, "Saved custom object should be retrievable");
+        assertEqual("test", retrieved.getString("purpose"));
+        assertEqual("ReadOnly", retrieved.getString(CustomParseObject.CUSTOM_FIELD_NAME));
+
     }
 }

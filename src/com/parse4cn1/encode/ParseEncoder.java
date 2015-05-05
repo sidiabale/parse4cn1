@@ -17,7 +17,7 @@
  * (see https://github.com/thiagolocatelli/parse4j)
  */
 
-package com.parse4cn1.util;
+package com.parse4cn1.encode;
 
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
@@ -31,18 +31,21 @@ import com.parse4cn1.ParseGeoPoint;
 import com.parse4cn1.ParseObject;
 import com.parse4cn1.ParseQuery;
 import com.parse4cn1.ParseRelation;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.util.Logger;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class encodes data to be sent to the Parse server.
+ */
 public class ParseEncoder {
 
     private static final Logger LOGGER = Logger.getInstance();
 
     @SuppressWarnings({"rawtypes", "unchecked"})
-    public static Object encode(Object value, ParseObjectEncodingStrategy objectEncoder) throws ParseException {
+    public static Object encode(Object value, IParseObjectEncodingStrategy objectEncoder) throws ParseException {
 
         if (value instanceof ParseObject) {
             return objectEncoder.encodeRelatedObject((ParseObject) value);
@@ -169,6 +172,5 @@ public class ParseEncoder {
 
         LOGGER.error("Object type not decoded: " + value.getClass().getCanonicalName());
         throw new IllegalArgumentException("Invalid type for ParseObject: " + value.getClass().toString());
-
     }
 }

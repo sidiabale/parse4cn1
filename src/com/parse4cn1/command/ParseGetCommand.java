@@ -22,6 +22,9 @@ package com.parse4cn1.command;
 import com.codename1.io.ConnectionRequest;
 import com.parse4cn1.ParseException;
 
+/**
+ * This class defines a GET command for retrieving objects from the Parse server.
+ */
 public class ParseGetCommand extends ParseCommand {
 
     private final String endPoint;
@@ -38,7 +41,7 @@ public class ParseGetCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(request, addJson);
+        setupDefaultHeaders(addJson);
         request.setPost(false);
         request.setHttpMethod("GET");
         request.setUrl(getUrl(endPoint, objectId));

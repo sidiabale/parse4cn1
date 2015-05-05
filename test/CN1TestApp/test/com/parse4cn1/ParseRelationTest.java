@@ -17,7 +17,7 @@ package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 import com.parse4cn1.encode.PointerEncodingStrategy;
 import com.parse4cn1.operation.ParseOperation;
 import com.parse4cn1.operation.RelationOperation;
@@ -30,7 +30,7 @@ import static com.parse4cn1.operation.RelationOperation.ERelationType.AddRelatio
  */
 public class ParseRelationTest extends BaseParseTest {
 
-    private final ParseObjectEncodingStrategy encoder = new PointerEncodingStrategy();
+    private final IParseObjectEncodingStrategy encoder = new PointerEncodingStrategy();
     private final String targetClass = "Contributor";
     private final String parentKey = "contributors";
     private final ParseObject report = new ParseObject("Report") {

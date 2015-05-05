@@ -18,10 +18,7 @@ package com.parse4cn1.command;
 
 import com.parse4cn1.BaseParseTest;
 import com.parse4cn1.ParseException;
-/**
- *
- * @author sidiabale
- */
+
 public class ParseGetCommandTest extends BaseParseTest {
 
     @Override
@@ -67,8 +64,8 @@ public class ParseGetCommandTest extends BaseParseTest {
     public void testGetWithParams() {
         ParseGetCommand command = new ParseGetCommand("login");
         try {
-            command.put("username", "user");
-            command.put("password", "pwd");
+            command.addArgument("username", "user");
+            command.addArgument("password", "pwd");
             ParseResponse response = command.perform();
             assertTrue(response.isFailed(), "Command should have failed");
             assertEqual(404, response.getStatusCode());

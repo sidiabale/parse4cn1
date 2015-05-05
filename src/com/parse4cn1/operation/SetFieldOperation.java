@@ -21,9 +21,12 @@ package com.parse4cn1.operation;
 
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
-import com.parse4cn1.util.ParseEncoder;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
+import com.parse4cn1.encode.ParseEncoder;
 
+/**
+ * This class defines an operation to set the value of a field (key) of a ParseObject.
+ */
 public class SetFieldOperation implements ParseOperation {
 
     private Object value;
@@ -38,7 +41,7 @@ public class SetFieldOperation implements ParseOperation {
     }
 
     @Override
-    public Object encode(ParseObjectEncodingStrategy objectEncoder) throws ParseException {
+    public Object encode(IParseObjectEncodingStrategy objectEncoder) throws ParseException {
         return ParseEncoder.encode(value, objectEncoder);
     }
 }

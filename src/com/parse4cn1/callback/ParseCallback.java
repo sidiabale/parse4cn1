@@ -20,8 +20,19 @@ package com.parse4cn1.callback;
 
 import com.parse4cn1.ParseException;
 
+/**
+ * A generic Parse callback.
+ *
+ * @param <T> The type of data associated with this callback.
+ */
 public abstract class ParseCallback<T> {
 
+    /**
+     * This method is invoked when the operation is question is completed.
+     *
+     * @param paramT The parameter(s) associated with the operation.
+     * @param parseException The exception that occurred during the operation if
+     * applicable; otherwise null.
+     */
     abstract void internalDone(T paramT, ParseException parseException);
-
 }

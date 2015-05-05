@@ -25,8 +25,6 @@ import com.codename1.util.MathUtil;
  * ParseGeoPoint represents a latitude / longitude point that may be associated 
  * with a key in a ParseObject or used as a reference point for geo queries. 
  * This allows proximity based queries on the key.
- * 
- * @author sidiabale
  */
 public class ParseGeoPoint {
 

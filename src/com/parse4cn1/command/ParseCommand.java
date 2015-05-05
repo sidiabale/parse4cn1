@@ -34,6 +34,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Iterator;
 
+/**
+ * This class encapsulates a network request to be made to the Parse REST API 
+ * using any of the supported HTTP verbs.
+ */
 public abstract class ParseCommand {
 
     private static final Logger LOGGER = Logger.getInstance();
@@ -45,8 +49,24 @@ public abstract class ParseCommand {
     
     protected boolean addJson;
 
+    /**
+     * Sets up the network connection request that will be issued when performing 
+     * this operation. Typically, that involves specifying the HTTP verb,
+     * headers, url, content type, etc.
+     * <p>
+     * This method is invoked by {@link #perform()}.
+     * 
+     * @param request The request to be initialized.
+     * @throws ParseException if anything goes wrong.
+     */
     abstract void setUpRequest(final ConnectionRequest request) throws ParseException;
 
+    /**
+     * Performs this ParseCommand by issuing a synchronous network request.
+     * @return The response received if the request was successful.
+     * 
+     * @throws ParseException if anything goes wrong.
+     */
     public ParseResponse perform() throws ParseException {
 
         if (LOGGER.isDebugEnabled()) {
@@ -55,7 +75,7 @@ public abstract class ParseCommand {
 
         long commandStart = System.currentTimeMillis();
         final ParseResponse response = new ParseResponse();
-        final ConnectionRequest request = getConnectionRequest(response);
+        final ConnectionRequest request = createConnectionRequest(response);
         setUpRequest(request);
         
         if (progressCallback != null) {
@@ -110,6 +130,13 @@ public abstract class ParseCommand {
         return response;
     }
     
+    /**
+     * Add the HTTP header field associated with the provided key and value.
+     * 
+     * @param key The header's key.
+     * @param value The header's value.
+     * @throws ParseException if anything goes wrong.
+     */
     public void addHeader(final String key, final String value) throws ParseException {
         try {
             headers.put(key, value);
@@ -119,7 +146,15 @@ public abstract class ParseCommand {
         }
     }
 
-    protected ConnectionRequest getConnectionRequest(final ParseResponse response) {
+    /**
+     * Creates and initializes a network connection request.
+     * 
+     * @param response The response associated with the request. This response 
+     * object will be updated with the error information if the request fails.
+     * 
+     * @return The created connection request.
+     */
+    protected ConnectionRequest createConnectionRequest(final ParseResponse response) {
         ConnectionRequest request = new ConnectionRequest() {
 
             @Override
@@ -151,7 +186,14 @@ public abstract class ParseCommand {
         return request;
     }
 
-    protected void setupDefaultHeaders(ConnectionRequest connectionRequest, boolean addJson) throws ParseException {
+    /**
+     * Adds the default headers (e.g., {@link ParseConstants#HEADER_APPLICATION_ID}
+     * and {@link ParseConstants#HEADER_CLIENT_KEY}) associated with Parse REST API calls.
+     * 
+     * @param addJson If true, the corresponding content-type header field is also set.
+     * @throws ParseException if anything goes wrong.
+     */
+    protected void setupDefaultHeaders(boolean addJson) throws ParseException {
         try {
             headers.put(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
             headers.put(ParseConstants.HEADER_CLIENT_KEY, Parse.getClientKey());
@@ -168,6 +210,13 @@ public abstract class ParseCommand {
         }
     }
 
+    /**
+     * Create a Parse API URL using the provided data.
+     * 
+     * @param endPoint The end point
+     * @param objectId The optional objectId
+     * @return The Parse API URL of the format {@code https://api.parse.com/<endpoint>[/<objectId>]}.
+     */
     static protected String getUrl(final String endPoint, final String objectId) {
         String url = Parse.getParseAPIUrl(endPoint) + (objectId != null ? "/" + objectId : "");
 
@@ -178,7 +227,13 @@ public abstract class ParseCommand {
         return url;
     }
 
-    public void setData(JSONObject data) throws ParseException {
+    /**
+     * Sets the message body data for the HTTP request.
+     * 
+     * @param data The message body to be set.
+     * @throws ParseException if anything goes wrong.
+     */
+    public void setMessageBody(JSONObject data) throws ParseException {
         try {
             this.data.put(REQUEST_BODY_KEY, data);
         } catch (JSONException ex) {
@@ -186,7 +241,14 @@ public abstract class ParseCommand {
         }
     }
 
-    public void put(String key, String value) throws ParseException {
+    /**
+     * Adds the specified key-value pair as an argument to the HTTP request.
+     * 
+     * @param key The key of the argument.
+     * @param value The value for {@code key}.
+     * @throws ParseException if anything goes wrong.
+     */
+    public void addArgument(final String key, final String value) throws ParseException {
         try {
             this.data.put(key, value);
         } catch (JSONException ex) {
@@ -194,23 +256,14 @@ public abstract class ParseCommand {
         }
     }
     
-    public void setProgressCallback(ProgressCallback progressCallback) {
+    /**
+     * Sets a callback to be notified of the progress of this command when it 
+     * is performed.
+     * 
+     * @param progressCallback The callback to be set. It will replace any previously 
+     * set callback.
+     */
+    public void setProgressCallback(final ProgressCallback progressCallback) {
         this.progressCallback = progressCallback;
     }
-
-//    public void put(String key, int value) throws ParseException {
-//        this.data.put(key, value);
-//    }
-//
-//    public void put(String key, long value) throws ParseException {
-//        this.data.put(key, value);
-//    }
-//
-//    public void put(String key, JSONObject value) throws ParseException {
-//        this.data.put(key, value);
-//    }
-//
-//    public void put(String key, JSONArray value) throws ParseException {
-//        this.data.put(key, value);
-//    }
 }

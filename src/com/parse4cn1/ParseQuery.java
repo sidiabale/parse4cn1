@@ -23,10 +23,10 @@ import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.command.ParseGetCommand;
 import com.parse4cn1.command.ParseResponse;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 import com.parse4cn1.encode.PointerEncodingStrategy;
 import com.parse4cn1.util.Logger;
-import com.parse4cn1.util.ParseEncoder;
+import com.parse4cn1.encode.ParseEncoder;
 import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -759,34 +759,6 @@ public class ParseQuery<T extends ParseObject> {
         return obj;
     }
 
-    // TODO: Fix
-//    public void getInBackground(String objectId, GetCallback<T> callback) {
-//        GetInBackgroundThread task = new GetInBackgroundThread(objectId, callback);
-//        ParseExecutor.runInBackground(task);
-//    }
-//    class GetInBackgroundThread extends Thread {
-//
-//        GetCallback<T> callback;
-//        String objectId;
-//
-//        public GetInBackgroundThread(String objectId, GetCallback<T> callback) {
-//            this.callback = callback;
-//            this.objectId = objectId;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            T object = null;
-//            try {
-//                object = getByObjectId(objectId);
-//            } catch (ParseException e) {
-//                exception = e;
-//            }
-//            if (callback != null) {
-//                callback.done(object, exception);
-//            }
-//        }
-//    }
     /**
      * Retrieves a list of ParseObjects that satisfy this query.
      *
@@ -925,35 +897,10 @@ public class ParseQuery<T extends ParseObject> {
         while (it.hasNext()) {
             String key = (String) it.next();
             Object value = data.opt(key);
-            command.put(key, value.toString());
+            command.addArgument(key, value.toString());
         }
     }
-    // TODO: Fix
-//    public void findInBackground(FindCallback<T> callback) {
-//        FindInBackgroundThread task = new FindInBackgroundThread(callback);
-//        ParseExecutor.runInBackground(task);
-//    }
-//    class FindInBackgroundThread extends Thread {
-//
-//        FindCallback<T> callback;
-//
-//        public FindInBackgroundThread(FindCallback<T> callback) {
-//            this.callback = callback;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            List<T> object = null;
-//            try {
-//                object = get();
-//            } catch (ParseException e) {
-//                exception = e;
-//            }
-//            if (callback != null) {
-//                callback.done(object, exception);
-//            }
-//        }
-//    }
+ 
     /**
      * Counts the number of objects that match this query.
      *
@@ -1047,9 +994,9 @@ public class ParseQuery<T extends ParseObject> {
     /**
      * Returns a literal pattern String for the specified String.
      * <p>
- This method produces a String that can be used to getQuery a Pattern that
- would match the string s as if it were a literal pattern.
- <p>
+     * This method produces a String that can be used to getQuery a Pattern that
+     * would match the string s as if it were a literal pattern.
+     * <p>
      * Metacharacters or escape sequences in the input sequence will be given no
      * special meaning.
      * <p>
@@ -1081,32 +1028,6 @@ public class ParseQuery<T extends ParseObject> {
         return sb.toString();
     }
 
-    // TODO: Fix
-//    public void countInBackground(CountCallback countCallback) {
-//        CountInBackgroundThread task = new CountInBackgroundThread(countCallback);
-//        ParseExecutor.runInBackground(task);
-//    }
-//    class CountInBackgroundThread extends Thread {
-//
-//        CountCallback callback;
-//
-//        public CountInBackgroundThread(CountCallback callback) {
-//            this.callback = callback;
-//        }
-//
-//        public void run() {
-//            ParseException exception = null;
-//            int count = -1;
-//            try {
-//                count = count();
-//            } catch (ParseException e) {
-//                exception = e;
-//            }
-//            if (callback != null) {
-//                callback.done(count, exception);
-//            }
-//        }
-//    }
     @SuppressWarnings("serial")
     static class KeyConstraints extends HashMap<String, Object> {
     }
@@ -1174,7 +1095,7 @@ public class ParseQuery<T extends ParseObject> {
          * @return This relation constraint encoded as a JSON object.
          * @throws ParseException if anything goes wrong.
          */
-        public JSONObject encode(ParseObjectEncodingStrategy objectEncoder) throws ParseException {
+        public JSONObject encode(IParseObjectEncodingStrategy objectEncoder) throws ParseException {
             JSONObject json = new JSONObject();
             try {
                 json.put("key", this.key);

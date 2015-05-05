@@ -22,6 +22,9 @@ package com.parse4cn1.command;
 import com.codename1.io.ConnectionRequest;
 import com.parse4cn1.ParseException;
 
+/**
+ * This class defines a command for deleting resources from the Parse server.
+ */
 public class ParseDeleteCommand extends ParseCommand {
 
     private final String endPoint;
@@ -38,7 +41,7 @@ public class ParseDeleteCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(request, false);
+        setupDefaultHeaders(false);
         request.setPost(true);
         request.setHttpMethod("DELETE");
         request.setUrl(getUrl(endPoint, objectId));

@@ -31,8 +31,6 @@ import com.parse4cn1.util.Logger;
  * <p>
  * Roles must have a name (which cannot be changed after creation of the role),
  * and must specify an ACL.
- * 
- * @author sidiabale
  */
 public class ParseRole extends ParseObject {
 

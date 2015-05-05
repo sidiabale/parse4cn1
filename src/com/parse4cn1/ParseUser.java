@@ -21,9 +21,6 @@ package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.parse4cn1.callback.LoginCallback;
-import com.parse4cn1.callback.RequestPasswordResetCallback;
-import com.parse4cn1.callback.SignUpCallback;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParseDeleteCommand;
 import com.parse4cn1.command.ParseGetCommand;
@@ -34,8 +31,6 @@ import com.parse4cn1.util.Logger;
 /**
  * The ParseUser is a local representation of user data that can be saved and 
  * retrieved from the Parse cloud.
- * 
- * @author sidiabale
  */
 public class ParseUser extends ParseObject {
 
@@ -172,7 +167,7 @@ public class ParseUser extends ParseObject {
             ParsePostCommand command = new ParsePostCommand(ENDPOINT_PASSWORD_RESET);
             JSONObject data = new JSONObject();
             data.put(KEY_EMAIL, email);
-            command.setData(data);
+            command.setMessageBody(data);
             ParseResponse response = command.perform();
             if (!response.isFailed()) {
                 JSONObject jsonResponse = response.getJsonObject();
@@ -232,7 +227,7 @@ public class ParseUser extends ParseObject {
         try {
             JSONObject parseData = getParseData();
             parseData.put(KEY_PASSWORD, password);
-            command.setData(parseData);
+            command.setMessageBody(parseData);
             ParseResponse response = command.perform();
             if (!response.isFailed()) {
                 JSONObject jsonResponse = response.getJsonObject();
@@ -270,8 +265,8 @@ public class ParseUser extends ParseObject {
 
         ParseGetCommand command = new ParseGetCommand(ENDPOINT_LOGIN);
         command.addJson(false);
-        command.put(KEY_USERNAME, getUsername());
-        command.put(KEY_PASSWORD, password);
+        command.addArgument(KEY_USERNAME, getUsername());
+        command.addArgument(KEY_PASSWORD, password);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             JSONObject jsonResponse = response.getJsonObject();

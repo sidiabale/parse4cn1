@@ -24,6 +24,9 @@ import com.codename1.io.ConnectionRequest;
 import com.parse4cn1.ParseException;
 import static com.parse4cn1.command.ParseCommand.getUrl;
 
+/**
+ * This class defines a PUT command typically used for updating objects on the Parse server.
+ */
 public class ParsePutCommand extends ParseCommand {
 
     private final String endPoint;
@@ -40,7 +43,7 @@ public class ParsePutCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(request, true);
+        setupDefaultHeaders(true);
         request.setPost(true);
         request.setHttpMethod("PUT");
         request.setUrl(getUrl(endPoint, objectId));

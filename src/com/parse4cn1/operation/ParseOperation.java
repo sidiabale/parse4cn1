@@ -20,7 +20,7 @@ package com.parse4cn1.operation;
 
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
-import com.parse4cn1.encode.ParseObjectEncodingStrategy;
+import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 
 /**
  * A parse operation is an operation that can be performed on a parse object
@@ -46,7 +46,7 @@ public interface ParseOperation {
      * @return The encoded parse operation
      * @throws ParseException 
      */
-    abstract Object encode(ParseObjectEncodingStrategy objectEncoder)
+    abstract Object encode(IParseObjectEncodingStrategy objectEncoder)
             throws ParseException;
 
 }

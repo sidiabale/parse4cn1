@@ -11,6 +11,8 @@ import com.parse4cn1.BaseParseTest;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -82,22 +84,31 @@ public class CN1TestJavaApplication {
         final Set<Class<? extends BaseParseTest>> testClasses
                 = reflections.getSubTypesOf(BaseParseTest.class);
 
+        final int testCount = testClasses.size();
         System.out.println("Testing Java application based on CN1 Parse port!!!");
-        System.out.println("About to run " + testClasses.size() + " tests...\n");
+        System.out.println("About to run " + testCount + " tests...\n");
 
+        int counter = 1;
+        List<String> failedTests = new ArrayList<String>();
         try {
             for (Class<? extends BaseParseTest> testClass : testClasses) {
                 System.out.println("\n:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
-                System.out.println("Running test: " + testClass.getCanonicalName());
+                System.out.println("Running test " + counter + "/" + testCount 
+                        + ": " + testClass.getCanonicalName());
                 System.out.println(":=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
+                ++counter;
 
                 BaseParseTest test = (BaseParseTest) testClass.newInstance();
                 test.prepare();
-                test.runTest();
+                final boolean result = test.runTest();
+                if (!result) {
+                    failedTests.add(testClass.getCanonicalName());
+                }
                 test.cleanup();
 
                 System.out.println("\n:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
-                System.out.println("Done with test: " + testClass.getCanonicalName());
+                System.out.println("Test: " + testClass.getCanonicalName()
+                    + " " +(result ? "PASSED" : "FAILED"));
                 System.out.println(":=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
             }
         } catch (ParseException ex) {
@@ -105,5 +116,12 @@ public class CN1TestJavaApplication {
         } catch (Exception ex) {
             Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
         }
+        
+        if (failedTests.isEmpty()) {
+            System.out.println("\nALL tests passed!!!");
+        } else {
+            System.err.println("\nThe following tests failed:\n" + failedTests);
+        }
+        
     }
 }
