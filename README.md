@@ -19,7 +19,7 @@ Apache License, [Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 2. If using Netbeans, right-click on your application's icon in the Netbeans project explorer, and select "Refresh Libs".
 
 ## Coverage ##
-The Parse RESTAPI is quite extensive. As such, we maintain an overview of the functionality that is currently covered. Developers are most welcome to work on pending functionality. Note that some of the functionality marked as pending below may actually be present in the source code inherited from Parse4J. However, the status here reflects what has been tested and verified to work with CN1. Such functionality may be used at own risk :)
+The Parse RESTAPI is quite extensive. As such, we maintain an overview of the functionality that is currently covered. Developers are most welcome to work on pending functionality. Note that some of the functionality marked as pending below may actually be present in the source code inherited from Parse4J. However, the status here reflects what has been tested and verified to work with CN1. Any functionality not marked as implemented below may be used at own risk :)
 
 | API | Status | Remarks 	|
 |:-------:	|:-------:	|:-------:	|
@@ -31,10 +31,11 @@ The Parse RESTAPI is quite extensive. As such, we maintain an overview of the fu
 | Files | IMPLEMENTED | |
 | Analytics | Pending | |
 | Config | Pending | |
-| Push Notifications | Pending | |
+| Push Notifications* | Pending | |
 | Installations | Pending | |
 | Cloud Code | IMPLEMENTED | |
 | GeoPoints | Pending | |
+\*Advanced feature that cannot be realized using REST API only. However, it *should* be realizable via CN1 native interfaces.
 
 ## Usage Examples ##
 See [Usage examples](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples)
