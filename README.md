@@ -15,7 +15,7 @@ Apache License, [Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 2. CN1JSON library (delivered along with this library for compatibility; see the Installation section below)
 
 ## Installation ##
-1. Download the dist/parse4cn1.cn1lib and dist/CN1JSON.cn1lib files and copy them into your Codename One Application's "lib" directory.
+1. Download the dist/parse4cn1.cn1lib and dist/CN1JSON.cn1lib files and copy them into your Codename One Application's "lib" directory (or alternatively, use the corresponding JARs in dist/parse4cn1.jar and dist/lib/CN1JSON.jar).
 2. If using Netbeans, right-click on your application's icon in the Netbeans project explorer, and select "Refresh Libs".
 
 ## Coverage ##
