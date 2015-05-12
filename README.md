@@ -23,7 +23,7 @@ The Parse RESTAPI is quite extensive. As such, we maintain an overview of the fu
 
 | API | Status | Remarks 	|
 |:-------:	|:-------:	|:-------:	|
-| Objects	| IMPLEMENTED | |
+| Objects	| IMPLEMENTED | Still pending: Batch operations |
 | Queries | IMPLEMENTED | |
 | Users | IMPLEMENTED | Still pending: (1) Linking users (Facebook, Twitter, etc.) (2) Security (ACLs) |
 | Sessions | Pending | |
