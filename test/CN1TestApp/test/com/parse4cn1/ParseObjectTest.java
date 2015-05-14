@@ -74,11 +74,11 @@ public class ParseObjectTest extends BaseParseTest {
 
     @Override
     protected void resetClassData() {
-        deleteObjects(classGameScore);
-        deleteObjects(classPlayer);
-        deleteObjects(classCar);
-        deleteObjects(classKitchen);
-        deleteObjects(CustomParseObject.CLASS_NAME);
+        batchDeleteObjects(classGameScore);
+        batchDeleteObjects(classPlayer);
+        batchDeleteObjects(classCar);
+        batchDeleteObjects(classKitchen);
+        batchDeleteObjects(CustomParseObject.CLASS_NAME);
     }
 
     private void testRestApiExample() throws ParseException {

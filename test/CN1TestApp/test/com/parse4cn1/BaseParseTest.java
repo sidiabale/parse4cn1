@@ -96,7 +96,6 @@ public class BaseParseTest extends AbstractTest {
     }
     
     protected void deleteAllUsers() {
-        // TODO: Replace with batch deletion when batch operations are implemented
         ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseConstants.CLASS_NAME_USER);
         try {
             List<ParseUser> results = query.find();
@@ -106,7 +105,16 @@ public class BaseParseTest extends AbstractTest {
                 user.delete();
             }
         } catch (ParseException ex) {
-            fail("Deleting objects failed\n" + ex);
+            fail("Deleting one or more users failed\n" + ex);
+        }
+    }
+    
+    protected void batchDeleteObjects(final String className) {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(className);
+        try {
+            batchDeleteObjects(query.find());
+        } catch (ParseException ex) {
+            fail("Retrieving objects to delete failed\n" + ex);
         }
     }
     
@@ -115,25 +123,44 @@ public class BaseParseTest extends AbstractTest {
         try {
             deleteObjects(query.find());
         } catch (ParseException ex) {
-            fail("Deleting objects failed\n" + ex);
+            fail("Retrieving objects to delete failed\n" + ex);
         }
     }
     
-    protected void deleteObjects(List<? extends ParseObject> objects) {
-        // TODO: Replace with batch deletion when batch operations are implemented
+    protected void deleteObjects(List<? extends ParseObject> objects) {  
         for (ParseObject object : objects) {
             if (object.getObjectId() != null) {
                 try {
                     object.delete();
                 } catch (ParseException ex) {
-                    fail("Deleting object failed\n" + ex);
+                    fail("Deleting object " + object.getObjectId() + " failed\n" + ex);
                 }
             }
         }
     }
     
+    protected void batchDeleteObjects(List<? extends ParseObject> objects) {
+        final int maxBatchSize = 50; // Batch size limit as at May 2015
+        
+        // Split into acceptably-sized batches if necessary
+        int i = 0;
+        int remaining = objects.size();
+        do {
+            int batchSize = Math.min((i + maxBatchSize), remaining);
+            try {
+                assertTrue(ParseBatch.create().addObjects(
+                        objects.subList(i, (i + batchSize)), 
+                                ParseBatch.EBatchOpType.DELETE).execute(),
+                        "Deleting one or more objects in batch failed");
+            } catch (ParseException ex) {
+                fail("Deleting one or more objects in batch failed\n" + ex);
+            }
+            i += maxBatchSize;
+            remaining -= batchSize;
+        } while (i < objects.size());
+    }
+    
     protected void saveObjects(List<? extends ParseObject> objects) throws ParseException {
-        // TODO: Replace with batch creation when batch operations are implemented
         for (ParseObject object: objects) {
             object.save();
         }

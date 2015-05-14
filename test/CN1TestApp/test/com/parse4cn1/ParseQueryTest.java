@@ -46,7 +46,6 @@ public class ParseQueryTest extends BaseParseTest {
     private final String fieldImage = "image";
     private final String fieldAuthor = "author";
     private final String fieldPost = "post";
-    private ParseQuery query;
 
     @Override
     public boolean runTest() throws Exception {
@@ -69,10 +68,10 @@ public class ParseQueryTest extends BaseParseTest {
     protected void resetClassData() {
         System.out.println("============== resetClassData()");
         deleteAllUsers();
-        deleteObjects(classGameScore);
-        deleteObjects(classTeam);
-        deleteObjects(classPost);
-        deleteObjects(classComment);
+        batchDeleteObjects(classGameScore);
+        batchDeleteObjects(classTeam);
+        batchDeleteObjects(classPost);
+        batchDeleteObjects(classComment);
     }
 
     private void prepareData() throws ParseException {
@@ -261,25 +260,25 @@ public class ParseQueryTest extends BaseParseTest {
         assertEqual("{\"$regex\":\"\\\\Qsuffix\\\\E$\"}", where.getJSONObject("stringKey4").toString());
         assertEqual("{\"$regex\":\"^.*(p)?\"}", where.getJSONObject("regexKey1").toString());
         assertEqual("{\"$regex\":\"^.*\",\"$options\":\"m\"}", where.getJSONObject("regexKey2").toString());
-       
-        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5},\"$maxDistance\":10000}", 
+
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5},\"$maxDistance\":10000}",
                 where.getJSONObject("city").toString());
-        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}}", 
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}}",
                 where.getJSONObject("tournament").toString());
-        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}", 
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}",
                 where.getJSONObject("work").toString());
-        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}", 
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}",
                 where.getJSONObject("home").toString());
         assertEqual("{\"$within\":{\"$box\":[{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},"
-                + "{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}]}}", 
+                + "{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}]}}",
                 where.getJSONObject("bounds").toString());
     }
 
     private void checkEqualsAndNotEqualsConstraints() throws ParseException {
         System.out.println("============== checkEqualsAndNotEqualsConstraints()");
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereEqualTo(fieldScore, 1000);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .whereEqualTo(fieldScore, 1000)
+                .find();
 
         assertTrue(results.size() > 0, "equals query is expected to return results");
 
@@ -289,9 +288,8 @@ public class ParseQueryTest extends BaseParseTest {
                     "Retrieved output should meet equals query constraints");
         }
 
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereNotEqualTo(fieldScore, 1000);
-        results = query.find();
+        results = ParseQuery.getQuery(classGameScore)
+                .whereNotEqualTo(fieldScore, 1000).find();
 
         assertTrue(results.size() > 0, "$ne query is expected to return results");
 
@@ -304,10 +302,10 @@ public class ParseQueryTest extends BaseParseTest {
 
     private void checkGreaterAndLessThanConstraints() throws ParseException {
         System.out.println("============== checkGreaterAndLessThanConstraints()");
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereGreaterThanOrEqualTo(fieldScore, 1000);
-        query.whereLessThanOrEqualTo(fieldScore, 3000);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .whereGreaterThanOrEqualTo(fieldScore, 1000)
+                .whereLessThanOrEqualTo(fieldScore, 3000)
+                .find();
 
         assertTrue(results.size() > 0, "$lte + $gte query is expected to return results");
 
@@ -338,9 +336,9 @@ public class ParseQueryTest extends BaseParseTest {
     private void checkInConstraint() throws ParseException {
         System.out.println("============== checkInConstraint()");
         List<Integer> allowedScores = Arrays.asList(new Integer[]{1, 3, 5, 9});
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereContainedIn(fieldScore, allowedScores);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .whereContainedIn(fieldScore, allowedScores)
+                .find();
 
         assertTrue(results.size() > 0, "$in Query is expected to return results");
 
@@ -371,9 +369,9 @@ public class ParseQueryTest extends BaseParseTest {
         System.out.println("============== checkNotInConstraint()");
         List<String> allowedPlayers = Arrays.asList(new String[]{
             "Jonathan Walsh", "Dario Wunsch", "Shawn Simon"});
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereNotContainedIn(fieldPlayerName, allowedPlayers);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .whereNotContainedIn(fieldPlayerName, allowedPlayers)
+                .find();
 
         assertTrue(results.size() > 0, "$nin Query is expected to return results");
 
@@ -402,9 +400,9 @@ public class ParseQueryTest extends BaseParseTest {
 
     private void checkExistsConstraints() throws ParseException {
         System.out.println("============== checkExistsConstraints()");
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereExists(fieldScore);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .whereExists(fieldScore)
+                .find();
 
         assertTrue(results.size() > 0, "$exists=true Query is expected to return results");
 
@@ -433,9 +431,9 @@ public class ParseQueryTest extends BaseParseTest {
 
     private void checkNotExistsConstraints() throws ParseException {
         System.out.println("============== checkNotExistsConstraints()");
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereDoesNotExist(fieldScore);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .whereDoesNotExist(fieldScore)
+                .find();
 
         assertTrue(results.size() > 0, "$exists=false Query is expected to return results");
 
@@ -542,15 +540,16 @@ public class ParseQueryTest extends BaseParseTest {
         assertEqual(user1.getUsername(), results.get(1).getUsername(),
                 "User1 is the second matching user (descending order on username)");
 
-        deleteObjects(users);
-        deleteObjects(teams);
+        deleteObjects(users); // User.delete() needs to be called for proper deletion hence not batch deleted
+        batchDeleteObjects(teams);
     }
 
     private void checkSortConstraints() throws ParseException {
         System.out.println("============== checkSortConstraints()");
-        query = ParseQuery.getQuery(classGameScore);
-        query.addAscendingOrder(fieldScore).addDescendingOrder(fieldPlayerName);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .addAscendingOrder(fieldScore)
+                .addDescendingOrder(fieldPlayerName)
+                .find();
 
         assertEqual(results.size(), gameScoreObjects.size(),
                 "$sort query is expected to return all results in sorted order");
@@ -579,12 +578,14 @@ public class ParseQueryTest extends BaseParseTest {
 
     private void checkLimitAndSkipConstraints() throws ParseException {
         System.out.println("============== checkLimitAndSkipConstraints()");
-        final int limit = gameScoreObjects.size() / 2;
+        final List<ParseObject> gameScores = ParseQuery.getQuery(classGameScore).find();
+        final int limit = gameScores.size() / 2;
         final int skip = Math.min(2, limit);
 
-        query = ParseQuery.getQuery(classGameScore);
-        query.setLimit(limit).setSkip(skip);
-        List<ParseObject> results = query.find();
+        final List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .setLimit(limit)
+                .setSkip(skip)
+                .find();
 
         assertEqual(results.size(), limit,
                 "$limit constraint should limit result count to " + limit
@@ -593,8 +594,8 @@ public class ParseQueryTest extends BaseParseTest {
         // Skipped objects are not in results
         for (ParseObject output : results) {
             boolean found = false;
-            for (int i = skip; i < gameScoreObjects.size() - 1; ++i) {
-                final ParseObject input = gameScoreObjects.get(i);
+            for (int i = skip; i < gameScores.size() - 1; ++i) {
+                final ParseObject input = gameScores.get(i);
                 if (output.getObjectId().equals(input.getObjectId())) {
                     found = true;
                     break;
@@ -607,12 +608,12 @@ public class ParseQueryTest extends BaseParseTest {
 
     private void checkKeyConstraints() throws ParseException {
         System.out.println("============== checkKeyConstraints()");
-        query = ParseQuery.getQuery(classGameScore);
         final Set<String> targetKeys = new HashSet<String>();
         targetKeys.add(fieldPlayerName);
         targetKeys.add(fieldScore);
-        query.selectKeys(targetKeys);
-        List<ParseObject> results = query.find();
+        final List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .selectKeys(targetKeys)
+                .find();
 
         assertTrue(!results.isEmpty(), "keys query should return results");
         for (ParseObject output : results) {
@@ -628,9 +629,9 @@ public class ParseQueryTest extends BaseParseTest {
 
     private void checkArrayValueConstraints() throws ParseException {
         System.out.println("============== checkArrayValueConstraints()");
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereEqualTo(fieldArrayField, 2);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classGameScore)
+                .whereEqualTo(fieldArrayField, 2)
+                .find();
 
         // All results contain
         assertTrue(results.size() > 0, "value in array field query should return results");
@@ -641,9 +642,9 @@ public class ParseQueryTest extends BaseParseTest {
         }
 
         final List<Integer> values = Arrays.asList(new Integer[]{2, 3, 4});
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereContainsAll(fieldArrayField, values);
-        results = query.find();
+        results = ParseQuery.getQuery(classGameScore)
+                .whereContainsAll(fieldArrayField, values)
+                .find();
 
         assertTrue(results.size() > 0, "$all query should return results");
         for (ParseObject output : results) {
@@ -744,23 +745,21 @@ public class ParseQueryTest extends BaseParseTest {
         System.out.println("-------------- Many-to-many set up: User1 likes "
                 + "Post1 and Post2; User2 likes only Post1");
         System.out.println("-------------- Retrieve users that like a post");
-        query = post1.getRelation(fieldLikes).getQuery();
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = post1.getRelation(fieldLikes).getQuery().find();
         assertEqual(2, results.size(), "User1 should like both posts");
 
-        query = post2.getRelation(fieldLikes).getQuery();
-        results = query.find();
+        results = post2.getRelation(fieldLikes).getQuery().find();
         assertEqual(1, results.size(), "User2 should like only one post");
 
         System.out.println("-------------- Retrieve posts liked by a user");
-        query = ParseQuery.getQuery(classPost);
-        query.whereEqualTo(fieldLikes, user1);
-        results = query.find();
+        results = ParseQuery.getQuery(classPost)
+                .whereEqualTo(fieldLikes, user1)
+                .find();
         assertEqual(2, results.size(), "Post1 should be liked by both users");
 
-        query = ParseQuery.getQuery(classPost);
-        query.whereEqualTo(fieldLikes, user2);
-        results = query.find();
+        results = ParseQuery.getQuery(classPost)
+                .whereEqualTo(fieldLikes, user2)
+                .find();
         assertEqual(1, results.size(), "Post2 should be liked by only user1");
 
         System.out.println("-------------- Clean up");
@@ -782,9 +781,10 @@ public class ParseQueryTest extends BaseParseTest {
         assertNotNull(comment, "Comment is not null");
         assertNotNull(post, "Post is not null");
 
-        query = ParseQuery.getQuery(classComment);
-        query.setLimit(1).include(fieldPost);
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getQuery(classComment)
+                .setLimit(1)
+                .include(fieldPost)
+                .find();
 
         assertEqual(1, results.size(), "Result count is correct");
         ParseObject shallowIncludedPost = results.get(0).getParseObject(fieldPost);
@@ -795,9 +795,10 @@ public class ParseQueryTest extends BaseParseTest {
                 "Nested pointer field should be empty (i.e. pointer)");
 
         // Partial include
-        query = ParseQuery.getQuery(classComment);
-        query.setLimit(1).include(fieldPost + "." + fieldNestedComment);
-        results = query.find();
+        results = ParseQuery.getQuery(classComment)
+                .setLimit(1)
+                .include(fieldPost + "." + fieldNestedComment)
+                .find();
         assertEqual(1, results.size(), "Result count of partial include is correct");
         ParseObject deepIncludedPost = results.get(0).getParseObject(fieldPost);
         assertNotNull(deepIncludedPost, "Post is included (as well as nested pointer field)");
@@ -826,8 +827,8 @@ public class ParseQueryTest extends BaseParseTest {
     private void checkCountConstraints() throws ParseException {
         System.out.println("============== checkCountConstraints()");
         assertTrue(!gameScoreObjects.isEmpty(), "There should be elements to be counted");
-        query = ParseQuery.getQuery(classGameScore);
-        assertEqual(gameScoreObjects.size(), query.count(),
+        assertEqual(gameScoreObjects.size(),
+                ParseQuery.getQuery(classGameScore).count(),
                 "Count query returns correct # of results");
     }
 
@@ -839,8 +840,9 @@ public class ParseQueryTest extends BaseParseTest {
         ParseQuery greaterThan1000Query = ParseQuery.getQuery(classGameScore);
         greaterThan1000Query.whereGreaterThan(fieldScore, 1000);
 
-        query = ParseQuery.getOrQuery(Arrays.asList(new ParseQuery[]{lessThan5Query, greaterThan1000Query}));
-        List<ParseObject> results = query.find();
+        List<ParseObject> results = ParseQuery.getOrQuery(
+                Arrays.asList(new ParseQuery[]{lessThan5Query, greaterThan1000Query}))
+                .find();
 
         assertTrue(results.size() > 0, "$or query returned results");
         for (ParseObject obj : results) {
@@ -852,44 +854,51 @@ public class ParseQueryTest extends BaseParseTest {
     private void checkRegexConstraints() throws ParseException {
         System.out.println("============== checkRegexConstraints()");
         // starts with
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereStartsWith(fieldPlayerName, "S");
-        assertTrue(query.find().size() > 0, "starts with 'S' returns results (case-sensitive)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereStartsWith(fieldPlayerName, "S").find().size() > 0,
+                "starts with 'S' returns results (case-sensitive)");
 
-        query.whereStartsWith(fieldPlayerName, "s");
-        assertTrue(query.find().isEmpty(), "starts with 's' returns no results (case-sensitive)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereStartsWith(fieldPlayerName, "s").find().isEmpty(),
+                "starts with 's' returns no results (case-sensitive)");
 
-        query.setCaseSensitive(false).whereStartsWith(fieldPlayerName, "s");
-        assertTrue(query.find().size() > 0, "starts with 's' returns results (case-insensitive)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .setCaseSensitive(false)
+                .whereStartsWith(fieldPlayerName, "s").find().size() > 0,
+                "starts with 's' returns results (case-insensitive)");
 
         // ends with
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereEndsWith(fieldPlayerName, "sh");
-        assertTrue(query.find().size() > 0, "ends with 'sh' returns results (case-sensitive)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereEndsWith(fieldPlayerName, "sh").find().size() > 0,
+                "ends with 'sh' returns results (case-sensitive)");
+        ;
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereEndsWith(fieldPlayerName, "Sh").find().isEmpty(),
+                "ends with 'Sh' returns no results (case-sensitive)");
 
-        query.whereEndsWith(fieldPlayerName, "Sh");
-        assertTrue(query.find().isEmpty(), "ends with 'Sh' returns no results (case-sensitive)");
-
-        query.setCaseSensitive(false).whereEndsWith(fieldPlayerName, "Sh");
-        assertTrue(query.find().size() > 0, "ends with 'Sh' returns results (case-insensitive)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .setCaseSensitive(false).whereEndsWith(fieldPlayerName, "Sh")
+                .find().size() > 0,
+                "ends with 'Sh' returns results (case-insensitive)");
 
         // matches
         final String mrWinnerRegex = "^.*[.].*Ner$";
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereMatches(fieldPlayerName, mrWinnerRegex, "i");
-        assertTrue(query.find().size() > 0, "regex match returns results (case-insensitive)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereMatches(fieldPlayerName, mrWinnerRegex, "i")
+                .find().size() > 0,
+                "regex match returns results (case-insensitive)");
 
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereMatches(fieldPlayerName, mrWinnerRegex);
-        assertTrue(query.find().isEmpty(), "regex match returns no results (case-sensitive)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereMatches(fieldPlayerName, mrWinnerRegex).find().isEmpty(),
+                "regex match returns no results (case-sensitive)");
 
         // contains
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereContains(fieldPlayerName, "bro");
-        assertTrue(query.find().size() > 0, "contains query returns results");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereContains(fieldPlayerName, "bro").find().size() > 0,
+                "contains query returns results");
 
-        query = ParseQuery.getQuery(classGameScore);
-        query.whereContains(fieldPlayerName, "Bro");
-        assertTrue(query.find().isEmpty(), "contains query returns no results (case-sensitive by default)");
+        assertTrue(ParseQuery.getQuery(classGameScore)
+                .whereContains(fieldPlayerName, "Bro").find().isEmpty(),
+                "contains query returns no results (case-sensitive by default)");
     }
 }

@@ -52,6 +52,7 @@ public class ParseException extends Exception {
     public static final int INVALID_ROLE_NAME = 139;
     public static final int EXCEEDED_QUOTA = 140;
     public static final int CLOUD_ERROR = 141;
+    public static final int TOO_MANY_COMMANDS_IN_BATCH_REQUEST = 154;
     public static final int USERNAME_MISSING = 200;
     public static final int PASSWORD_MISSING = 201;
     public static final int USERNAME_TAKEN = 202;

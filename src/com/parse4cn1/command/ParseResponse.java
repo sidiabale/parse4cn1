@@ -77,10 +77,6 @@ public class ParseResponse {
      */
     public ParseException getException() {
 
-        if (error != null) {
-            return error;
-        }
-
         if (hasConnectionFailed()) {
             return new ParseException(ParseException.CONNECTION_FAILED,
                     "Connection to Parse servers failed.");
@@ -91,19 +87,26 @@ public class ParseResponse {
                     "getException called with successful response");
         }
 
-        JSONObject response = null;
+        ParseException exception = null;
         try {
-            response = getJsonObject();
+            JSONObject response = getJsonObject();
+            if (response != null) {
+                exception = getParseError(response);
+            }
         } catch (ParseException ex) {
-            return ex;
+            exception = ex;
         }
 
-        if (response == null) {
-            return new ParseException(ParseException.INVALID_JSON,
+        if (exception == null) {
+            if (error != null) {
+                exception = error;
+            } else {
+                exception = new ParseException(ParseException.INVALID_JSON,
                     "Invalid response from Parse servers.");
+            }
         }
 
-        return getParseError(response);
+        return exception;
     }
 
     /**

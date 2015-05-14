@@ -45,7 +45,7 @@ public class ParseFileTest extends BaseParseTest {
 
     @Override
     protected void resetClassData() {
-        deleteObjects(classGameScore);
+        batchDeleteObjects(classGameScore);
     }
 
     private void testRestApiExample() throws ParseException {
