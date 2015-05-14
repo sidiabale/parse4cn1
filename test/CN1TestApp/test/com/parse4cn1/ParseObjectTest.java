@@ -138,6 +138,15 @@ public class ParseObjectTest extends BaseParseTest {
         assertNotNull(retrievedRelation);
         assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());
         opponent.delete();
+        
+        assertNull(opponent.getObjectId(),
+                "Deleted object should have no objectId");
+        assertNull(opponent.getCreatedAt(),
+                "Deleted object should have no creation date");
+        assertNull(opponent.getUpdatedAt(),
+                "Deleted object should have no update date");
+        assertTrue(opponent.keySet().isEmpty(),
+                "Deleted object should have no keys");
 
         // Array operations (manually)
         List<String> skills = new ArrayList<String>();

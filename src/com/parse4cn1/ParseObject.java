@@ -683,7 +683,8 @@ public class ParseObject implements IPersistable {
     }
 
     /**
-     * Deletes this object on the server.
+     * Deletes this object on the server. If successful, the object is 
+     * also {@link #reset()}.
      *
      * @throws ParseException if anything goes wrong.
      */
