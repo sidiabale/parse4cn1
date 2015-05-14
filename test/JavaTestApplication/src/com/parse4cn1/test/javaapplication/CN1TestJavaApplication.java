@@ -1,7 +1,17 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2015 Chidiebere Okwudire.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.parse4cn1.test.javaapplication;
 
@@ -20,11 +30,12 @@ import javax.swing.JFrame;
 import org.reflections.Reflections;
 
 /**
- * A simple test app to illustrate how to create a regular Java application 
+ * A simple test app to illustrate how to create a regular Java application
  * using parse4cn1.jar.
- * 
- * It executes the Parse4CN1 tests written using CodenameOne's (Java) test library.
- * 
+ *
+ * It executes the Parse4CN1 tests written using CodenameOne's (Java) test
+ * library.
+ *
  * @author sidiabale
  */
 public class CN1TestJavaApplication {
@@ -90,10 +101,23 @@ public class CN1TestJavaApplication {
 
         int counter = 1;
         List<String> failedTests = new ArrayList<String>();
-        try {
-            for (Class<? extends BaseParseTest> testClass : testClasses) {
+        for (Class<? extends BaseParseTest> testClass : testClasses) {
+            
+//            /*
+//             Filter for running subsets of tests if necessary (particularly useful since 
+//             at the time of writing, the CN1 test runner lacks this functionality
+//             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
+//             */
+//            if (!testClass.getCanonicalName().endsWith("ParseBatchTest")) {
+//                System.err.println("Ignoring test " + testClass.getCanonicalName());
+//                continue;
+//            }
+
+            try {
+                failedTests.add(testClass.getCanonicalName());
+
                 System.out.println("\n:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
-                System.out.println("Running test " + counter + "/" + testCount 
+                System.out.println("Running test " + counter + "/" + testCount
                         + ": " + testClass.getCanonicalName());
                 System.out.println(":=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
                 ++counter;
@@ -101,27 +125,27 @@ public class CN1TestJavaApplication {
                 BaseParseTest test = (BaseParseTest) testClass.newInstance();
                 test.prepare();
                 final boolean result = test.runTest();
-                if (!result) {
-                    failedTests.add(testClass.getCanonicalName());
-                }
                 test.cleanup();
 
+                if (result) {
+                    failedTests.remove(testClass.getCanonicalName());
+                }
+            } catch (ParseException ex) {
+                Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
                 System.out.println("\n:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
                 System.out.println("Test: " + testClass.getCanonicalName()
-                    + " " +(result ? "PASSED" : "FAILED"));
+                        + " " + (!failedTests.contains(testClass.getCanonicalName()) ? "PASSED" : "FAILED"));
                 System.out.println(":=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
             }
-        } catch (ParseException ex) {
-            Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception ex) {
-            Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         if (failedTests.isEmpty()) {
             System.out.println("\nALL tests passed!!!");
         } else {
             System.err.println("\nThe following tests failed:\n" + failedTests);
         }
-        
     }
 }
