@@ -23,19 +23,33 @@ The Parse RESTAPI is quite extensive. As such, we maintain an overview of the fu
 
 | API | Status | Remarks 	|
 |:-------:	|:-------:	|:-------:	|
-| Objects	| IMPLEMENTED | Still pending: Batch operations |
+| Objects	| IMPLEMENTED | Still pending: Batch operations (planned for release 1.1) |
 | Queries | IMPLEMENTED | |
 | Users | IMPLEMENTED | Still pending: (1) Linking users (Facebook, Twitter, etc.) (2) Security (ACLs) |
 | Sessions | Pending | |
 | Roles | Pending | |
 | Files | IMPLEMENTED | |
 | Analytics | Pending | |
-| Config | Pending | |
+| Config | Pending | Planned for release 1.1 |
 | Push Notifications* | Pending | |
 | Installations | Pending | |
 | Cloud Code | IMPLEMENTED | |
 | GeoPoints | Pending | |
 \*Advanced feature that cannot be realized using REST API only. However, it *should* be realizable via CN1 native interfaces.
+
+### Release Planning ###
+v1.1: Expected in Q3 2015
+Target features:
+* Batch operations (already implemented in develop branch)
+* Config (already implemented in develop branch)
+* Roles
+* GeoPoints
+
+v1.x: Unscheduled
+* Installations
+* Push Notifications
+* Sessions
+* Linking users
 
 ## Usage Examples ##
 See [Usage examples](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples)
