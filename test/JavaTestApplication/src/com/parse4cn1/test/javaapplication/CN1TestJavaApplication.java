@@ -47,8 +47,8 @@ public class CN1TestJavaApplication {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        createAppWithoutProperContext();
-//        createAppWithProperContext();
+//        createAppWithoutProperContext();
+        createAppWithProperContext(false);
     }
 
     private static void createAppWithoutProperContext() {
@@ -58,7 +58,7 @@ public class CN1TestJavaApplication {
         Display.getInstance().exitApplication();
     }
 
-    private static void createAppWithProperContext() {
+    private static void createAppWithProperContext(final boolean aShowFrame) {
         // This approach is recommended for a GUI-application or in the case
         // where the blank frame shown for createAppWithoutProperContext() is an issue.
         final JFrame f = new MainFrame();
@@ -68,7 +68,7 @@ public class CN1TestJavaApplication {
 
             @Override
             public void run() {
-                f.setVisible(true);
+                f.setVisible(aShowFrame);
                 runTests();
                 // Close frame
                 f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
@@ -101,6 +101,9 @@ public class CN1TestJavaApplication {
                 BaseParseTest test = (BaseParseTest) testClass.newInstance();
                 test.prepare();
                 final boolean result = test.runTest();
+                
+                // TODO: (22-07-15) Check why it seems that result is true even when 
+                // a test fails e.g. ParseQueryTest.checkLimitAndSkipConstraints()
                 if (!result) {
                     failedTests.add(testClass.getCanonicalName());
                 }
