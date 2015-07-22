@@ -47,8 +47,8 @@ public class PointerOrLocalIdEncodingStrategy implements
                 json.put(ParseConstants.FIELD_CLASSNAME, parseObject.getClassName());
                 json.put("localId", createTempId());
             }
-        } catch (JSONException e) {
-            throw new ParseException(e);
+        } catch (JSONException ex) {
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
         return json;
     }

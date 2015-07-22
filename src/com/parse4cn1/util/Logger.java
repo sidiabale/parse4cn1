@@ -20,13 +20,16 @@ import com.codename1.io.Log;
 
 /**
  * Minimalist file logger.
+ * <p>
+ * By default, debug logging is disabled and should <em>not</em> not be 
+ * enabled in production code for performance and security reasons.
  * 
  * @author sidiabale
  */
 public class Logger {
    
     private static Logger wrapper;
-    private Log log;
+    private final Log log;
     
     public static Logger getInstance() {
         if (wrapper == null) {
@@ -37,11 +40,16 @@ public class Logger {
     
     private Logger() {
         log = Log.getInstance();
+        setLogLevel(Log.INFO);
         log.setFileURL("log.txt");
     }
 
     public boolean isDebugEnabled() {
         return (Log.getLevel() == Log.DEBUG);
+    }
+    
+    public final void setLogLevel(int logLevel) {
+        Log.setLevel(logLevel);
     }
 
     public void debug(String data) {

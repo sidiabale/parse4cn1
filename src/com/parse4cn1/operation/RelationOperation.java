@@ -124,7 +124,7 @@ public class RelationOperation<T extends ParseObject> implements ParseOperation 
                         (relationType == AddRelation) ? "AddRelation" : "RemoveRelation");
                 newRelations.put("objects", convertSetToArray(this.relations, objectEncoder));
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
         }
 

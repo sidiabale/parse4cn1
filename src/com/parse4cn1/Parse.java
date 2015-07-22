@@ -20,11 +20,12 @@ package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.l10n.DateFormat;
+import com.codename1.l10n.SimpleDateFormat;
 import com.parse4cn1.operation.ParseOperationUtil;
 import com.parse4cn1.operation.ParseOperationDecoder;
 import com.parse4cn1.util.ParseRegistry;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -125,8 +126,7 @@ public class Parse {
     private static final DateFormat dateFormat;
 
     static {
-        DateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-        dateFormat = format;
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
         ParseRegistry.registerDefaultSubClasses();
         ParseOperationDecoder.registerDefaultDecoders();
@@ -212,11 +212,56 @@ public class Parse {
      * type</a>.
      */
     public static synchronized Date parseDate(String dateString) {
-        try {
-            return dateFormat.parse(dateString);
-        } catch (java.text.ParseException e) {
-            return null;
+        boolean parsed = false;
+        Date parsedDate = null;
+            
+        // As at July 2015, the CN1 port for Windows Phone is not quite mature
+        // For example, using the SimpleDateFormat.format() method raises an
+        // org.xmlvm._nNotYetImplementedException (cf. https://groups.google.com/d/topic/codenameone-discussions/LHZeubG-sf0/discussion)
+        // As a workaround, Parse dates are manually parsed if they meet the 
+        // expected format:
+        //
+        // "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" e.g. "2015-07-14T15:55:52.133Z"
+        // Note that a regex-based approach is not taken because it's simply
+        // not necessary and regexes will mean yet another cn1lib dependency.
+
+        if (dateString.length() == 24) { 
+            try {
+                int year  = Integer.valueOf(dateString.substring(0, 4));
+                int month = Integer.valueOf(dateString.substring(5, 7));
+                int day   = Integer.valueOf(dateString.substring(8, 10));
+                int hour  = Integer.valueOf(dateString.substring(11, 13));
+                int min   = Integer.valueOf(dateString.substring(14, 16));
+                int sec   = Integer.valueOf(dateString.substring(17, 19));
+                int milli = Integer.valueOf(dateString.substring(20, 23));
+
+                Calendar cal = Calendar.getInstance();
+                cal.set(Calendar.YEAR, year);
+                cal.set(Calendar.MONTH, month - 1); // month is 0-based.
+                cal.set(Calendar.DAY_OF_MONTH, day);
+                cal.set(Calendar.HOUR_OF_DAY, hour);
+                cal.set(Calendar.MINUTE, min);
+                cal.set(Calendar.SECOND, sec);
+                cal.set(Calendar.MILLISECOND, milli);
+                
+                parsedDate = cal.getTime();
+                parsed = true;
+            } catch (NumberFormatException ex) {
+                parsedDate = null;
+                parsed = false;
+            }
         }
+            
+        try {
+            if (!parsed) { 
+                // Fallback to default and hope for the best
+                parsedDate = dateFormat.parse(dateString);
+            }
+        } catch (com.codename1.l10n.ParseException e) {
+            parsedDate = null;
+        }
+        
+        return parsedDate;
     }
 
     /**

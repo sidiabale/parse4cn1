@@ -42,24 +42,13 @@ public class ParseResponse {
      * Creates a ParseException that indicates connection failure. This
      * exception will have error code {@link ParseException#CONNECTION_FAILED}.
      *
-     * @param message The message associated with the created exception.
-     * @return The created ParseException.
-     */
-    static ParseException createConnectionFailedException(String message) {
-        return new ParseException(ParseException.CONNECTION_FAILED,
-                "Connection failed with Parse servers.  Log: " + message);
-    }
-
-    /**
-     * Creates a ParseException that indicates connection failure. This
-     * exception will have error code {@link ParseException#CONNECTION_FAILED}.
-     *
      * @param e The throwable from which the exception message is to be
      * retrieved.
      * @return The created ParseException.
      */
     static ParseException createConnectionFailedException(Throwable e) {
-        return ParseResponse.createConnectionFailedException(e.getMessage());
+        return new ParseException(ParseException.CONNECTION_FAILED,
+                "Connection to backend failed.", e);
     }
 
     /**
@@ -77,18 +66,14 @@ public class ParseResponse {
      */
     public ParseException getException() {
 
-        if (error != null) {
-            return error;
-        }
-
         if (hasConnectionFailed()) {
             return new ParseException(ParseException.CONNECTION_FAILED,
-                    "Connection to Parse servers failed.");
+                    "Connection to backend failed.");
         }
 
         if (!hasErrorCode()) {
             return new ParseException(ParseException.OPERATION_FORBIDDEN,
-                    "getException called with successful response");
+                    "Request to backend completed successfully (no errors).");
         }
 
         JSONObject response = null;
@@ -100,10 +85,16 @@ public class ParseResponse {
 
         if (response == null) {
             return new ParseException(ParseException.INVALID_JSON,
-                    "Invalid response from Parse servers.");
+                    ParseException.ERR_INVALID_RESPONSE);
         }
 
-        return getParseError(response);
+        ParseException ex = getParseError(response);
+        
+        if (ex == null) {
+            // Give lowest priority to the http error
+            ex = error;
+        }
+        return ex;
     }
 
     /**
@@ -130,9 +121,16 @@ public class ParseResponse {
 
         try {
             errorMsg = response.getString(RESPONSE_ERROR_JSON_KEY);
+            
+            if (errorMsg.length() > 0) {
+                // Capitalize first character for consistency with other error messages in this library
+                errorMsg = String.valueOf(errorMsg.charAt(0)).toUpperCase()
+                        + (errorMsg.length() > 1 ? errorMsg.substring(1) : "");
+            }
+            
         } catch (JSONException e) {
             ex = e;
-            errorMsg = "Error undefined by Parse server.";
+            errorMsg = "An unexpected error occurred.";
         }
 
         return (ex != null)
@@ -158,7 +156,7 @@ public class ParseResponse {
             return new JSONObject(new String(responseBody));
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON,
-                    "Unable to parse the response to JSON", ex);
+                    "Unable to parse the response received from Parse", ex);
         }
     }
 
@@ -186,17 +184,24 @@ public class ParseResponse {
     protected int getStatusCode() {
         return statusCode;
     }
-
-    /**
-     * Sets the HTTP status code.
-     *
-     * @param statusCode The HTTP status code.
-     */
-    protected void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
+    
+    private void setStatusCode(int responseCode) {
+        statusCode = responseCode;
     }
 
-    protected void setError(ParseException error) {
+    /**
+     * Sets the backend error.
+     *
+     * @param statusCode The HTTP status code.
+     * @param message The HTTP error message.
+     */
+    protected void setConnectionError(int statusCode, String message) {
+        setStatusCode(statusCode);
+        error = new ParseException(ParseException.CONNECTION_FAILED, "Backend request returned with error.",
+            new Exception(message));
+    }
+
+    protected void setConnectionError(ParseException error) {
         this.error = error;
     }
 

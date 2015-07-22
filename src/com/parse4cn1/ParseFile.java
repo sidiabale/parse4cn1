@@ -205,7 +205,6 @@ public class ParseFile implements Parse.IPersistable {
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             JSONObject jsonResponse = response.getJsonObject();
-            System.out.println(jsonResponse);
             if (jsonResponse == null) {
                 LOGGER.error("Empty response.");
                 throw response.getException();
@@ -216,7 +215,7 @@ public class ParseFile implements Parse.IPersistable {
                 this.url = jsonResponse.getString("url");
                 this.dirty = false;
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PROCESSING_RESPONSE, ex);
             }
         } else {
             LOGGER.error("Request failed.");

@@ -222,7 +222,6 @@ public class ParseQueryTest extends BaseParseTest {
                 .selectKeys(Arrays.asList(keys));
 
         // TODO check fields
-        System.out.println(mainQuery.encode());
         final JSONObject queryJson = mainQuery.encode();
         assertEqual("games", mainQuery.getClassName());
         assertEqual("-tournaments,loosingScore,-score2", queryJson.get("order").toString());
@@ -589,8 +588,36 @@ public class ParseQueryTest extends BaseParseTest {
         assertEqual(results.size(), limit,
                 "$limit constraint should limit result count to " + limit
                 + " but actual result count is " + results.size());
-
-        // Skipped objects are not in results
+        
+        /*
+            22-07-2015: This test is currently failing and initial investigation
+            suggests that the parse query is returning wrong results.
+        
+            Sample:
+            - skip = 2; limit = 4
+        
+            - gameScoreObjects' objectId (also verified via Parse dashboard:
+              zsvV5wXakG
+              6b2CXsUMda
+              LwBlhGAifs
+              sgMQvbh4S6
+              ENkD6PBYE2
+              R4RRxk9fDQ
+              eu5sC7ZQDN
+              puGLqHpdgj
+        
+            - Expected (and checked below) objectIds
+              
+            - Actual objectIds returned by query:
+              6b2CXsUMda (should be LwBlhGAifs instead)
+              sgMQvbh4S6
+              ENkD6PBYE2
+              R4RRxk9fDQ
+          
+            Will be left in as a reminder to pick it up with Parse guys.
+        */
+        
+        // Skipped objects should not be in results
         for (ParseObject output : results) {
             boolean found = false;
             for (int i = skip; i < gameScoreObjects.size() - 1; ++i) {
@@ -601,7 +628,7 @@ public class ParseQueryTest extends BaseParseTest {
                 }
             }
             assertTrue(found, "Output with objectId " + output.getObjectId()
-                    + " is expected in result (non-skipped objects) but not found");
+                    + " returned in result (non-skipped objects) but not expected");
         }
     }
 
@@ -635,7 +662,6 @@ public class ParseQueryTest extends BaseParseTest {
         // All results contain
         assertTrue(results.size() > 0, "value in array field query should return results");
         for (ParseObject output : results) {
-            System.out.println(fieldArrayField + '=' + output.getList(fieldArrayField));
             assertTrue(output.getList(fieldArrayField).contains(2),
                     "Array field of output should contain target value of 2");
         }
@@ -647,7 +673,6 @@ public class ParseQueryTest extends BaseParseTest {
 
         assertTrue(results.size() > 0, "$all query should return results");
         for (ParseObject output : results) {
-            System.out.println(fieldArrayField + '=' + output.getList(fieldArrayField));
             assertTrue(output.getList(fieldArrayField).containsAll(values),
                     "Expected array field of output to contain target list of values "
                     + values + " but found " + output.getList(fieldArrayField));

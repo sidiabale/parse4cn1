@@ -56,7 +56,7 @@ public class ParseCloudTest extends BaseParseTest {
         final Map<String, String> params = new HashMap<String, String>();
         params.put("plan", "Paid");
         final String jobTriggerResult = ParseCloud.callFunction("userMigrationJobWrapper", params);
-        assertEqual("{}", jobTriggerResult, "On successful trigger, result should be empty");
+        assertEqual("{}", jobTriggerResult.trim(), "On successful trigger, result should be empty");
         
         waitFor(5000); // Wait a bit to ensure that job has been completed
         

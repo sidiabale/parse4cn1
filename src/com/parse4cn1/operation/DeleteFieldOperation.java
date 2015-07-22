@@ -43,7 +43,7 @@ public class DeleteFieldOperation implements ParseOperation {
         try {
             output.put(ParseConstants.KEYWORD_OP, "Delete");
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
         return output;
     }
