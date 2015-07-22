@@ -254,23 +254,23 @@ public class ParseQueryTest extends BaseParseTest {
         assertEqual("{\"$ne\":\"amateur\"}", where.getJSONObject("rank").toString());
         assertEqual("15-12-1900", where.get("dob").toString());
         assertEqual("{\"$regex\":\"\\\\Qsubstring\\\\E\"}", where.getJSONObject("stringKey").toString());
-        assertEqual("{\"$options\":\"i\",\"$regex\":\"^\\\\Qprefix\\\\E\"}", where.getJSONObject("stringKey1").toString());
-        assertEqual("{\"$options\":\"i\",\"$regex\":\"\\\\Qsuffix\\\\E$\"}", where.getJSONObject("stringKey2").toString());
+        assertEqual("{\"$regex\":\"^\\\\Qprefix\\\\E\",\"$options\":\"i\"}", where.getJSONObject("stringKey1").toString());
+        assertEqual("{\"$regex\":\"\\\\Qsuffix\\\\E$\",\"$options\":\"i\"}", where.getJSONObject("stringKey2").toString());
         assertEqual("{\"$regex\":\"^\\\\Qprefix\\\\E\"}", where.getJSONObject("stringKey3").toString());
         assertEqual("{\"$regex\":\"\\\\Qsuffix\\\\E$\"}", where.getJSONObject("stringKey4").toString());
         assertEqual("{\"$regex\":\"^.*(p)?\"}", where.getJSONObject("regexKey1").toString());
-        assertEqual("{\"$options\":\"m\",\"$regex\":\"^.*\"}", where.getJSONObject("regexKey2").toString());
+        assertEqual("{\"$regex\":\"^.*\",\"$options\":\"m\"}", where.getJSONObject("regexKey2").toString());
        
-        assertEqual("{\"$maxDistance\":10000,\"$nearSphere\":{\"__type\":\"GeoPoint\",\"longitude\":5,\"latitude\":18}}", 
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5},\"$maxDistance\":10000}", 
                 where.getJSONObject("city").toString());
-        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"longitude\":5,\"latitude\":18}}", 
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}}", 
                 where.getJSONObject("tournament").toString());
-        assertEqual("{\"$maxDistance\":1,\"$nearSphere\":{\"__type\":\"GeoPoint\",\"longitude\":10,\"latitude\":-10}}", 
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}", 
                 where.getJSONObject("work").toString());
-        assertEqual("{\"$maxDistance\":1,\"$nearSphere\":{\"__type\":\"GeoPoint\",\"longitude\":10,\"latitude\":-10}}", 
+        assertEqual("{\"$nearSphere\":{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},\"$maxDistance\":1}", 
                 where.getJSONObject("home").toString());
-        assertEqual("{\"$within\":{\"$box\":[{\"__type\":\"GeoPoint\",\"longitude\":10,\"latitude\":-10},"
-                + "{\"__type\":\"GeoPoint\",\"longitude\":5,\"latitude\":18}]}}", 
+        assertEqual("{\"$within\":{\"$box\":[{\"__type\":\"GeoPoint\",\"latitude\":-10,\"longitude\":10},"
+                + "{\"__type\":\"GeoPoint\",\"latitude\":18,\"longitude\":5}]}}", 
                 where.getJSONObject("bounds").toString());
     }
 
