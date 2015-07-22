@@ -15,5 +15,7 @@ limitations under the License.
 
 Dependencies/Credits
 
-- CN1JSON.cn1lib: Untagged version retrieved on March 8, 2013 from https://github.com/shannah/CN1JSON/blob/master/dist/CN1JSON.cn1lib?raw=true
 - CN1JSON.jar: Regular jar version of CN1JSON.cn1lib retrieved on May 2, 2015 from https://github.com/shannah/CN1JSON/blob/master/dist/CN1JSON.jar?raw=true
+- guava-18.0.jar: https://code.google.com/p/guava-libraries/
+- javassist.jar: Version 3.20.0-GA retrieved from https://github.com/jboss-javassist/javassist
+- reflections-0.9.9-RC1-uberjar.jar: https://code.google.com/p/reflections/

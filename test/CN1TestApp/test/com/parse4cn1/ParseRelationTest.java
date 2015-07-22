@@ -140,7 +140,6 @@ public class ParseRelationTest extends BaseParseTest {
        ParseRelation<ParseObject> relation = 
                new ParseRelation<ParseObject>(report, parentKey, targetClass);
        final JSONObject query = relation.getQuery().encode();
-       System.out.println("ParseRelation query: " + query);
        
        final JSONObject where = query.getJSONObject("where");
        assertEqual(1, where.length(), "Query's where clause contains a single element");
@@ -202,7 +201,6 @@ public class ParseRelationTest extends BaseParseTest {
         assertNotNull(retrievedRelation, "Relation should be defined on parent after adding/removing");
         assertTrue(parseOperation instanceof RelationOperation, "Expect RelationOperation");
         JSONObject encoded = ((RelationOperation) parseOperation).encode(encoder);
-        System.out.println("JSON from RelationOperation: " + encoded);
 
         assertEqual(expectedCount, encoded.getJSONArray("objects").length(),
                 "Number of elements in encoded JSON should match expectedCount");
@@ -214,7 +212,6 @@ public class ParseRelationTest extends BaseParseTest {
     private void checkParseRelation(final ParseRelation<?> relation, int expectedCount,
             final String message) throws JSONException {
         JSONObject encoded = relation.encode(encoder);
-        System.out.println("JSON from ParseRelation: " + encoded);
 
         assertEqual(3, encoded.length(), "Encoded object should contain only two elements");
         assertEqual(targetClass, encoded.getString(ParseConstants.FIELD_CLASSNAME));

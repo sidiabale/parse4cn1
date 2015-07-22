@@ -331,7 +331,6 @@ public class ParseObjectTest extends BaseParseTest {
             obj.save();
             fail("ClassCastException expected since custom sub-class has not been registered");
         } catch (ClassCastException ex) {
-            System.out.println("Got expected ClassCastException: " + ex.getMessage());
             assertTrue(true);
         }
 

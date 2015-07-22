@@ -221,7 +221,6 @@ public class ParseQueryTest extends BaseParseTest {
                 .selectKeys(Arrays.asList(keys));
 
         // TODO check fields
-        System.out.println(mainQuery.encode());
         final JSONObject queryJson = mainQuery.encode();
         assertEqual("games", mainQuery.getClassName());
         assertEqual("-tournaments,loosingScore,-score2", queryJson.get("order").toString());
@@ -590,8 +589,8 @@ public class ParseQueryTest extends BaseParseTest {
         assertEqual(results.size(), limit,
                 "$limit constraint should limit result count to " + limit
                 + " but actual result count is " + results.size());
-
-        // Skipped objects are not in results
+        
+        // Skipped objects should not be in results
         for (ParseObject output : results) {
             boolean found = false;
             for (int i = skip; i < gameScores.size() - 1; ++i) {
@@ -602,7 +601,7 @@ public class ParseQueryTest extends BaseParseTest {
                 }
             }
             assertTrue(found, "Output with objectId " + output.getObjectId()
-                    + " is expected in result (non-skipped objects) but not found");
+                    + " returned in result (non-skipped objects) but not expected");
         }
     }
 
@@ -636,7 +635,6 @@ public class ParseQueryTest extends BaseParseTest {
         // All results contain
         assertTrue(results.size() > 0, "value in array field query should return results");
         for (ParseObject output : results) {
-            System.out.println(fieldArrayField + '=' + output.getList(fieldArrayField));
             assertTrue(output.getList(fieldArrayField).contains(2),
                     "Array field of output should contain target value of 2");
         }
@@ -648,7 +646,6 @@ public class ParseQueryTest extends BaseParseTest {
 
         assertTrue(results.size() > 0, "$all query should return results");
         for (ParseObject output : results) {
-            System.out.println(fieldArrayField + '=' + output.getList(fieldArrayField));
             assertTrue(output.getList(fieldArrayField).containsAll(values),
                     "Expected array field of output to contain target list of values "
                     + values + " but found " + output.getList(fieldArrayField));

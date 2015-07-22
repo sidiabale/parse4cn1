@@ -107,7 +107,8 @@ public class ParseBatch {
                 objData.put("path", pathPrefix + getObjectPath(object, opType));
                 objData.put("data", object.getParseData());
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, 
+                        ParseException.ERR_PREPARING_REQUEST, ex);
             }
             data.put(objData);
             parseObjects.add(object);
@@ -135,7 +136,8 @@ public class ParseBatch {
         try {
             payload.put("requests", data);
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, ex);
+            throw new ParseException(ParseException.INVALID_JSON, 
+                    ParseException.ERR_PREPARING_REQUEST, ex);
         }
         
         command.setMessageBody(payload);
@@ -172,8 +174,8 @@ public class ParseBatch {
     public Map<ParseObject, ParseException> getErrors() throws ParseException {
         
         if (results == null) {
-            throw new ParseException(
-                    new IllegalStateException("The batch must first be executed"));
+            throw new ParseException(ParseException.OTHER_CAUSE,
+                    "The batch must first be executed");
         }
         
         Map<ParseObject, ParseException> map = new HashMap<ParseObject, ParseException>();
@@ -265,7 +267,8 @@ public class ParseBatch {
         }
         
         if (json.length() != parseObjects.size()) {
-            throw new ParseException(new IllegalStateException(
+            throw new ParseException(ParseException.OTHER_CAUSE,
+                 ParseException.ERR_PROCESSING_RESPONSE, new IllegalStateException(
                 "Incorrect batch result count. Expected " + parseObjects.size()
                 + " results but found " + json.length()));
         }
@@ -297,7 +300,8 @@ public class ParseBatch {
                             + " neither has a success nor error field");  
                 }
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, 
+                        ParseException.ERR_PROCESSING_RESPONSE, ex);
             }
         }
         

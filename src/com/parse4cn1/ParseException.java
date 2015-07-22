@@ -65,29 +65,27 @@ public class ParseException extends Exception {
     public static final int LINKED_ID_MISSING = 250;
     public static final int INVALID_LINKED_SESSION = 251;
     public static final int UNSUPPORTED_SERVICE = 252;
+    
+    public static final String ERR_PROCESSING_RESPONSE = "An error occurred while processing response from server.";
+    public static final String ERR_PREPARING_REQUEST = "An error occurred while preparing request to server.";
+    public static final String ERR_INVALID_RESPONSE = "Invalid response from backend.";
+    public static final String ERR_INTERNAL = "An internal error occurred.";
+    public static final String ERR_NETWORK = "A network error occurred.";
 
     private int code;
+    private Throwable cause;
 
     /**
      * Creates an exception with the specified error code, message and cause.
      * 
      * @param code The error code associated with this exception.
-     * @param message The human-readable exception message.
+     * @param message The <em>end-user directed, human-readable</em> error message.
      * @param cause The cause of the exception.
      */
     public ParseException(int code, String message,
             Throwable cause) {
-        this(code, message + " Cause: " + cause.getMessage());
-    }
-
-    /**
-     * Creates an exception with the specified error code and cause. 
-     * 
-     * @param code The error code associated with this exception.
-     * @param cause The cause of the exception.
-     */
-    public ParseException(int code, Throwable cause) {
-        super(cause.getMessage());
+        super(message);
+        this.cause = cause;
         this.code = code;
     }
 
@@ -95,7 +93,7 @@ public class ParseException extends Exception {
      * Creates an exception with the specified error code and message.
      * 
      * @param code The error code associated with this exception.
-     * @param message The human-readable exception message.
+     * @param message The <em>end-user directed, human-readable</em> error message.
      */
     public ParseException(int code, String message) {
         super(message);
@@ -105,22 +103,11 @@ public class ParseException extends Exception {
     /**
      * Creates an exception with the specified message and cause.
      * 
-     * @param message The human-readable exception message.
+     * @param message The <em>end-user directed, human-readable</em> error message.
      * @param cause The cause of the exception.
      */
     public ParseException(String message, Throwable cause) {
-        super(message + " Cause: " + cause.getMessage());
-        this.code = -1;
-    }
-
-    /**
-     * Creates an exception with the specified cause.
-     * 
-     * @param cause The cause of the exception.
-     */
-    public ParseException(Throwable cause) {
-        super(cause.getMessage());
-        this.code = -1;
+        this(OTHER_CAUSE, message, cause);
     }
 
     /**
@@ -131,9 +118,17 @@ public class ParseException extends Exception {
     public int getCode() {
         return this.code;
     }
+    
+    /**
+     * 
+     * @return The cause of the exception if specified; otherwise null.
+     */
+    public Throwable getCause() {
+        return this.cause;
+    }
 
     @Override
     public String toString() {
-        return "ParseException [code=" + code + ", error=" + getMessage() + "]";
+        return "ParseException [code=" + code + ", msg=" + getMessage() + ", cause=" + getCause() + "]";
     }
 }

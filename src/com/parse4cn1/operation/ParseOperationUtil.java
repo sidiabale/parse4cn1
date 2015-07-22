@@ -19,6 +19,7 @@
 package com.parse4cn1.operation;
 
 import com.parse4cn1.ParseException;
+import com.parse4cn1.util.Logger;
 
 /**
  * This class defines general utilities related to Parse operations.
@@ -36,8 +37,9 @@ public class ParseOperationUtil {
      */
     static Object addNumbers(Object first, Object second) throws ParseException {
         if (!isSupportedNumberType(first) || !isSupportedNumberType(second)) {
+            Logger.getInstance().error(first + " and/or " + second + " is of an unsupported number type.");
             throw new ParseException(ParseException.OTHER_CAUSE, 
-                    first + " and/or " + second + " is of an unsupported number type.");
+                    ParseException.ERR_INTERNAL);
         }
         
         if (((first instanceof Double)) || ((second instanceof Double))) {
@@ -58,8 +60,9 @@ public class ParseOperationUtil {
         if (((first instanceof Byte)) || ((second instanceof Byte))) {
             return (Byte) first + (Byte) second;
         }
-        throw new ParseException(ParseException.OTHER_CAUSE, 
-                "Addition semantics not yet defined for the provided number types");
+        
+        Logger.getInstance().error("Addition semantics not yet defined for the provided number types.");
+        throw new ParseException(ParseException.OTHER_CAUSE, ParseException.ERR_INTERNAL);
     }
 
     /**

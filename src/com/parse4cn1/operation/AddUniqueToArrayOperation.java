@@ -61,7 +61,7 @@ public class AddUniqueToArrayOperation implements ParseOperation {
             output.put(ParseConstants.KEYWORD_OP, "AddUnique");
             output.put("objects", ParseEncoder.encode(new ArrayList<Object>(this.objects), objectEncoder));
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
         return output;
     }

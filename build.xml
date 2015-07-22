@@ -89,7 +89,7 @@
         <antcall target="buildNativeME" />       
         <mkdir dir="dist" />
         <zip basedir="build/lib" compress="true" destfile="dist/${application.title}.cn1lib" />
-	<copy file="lib/VERSIONS.txt" todir="dist" failonerror="true" />
+	<copy file="NOTICE.txt" todir="dist" failonerror="true" />
         <copy file="lib/CN1JSON.cn1lib" todir="dist" failonerror="true" />
         <copy file="test/CN1TestApp/JavaSE.jar" todir="dist/lib" failonerror="true" />
     </target>

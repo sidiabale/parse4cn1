@@ -168,7 +168,6 @@ public class ParseBatchTest extends BaseParseTest {
                     + "Batch size = " + (MAX_BATCH_SIZE + 1)
                     + "; expected limit = " + MAX_BATCH_SIZE);
         } catch (ParseException ex) {
-            System.out.println("Exception: " + ex);
             assertEqual(ParseException.TOO_MANY_COMMANDS_IN_BATCH_REQUEST,
                     ex.getCode(), "Batch with too many operations should fail with code "
                     + ParseException.TOO_MANY_COMMANDS_IN_BATCH_REQUEST
