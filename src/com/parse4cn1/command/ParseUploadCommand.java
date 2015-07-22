@@ -71,13 +71,13 @@ public class ParseUploadCommand extends ParseCommand {
 
             @Override
             protected void handleErrorResponseCode(int code, String message) {
-                response.setStatusCode(code);
-                response.setError(new ParseException(code, message));
+                response.setConnectionError(code, message);
             }
 
             @Override
             protected void handleException(Exception err) {
-                response.setError(new ParseException(ParseException.CONNECTION_FAILED, err.getMessage()));
+                response.setConnectionError(new ParseException(ParseException.CONNECTION_FAILED, 
+                    ParseException.ERR_NETWORK, err));
             }
 
             @Override

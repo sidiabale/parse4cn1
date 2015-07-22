@@ -122,7 +122,7 @@ public class ParseQuery<T extends ParseObject> {
             final Collection<ParseQuery> queries) throws ParseException {
        if (queries.size() < 2) {
            throw new ParseException(ParseException.OTHER_CAUSE, 
-                   "At least two queries must be provided");
+                   "At least two queries must be provided.");
        } 
        
        String targetClass = null;
@@ -130,14 +130,14 @@ public class ParseQuery<T extends ParseObject> {
        for (ParseQuery query : queries) {
            if (query.getQueryConstraints().isEmpty()) {
               throw new ParseException(ParseException.OTHER_CAUSE, 
-                   "Query has no query constraints"); 
+                   "Query has no query constraints."); 
            }
            
            if (targetClass == null) {
                targetClass = query.getClassName();
            } else if (!targetClass.equals(query.getClassName())) {
               throw new ParseException(ParseException.OTHER_CAUSE, 
-                   "All queries should be of the same target class: " + targetClass);  
+                   "All queries should be of the same target class: " + targetClass + ".");  
            }
            
            array.put(query.getQueryConstraints());
@@ -145,7 +145,7 @@ public class ParseQuery<T extends ParseObject> {
        
        if (targetClass == null) {
            throw new ParseException(ParseException.OTHER_CAUSE, 
-                   "Null target class"); 
+                   "A query target class is required."); 
        }
        ParseQuery query = ParseQuery.getQuery(targetClass);
        query.whereEqualTo("$or", array);
@@ -324,7 +324,7 @@ public class ParseQuery<T extends ParseObject> {
             condition.put("key", keyInQuery);
             condition.put("query", query);
         } catch (JSONException e) {
-            throw new ParseException(e);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, e);
         }
         addCondition(key, "$select", condition);
         return this;
@@ -348,7 +348,7 @@ public class ParseQuery<T extends ParseObject> {
             condition.put("key", keyInQuery);
             condition.put("query", query);
         } catch (JSONException e) {
-            throw new ParseException(e);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, e);
         }
         addCondition(key, "$dontSelect", condition);
         return this;
@@ -811,8 +811,8 @@ public class ParseQuery<T extends ParseObject> {
             }
 
         } catch (JSONException e) {
-            LOGGER.error("Error parsing json: " + e.getMessage());
-            throw new ParseException(e);
+            LOGGER.error("Error encoding json: " + e);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, e);
         }
 
         return params;
@@ -864,17 +864,17 @@ public class ParseQuery<T extends ParseObject> {
                 return results;
             } catch (JSONException e) {
                 LOGGER.error(
-                        "Although Parse reports object successfully saved, the response was invalid. Error: "
+                        ParseException.ERR_INVALID_RESPONSE + " Error: "
                         + e.getMessage());
                 throw new ParseException(
                         ParseException.INVALID_JSON,
-                        "Although Parse reports object successfully saved, the response was invalid.",
+                        ParseException.ERR_INVALID_RESPONSE,
                         e);
             } catch (IllegalArgumentException e) {
                 LOGGER.error("Error while instantiating class. Did you register your subclass? Error: "
                         + e.getMessage());
                 throw new ParseException(
-                        "Error while instantiating class. Did you register your subclass?",
+                        "An error occurred while processing query results.",
                         e);
             }
         } else {
@@ -915,7 +915,7 @@ public class ParseQuery<T extends ParseObject> {
             query.put("count", 1);
             query.put("limit", 0);
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
         query.remove(ParseConstants.FIELD_CLASSNAME);
         addDataToCommand(command, query);
@@ -931,11 +931,11 @@ public class ParseQuery<T extends ParseObject> {
                 return count;
             } catch (JSONException e) {
                 LOGGER.error(
-                        "Although Parse reports object successfully saved, the response was invalid. Error: "
+                        ParseException.ERR_INVALID_RESPONSE + " Error: "
                         + e.getMessage());
                 throw new ParseException(
                         ParseException.INVALID_JSON,
-                        "Although Parse reports object successfully saved, the response was invalid.",
+                        ParseException.ERR_INVALID_RESPONSE,
                         e);
             }
         } else {
@@ -1102,7 +1102,7 @@ public class ParseQuery<T extends ParseObject> {
                 json.put("object",
                         objectEncoder.encodeRelatedObject(this.object));
             } catch (JSONException e) {
-                throw new ParseException(e);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, e);
             }
             return json;
         }

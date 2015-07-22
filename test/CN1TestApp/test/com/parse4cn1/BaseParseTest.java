@@ -147,7 +147,7 @@ public class BaseParseTest extends AbstractTest {
             f.close();
             return b;
         } catch (IOException e) {
-            throw new ParseException(e);
+            throw new ParseException("IO exception occurred.", e);
         }
     }
     

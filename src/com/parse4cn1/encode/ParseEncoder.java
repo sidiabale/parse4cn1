@@ -58,7 +58,7 @@ public class ParseEncoder {
                 output.put(ParseConstants.KEYWORD_TYPE, "Bytes");
                 output.put("base64", Base64.encode(bytes));
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
             return output;
         }
@@ -70,7 +70,7 @@ public class ParseEncoder {
                 output.put(ParseConstants.KEYWORD_TYPE, "Date");
                 output.put("iso", Parse.encodeDate(dt));
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
             return output;
         }
@@ -94,7 +94,7 @@ public class ParseEncoder {
                 try {
                     json.put(key, encode(map.opt(key), objectEncoder));
                 } catch (JSONException ex) {
-                    throw new ParseException(ParseException.INVALID_JSON, ex);
+                    throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
                 }
             }
             return json;
@@ -116,7 +116,7 @@ public class ParseEncoder {
                 try {
                     json.put(key, encode(map.get(key), objectEncoder));
                 } catch (JSONException ex) {
-                    throw new ParseException(ParseException.INVALID_JSON, ex);
+                    throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
                 }
             }
             return json;
@@ -128,7 +128,7 @@ public class ParseEncoder {
             try {
                 json = relation.encode(objectEncoder);
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
             return json;
         }
@@ -148,7 +148,7 @@ public class ParseEncoder {
                 output.put(ParseConstants.KEYWORD_TYPE, "File");
                 output.put("name", file.getName());
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
             return output;
         }
@@ -161,7 +161,7 @@ public class ParseEncoder {
                 output.put("latitude", gp.getLatitude());
                 output.put("longitude", gp.getLongitude());
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
             return output;
         }

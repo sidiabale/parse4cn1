@@ -180,7 +180,8 @@ public class ParseUser extends ParseObject {
                 throw response.getException();
             }
         } catch (JSONException ex) {
-            throw new ParseException(ex);
+            throw new ParseException(ParseException.INVALID_JSON, 
+                    "An error occurred while trying to initiate a password reset.", ex);
         }
     }
 
@@ -247,10 +248,10 @@ public class ParseUser extends ParseObject {
                 throw response.getException();
             }
         } catch (JSONException e) {
-            LOGGER.error("Although Parse reports object successfully saved, the response was invalid.");
+            LOGGER.error(ParseException.ERR_INVALID_RESPONSE + " Error: " + e);
             throw new ParseException(
                     ParseException.INVALID_JSON,
-                    "Although Parse reports object successfully saved, the response was invalid.",
+                    ParseException.ERR_INVALID_RESPONSE,
                     e);
         }
     }
@@ -279,10 +280,10 @@ public class ParseUser extends ParseObject {
                 jsonResponse.remove(ParseConstants.FIELD_SESSION_TOKEN);
                 setData(jsonResponse);
             } catch (JSONException e) {
-                LOGGER.error("Although Parse reports object successfully saved, the response was invalid.");
+                LOGGER.error(ParseException.ERR_INVALID_RESPONSE + " Error: " + e);
                 throw new ParseException(
                         ParseException.INVALID_JSON,
-                        "Although Parse reports object successfully saved, the response was invalid.",
+                        ParseException.ERR_INVALID_RESPONSE,
                         e);
             }
         } else {
@@ -323,9 +324,9 @@ public class ParseUser extends ParseObject {
     protected void validateSave() throws ParseException {
 
         if (getObjectId() == null) {
-            LOGGER.error("Cannot save a ParseUser until it has been signed up. Call signUp first.");
+            LOGGER.error("Cannot save a ParseUser that is not yet signed up.");
             throw new ParseException(ParseException.MISSING_OBJECT_ID,
-                    "Cannot save a ParseUser until it has been signed up. Call signUp first.");
+                    "Cannot save a ParseUser that is not yet signed up.");
         }
 
         if ((!isAuthenticated()) && dirty && getObjectId() != null) {

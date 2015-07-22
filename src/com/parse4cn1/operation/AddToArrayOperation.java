@@ -58,7 +58,7 @@ public class AddToArrayOperation implements ParseOperation {
             output.put(ParseConstants.KEYWORD_OP, "Add");
             output.put("objects", ParseEncoder.encode(this.objects, objectEncoder));
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
         return output;
     }

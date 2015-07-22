@@ -102,7 +102,8 @@ public abstract class ParseCommand {
              try {
                 request.addRequestHeader(key, (String) headers.get(key));
             } catch (JSONException ex) {
-                throw new ParseException("Error parsing header '" + key + "'", ex);
+                Logger.getInstance().error("Error parsing header '" + key + "' + Error: " + ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
         }
         
@@ -113,7 +114,8 @@ public abstract class ParseCommand {
                 try {
                     request.addArgument(key, data.get(key).toString());
                 } catch (JSONException ex) {
-                    throw new ParseException("Error parsing key '" + key + "' in command data", ex);
+                    Logger.getInstance().error("Error parsing key '" + key + "' in command data. Error: " + ex);
+                    throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
                 }
             }
         }
@@ -141,8 +143,8 @@ public abstract class ParseCommand {
         try {
             headers.put(key, value);
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, 
-                    "Unable to add header. Error:" + ex.getMessage());
+            Logger.getInstance().error("Unable to add header. Error: " + ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
     }
 
@@ -159,13 +161,13 @@ public abstract class ParseCommand {
 
             @Override
             protected void handleErrorResponseCode(int code, String message) {
-                response.setStatusCode(code);
-                response.setError(new ParseException(code, message));
+                response.setConnectionError(code, message);
             }
 
             @Override
             protected void handleException(Exception err) {
-                response.setError(new ParseException(ParseException.CONNECTION_FAILED, err.getMessage()));
+                response.setConnectionError(new ParseException(ParseException.CONNECTION_FAILED, 
+                    ParseException.ERR_NETWORK, err));
             }
 
             @Override
@@ -206,7 +208,7 @@ public abstract class ParseCommand {
                         data.getString(ParseConstants.FIELD_SESSION_TOKEN));
             }
         } catch (JSONException ex) {
-            throw new ParseException(ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
     }
 
@@ -237,7 +239,7 @@ public abstract class ParseCommand {
         try {
             this.data.put(REQUEST_BODY_KEY, data);
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
     }
 
@@ -252,7 +254,7 @@ public abstract class ParseCommand {
         try {
             this.data.put(key, value);
         } catch (JSONException ex) {
-            throw new ParseException(ParseException.INVALID_JSON, ex);
+            throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
     }
     

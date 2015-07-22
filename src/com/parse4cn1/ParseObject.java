@@ -719,7 +719,7 @@ public class ParseObject implements IPersistable {
             try {
                 parseData.put(key, operation.encode(PointerEncodingStrategy.get()));
             } catch (JSONException ex) {
-                throw new ParseException(ParseException.INVALID_JSON, ex);
+                throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PROCESSING_RESPONSE, ex);
             }
         }
 
