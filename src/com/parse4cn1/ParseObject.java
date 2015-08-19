@@ -21,9 +21,9 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Util;
 import com.parse4cn1.Parse.IPersistable;
 import com.parse4cn1.callback.GetCallback;
-import com.parse4cn1.callback.ParseCallback;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParseDeleteCommand;
 import com.parse4cn1.command.ParseGetCommand;
@@ -40,7 +40,11 @@ import com.parse4cn1.operation.RemoveFromArrayOperation;
 import com.parse4cn1.operation.SetFieldOperation;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.encode.ParseDecoder;
+import com.parse4cn1.util.ExternalizableParseObject;
 import com.parse4cn1.util.ParseRegistry;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -62,6 +66,9 @@ import java.util.Set;
  * <p>
  * The basic workflow for accessing existing data is to use a {@link ParseQuery}
  * to specify which existing data to retrieve.
+ * <p>
+ * ParseObjects are {@link com.codename1.io.Externalizable}, i.e., they 
+ * can be converted to an externalizable form via {@link #asExternalizable()}.
  */
 public class ParseObject implements IPersistable {
 
@@ -104,7 +111,7 @@ public class ParseObject implements IPersistable {
     public static <T extends ParseObject> T create(String className) {
         return ParseRegistry.getObjectFactory(className).create(className);
     }
-
+    
     /**
      * Setter for the object id. In general you do not need to use this.
      * However, in some cases this can be convenient. For example, if you are
@@ -899,7 +906,72 @@ public class ParseObject implements IPersistable {
         this.operations.clear();
         this.dirtyKeys.clear();
     }
+    
+     /**
+     * Serializes the contents of the ParseObject in a manner that complies with
+     * the {@link com.codename1.io.Externalizable} interface.
+     *
+     * @param out The data stream to serialize to.
+     * @throws IOException if any IO error occurs
+     * @throws ParseException if the object is {@link #isDirty() dirty}
+     */
+    public void externalize(DataOutputStream out) throws IOException, ParseException {
+        if (isDirty()) {
+            throw new ParseException(ParseException.OPERATION_FORBIDDEN,
+                    "A dirty ParseObject cannot be serialized to storage");
+        }
+        Util.writeUTF(getObjectId(), out);
+        Util.writeObject(getCreatedAt(), out);
+        Util.writeObject(getUpdatedAt(), out);
 
+        // Persist actual data
+        for (String key : keySet()) {
+            out.writeUTF(key);
+            Util.writeObject(get(key), out);
+        }
+    }
+
+    /**
+     * Deserializes the contents of the ParseObject in a manner that complies with 
+     * the {@link com.codename1.io.Externalizable} interface.
+     * 
+     * @param version The version of the previously serialized object (defaults to {@link ParseConstants#API_VERSION}).
+     * @param in The data input stream to deserialize from.
+     * @throws IOException if any IO error occurs
+     * @throws ParseException if the object is {@link #isDirty() dirty}
+     */
+    public void internalize(int version, DataInputStream in) throws IOException, ParseException {
+        if (isDirty()) {
+            throw new ParseException(ParseException.OPERATION_FORBIDDEN, 
+                    "A dirty ParseObject cannot be deserialized from storage");
+        }
+        
+        reset();
+        setObjectId(Util.readUTF(in));
+        setCreatedAt((Date)Util.readObject(in));
+        setUpdatedAt((Date)Util.readObject(in));
+        
+        // Retrieve actual data
+        String key;
+        while (in.available() > 0) {
+            key = in.readUTF();
+            data.put(key, Util.readObject(in));
+        }
+    }
+
+    /**
+     * Wraps this ParseObject in a form that can be persisted to storage.
+     * <p>
+     * Note that {@link ParseObject} does not directly implement {@link com.codename1.io.Externalizable}
+     * because of a name conflict between {@link com.codename1.io.Externalizable#getObjectId()} 
+     * (unique serialization id for the <em>class</em>
+     * and {@link #getObjectId()} (unique object id).
+     * @return 
+     */
+    public ExternalizableParseObject asExternalizable() {
+       return new ExternalizableParseObject(this);
+    }
+    
     /**
      * Resets this ParseObject's state. After invoking this method, the ParseObject 
      * state is comparable to a newly constructed ParseObject 

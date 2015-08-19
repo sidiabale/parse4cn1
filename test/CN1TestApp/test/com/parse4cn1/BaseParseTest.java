@@ -166,6 +166,18 @@ public class BaseParseTest extends AbstractTest {
         }
     }
     
+    protected void compareParseObjects(final ParseObject obj1, final ParseObject obj2) {
+        assertEqual(obj1.getObjectId(), obj2.getObjectId());
+        assertEqual(obj1.getCreatedAt(), obj2.getCreatedAt());
+        assertEqual(obj1.getUpdatedAt(), obj2.getUpdatedAt());
+        assertEqual(obj1.getEndPoint(), obj2.getEndPoint());
+        assertEqual(obj1.keySet(), obj2.keySet());
+
+        for (String key : obj1.keySet()) {
+            assertEqual(obj1.get(key), obj2.get(key));
+        }
+    }
+    
     protected byte[] getBytes(String fileName) throws ParseException {
         try {
             RandomAccessFile f = new RandomAccessFile(getClass().getResource(fileName).getFile(), "r");

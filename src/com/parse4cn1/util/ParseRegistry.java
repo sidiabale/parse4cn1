@@ -19,6 +19,7 @@
 
 package com.parse4cn1.util;
 
+import com.codename1.io.Util;
 import com.parse4cn1.Parse.DefaultParseObjectFactory;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
@@ -51,12 +52,25 @@ public class ParseRegistry {
         = new HashMap<String, Parse.IParseObjectFactory>();
 
     /**
-     * Registers predefined Parse classes like _User and _Role.
+     * Registers predefined Parse classes like _User and _Role so that they 
+     * can be instantiated when needed.
      */
     public static void registerDefaultSubClasses() {
         registerSubclass(ParseUser.class, ParseConstants.CLASS_NAME_USER);
         registerSubclass(ParseRole.class, ParseConstants.CLASS_NAME_ROLE);
         // TODO: Register other Parse sub-classes
+    }
+    
+    /**
+     * Registers all externalizable classes defined in the parse4cn1 library.
+     * <p>
+     * <b>Note: User-defined externalizable custom types stored in {@link ParseObject} or
+     * any of its sub-classes <em>must</em> be 
+     * {@link com.codename1.io.Util#register(java.lang.String, java.lang.Class) registered} 
+     * by the user otherwise persistence of any ParseObject containing such custom types will fail.</b>
+     */
+    public static void registerExternalizableClasses() {
+        Util.register(ExternalizableParseObject.getClassName(), ExternalizableParseObject.class);
     }
     
     /**
