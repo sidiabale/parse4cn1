@@ -18,12 +18,13 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Storage;
 import com.parse4cn1.encode.ParseDecoder;
+import com.parse4cn1.util.ExternalizableParseObject;
 import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -69,6 +70,8 @@ public class ParseObjectTest extends BaseParseTest {
         testCreateObjectExtended();
         testUpdateObjectExtended();
         testCustomParseObjectClass();
+        testSimpleParseObjectSerialization();
+        testParseFileInParseObjectSerialization();
         return true;
     }
 
@@ -302,6 +305,50 @@ public class ParseObjectTest extends BaseParseTest {
         checkData(retrieved, data);
         retrieved = ParseObject.fetch(obj.getClassName(), obj.getObjectId());
         checkData(retrieved, data);
+    }
+    
+    private void testSimpleParseObjectSerialization() throws ParseException {
+        assertEqual(ExternalizableParseObject.getClassName(), "ExternalizableParseObject");
+        
+        final ParseObject gameScore = ParseObject.create(classGameScore);
+        gameScore.put("score", 1337);
+        gameScore.put("rating", 4.5);
+        gameScore.put("playerName", "Sean Plott");
+        gameScore.put("cheatMode", false);
+        gameScore.save();
+
+        final ParseObject retrieved = serializeAndRetrieveParseObject(gameScore);
+        compareParseObjects(gameScore, retrieved, null);
+
+        // Make object dirty object
+        gameScore.put("score", 1378);
+
+        assertFalse(Storage.getInstance().writeObject(gameScore.getObjectId(), gameScore.asExternalizable()),
+                "Serialization of dirty ParseObject should be disallowed");
+
+        gameScore.delete();
+    }
+
+    private void testParseFileInParseObjectSerialization() throws ParseException {
+        final ParseFile textFile = new ParseFile("hello.txt", "Hello World!".getBytes());
+        textFile.save();
+        
+        final ParseObject gameScore = ParseObject.create(classGameScore);
+        gameScore.put("profile", textFile);
+        gameScore.save();
+        
+        final ParseObject retrieved = serializeAndRetrieveParseObject(gameScore);
+        compareParseFiles(textFile, retrieved.getParseFile("profile"), true);
+        
+        gameScore.delete();
+    }
+    
+    private ParseObject serializeAndRetrieveParseObject(final ParseObject input) {
+        assertTrue(Storage.getInstance().writeObject(input.getObjectId(), input.asExternalizable()), 
+                "Serialization of ParseObject failed");
+        Storage.getInstance().clearCache(); // Absolutely necessary to force retrieval from storage
+        return ((ExternalizableParseObject) Storage.getInstance().readObject(
+                input.getObjectId())).getParseObject();
     }
 
     private void checkData(final ParseObject obj, HashMap<String, Object> data) {

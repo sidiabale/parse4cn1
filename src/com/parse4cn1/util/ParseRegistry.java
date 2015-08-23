@@ -23,6 +23,7 @@ import com.codename1.io.Util;
 import com.parse4cn1.Parse.DefaultParseObjectFactory;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
+import com.parse4cn1.ParseFile;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -71,6 +72,7 @@ public class ParseRegistry {
      */
     public static void registerExternalizableClasses() {
         Util.register(ExternalizableParseObject.getClassName(), ExternalizableParseObject.class);
+        Util.register(ParseFile.getClassName(), ParseFile.class);
     }
     
     /**

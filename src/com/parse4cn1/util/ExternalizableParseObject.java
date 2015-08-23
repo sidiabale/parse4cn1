@@ -18,6 +18,7 @@ package com.parse4cn1.util;
 import com.codename1.io.Externalizable;
 import com.codename1.io.Storage;
 import com.codename1.io.Util;
+import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseObject;
@@ -67,7 +68,7 @@ public class ExternalizableParseObject<T extends ParseObject> implements Externa
      * @see com.codename1.io.Externalizable
      */
     public int getVersion() {
-        return Integer.valueOf(ParseConstants.API_VERSION);
+        return Parse.getSerializationVersion();
     }
 
     /**
@@ -81,6 +82,7 @@ public class ExternalizableParseObject<T extends ParseObject> implements Externa
             } catch (ParseException ex) {
                 Logger.getInstance().error(
                         "Unable to serialize ParseObject with objectId=" + parseObject.getObjectId());
+                throw new IOException(ex.getMessage());
             }
         }
     }
@@ -98,10 +100,13 @@ public class ExternalizableParseObject<T extends ParseObject> implements Externa
             } catch (ParseException ex) {
                 Logger.getInstance().error(
                         "An error occurred while trying to deserialize ParseObject");
+                throw new IOException(ex.getMessage());
             }
         } else {
-           Logger.getInstance().error("Unable to deserialize ParseObject "
-                   + "(null class name). Is class properly registered?"); 
+           final String msg = "Unable to deserialize ParseObject "
+                   + "(null class name). Is class properly registered?";
+           Logger.getInstance().error(msg); 
+           throw new RuntimeException(msg);
         }
     }
 

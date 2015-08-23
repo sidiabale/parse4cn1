@@ -920,6 +920,7 @@ public class ParseObject implements IPersistable {
             throw new ParseException(ParseException.OPERATION_FORBIDDEN,
                     "A dirty ParseObject cannot be serialized to storage");
         }
+        
         Util.writeUTF(getObjectId(), out);
         Util.writeObject(getCreatedAt(), out);
         Util.writeObject(getUpdatedAt(), out);

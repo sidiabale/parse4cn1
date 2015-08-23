@@ -20,8 +20,11 @@ import com.codename1.testing.AbstractTest;
 import com.parse4cn1.util.Logger;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Ideally, this test should have been abstract but when that is done,
@@ -166,7 +169,8 @@ public class BaseParseTest extends AbstractTest {
         }
     }
     
-    protected void compareParseObjects(final ParseObject obj1, final ParseObject obj2) {
+    protected void compareParseObjects(final ParseObject obj1, final ParseObject obj2,
+            final Set<String> fieldsToSkip) {
         assertEqual(obj1.getObjectId(), obj2.getObjectId());
         assertEqual(obj1.getCreatedAt(), obj2.getCreatedAt());
         assertEqual(obj1.getUpdatedAt(), obj2.getUpdatedAt());
@@ -174,10 +178,25 @@ public class BaseParseTest extends AbstractTest {
         assertEqual(obj1.keySet(), obj2.keySet());
 
         for (String key : obj1.keySet()) {
-            assertEqual(obj1.get(key), obj2.get(key));
+            if (fieldsToSkip == null || !fieldsToSkip.contains(key)) {
+                assertEqual(obj1.get(key), obj2.get(key));
+            }
         }
     }
     
+    protected void compareParseFiles(final ParseFile file1, final ParseFile file2, boolean hasData) throws ParseException {
+        assertEqual(file1.getName(), file2.getName());
+        assertEqual(file1.getContentType(), file2.getContentType());
+        assertEqual(file1.getEndPoint(), file2.getEndPoint());
+        assertEqual(file1.getUrl(), file2.getUrl());
+        if (hasData) {
+            assertTrue(Arrays.equals((byte[]) file1.getData(), (byte[]) file2.getData()),
+                    "File byte data should be equal after (de)serialization");
+        }
+        assertEqual(file1.isDirty(), file2.isDirty());
+        assertEqual(file1.isDataAvailable(), file2.isDataAvailable());
+    }
+ 
     protected byte[] getBytes(String fileName) throws ParseException {
         try {
             RandomAccessFile f = new RandomAccessFile(getClass().getResource(fileName).getFile(), "r");

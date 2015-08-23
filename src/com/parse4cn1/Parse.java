@@ -338,4 +338,13 @@ public class Parse {
         }
         return buffer.toString();
     }
+    
+    /**
+     * Retrieved the default ID to used for serialization of objects.
+     * @return The serialization ID which is the integer value of {@link ParseConstants#API_VERSION}.
+     * @see com.codename1.io.Externalizable#getVersion() 
+     */
+    public static int getSerializationVersion() {
+        return Integer.valueOf(ParseConstants.API_VERSION);
+    }
 }
