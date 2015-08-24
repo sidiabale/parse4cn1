@@ -924,8 +924,9 @@ public class ParseObject implements IPersistable {
         Util.writeUTF(getObjectId(), out);
         Util.writeObject(getCreatedAt(), out);
         Util.writeObject(getUpdatedAt(), out);
-
+        
         // Persist actual data
+        out.writeInt(keySet().size());
         for (String key : keySet()) {
             out.writeUTF(key);
             Util.writeObject(get(key), out);
@@ -953,10 +954,15 @@ public class ParseObject implements IPersistable {
         setUpdatedAt((Date)Util.readObject(in));
         
         // Retrieve actual data
+        int keyCount = in.readInt();
         String key;
-        while (in.available() > 0) {
+        Object value;
+        for (int i = 0; i < keyCount; ++i) {
             key = in.readUTF();
-            data.put(key, Util.readObject(in));
+            value = Util.readObject(in);
+            if (value != null) {
+                data.put(key, value);
+            }
         }
     }
 
