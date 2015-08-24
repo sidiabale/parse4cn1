@@ -28,6 +28,7 @@ import com.codename1.ui.events.ActionListener;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseException;
+import com.parse4cn1.ParseUser;
 import com.parse4cn1.callback.ProgressCallback;
 import com.parse4cn1.util.Logger;
 import java.io.IOException;
@@ -119,7 +120,6 @@ public abstract class ParseCommand {
                 }
             }
         }
-
         NetworkManager.getInstance().addToQueueAndWait(request);
         response.extractResponseData(request);
         long commandReceived = System.currentTimeMillis();
@@ -202,11 +202,13 @@ public abstract class ParseCommand {
             if (addJson) {
                 headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
             }
-
+            if (!data.has(ParseConstants.FIELD_SESSION_TOKEN) && ParseUser.getCurrent() != null) {
+                data.put(ParseConstants.FIELD_SESSION_TOKEN, ParseUser.getCurrent().getSessionToken());
+            }
             if (data.has(ParseConstants.FIELD_SESSION_TOKEN)) {
                 headers.put(ParseConstants.HEADER_SESSION_TOKEN,
                         data.getString(ParseConstants.FIELD_SESSION_TOKEN));
-            }
+            } 
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }

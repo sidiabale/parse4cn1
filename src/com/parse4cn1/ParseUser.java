@@ -46,6 +46,12 @@ public class ParseUser extends ParseObject {
     private String password;
     private String sessionToken;
 
+    private static ParseUser current;
+    
+    public static ParseUser getCurrent() {
+        return current;
+    }
+    
     protected ParseUser() {
         super(ParseConstants.CLASS_NAME_USER);
     }
@@ -150,6 +156,7 @@ public class ParseUser extends ParseObject {
             LOGGER.error("Request failed.");
             throw response.getException();
         }
+        current = user;
         return user;
     }
 
@@ -308,6 +315,7 @@ public class ParseUser extends ParseObject {
                 throw response.getException();
             }
             setSessionToken(null);
+            current = null;
         }
     }
 
@@ -344,5 +352,6 @@ public class ParseUser extends ParseObject {
     
     protected void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
+        current = this;
     }
 }
