@@ -124,6 +124,11 @@ public class BaseParseTest extends AbstractTest {
         for (ParseObject object : objects) {
             if (object.getObjectId() != null) {
                 try {
+                    if (object instanceof ParseUser) {
+                        ParseUser user = (ParseUser)object;
+                        user.setPassword(TEST_PASSWORD);
+                        user.login();
+                    }
                     object.delete();
                 } catch (ParseException ex) {
                     fail("Deleting object failed\n" + ex);

@@ -81,6 +81,9 @@ public class ParseUser extends ParseObject {
             throw response.getException();
         }
         
+        setSessionToken(null);
+        current = null;
+        
         reset();
     }
 
@@ -246,6 +249,7 @@ public class ParseUser extends ParseObject {
 
                 setObjectId(jsonResponse.getString(ParseConstants.FIELD_OBJECT_ID));
                 setSessionToken(jsonResponse.getString(ParseConstants.FIELD_SESSION_TOKEN));
+                current = this;
                 String createdAt = jsonResponse.getString(ParseConstants.FIELD_CREATED_AT);
                 setCreatedAt(Parse.parseDate(createdAt));
                 setUpdatedAt(Parse.parseDate(createdAt));
@@ -282,17 +286,8 @@ public class ParseUser extends ParseObject {
                 LOGGER.error("Empty response.");
                 throw response.getException();
             }
-            try {
-                setSessionToken(jsonResponse.getString(ParseConstants.FIELD_SESSION_TOKEN));
-                jsonResponse.remove(ParseConstants.FIELD_SESSION_TOKEN);
-                setData(jsonResponse);
-            } catch (JSONException e) {
-                LOGGER.error(ParseException.ERR_INVALID_RESPONSE + " Error: " + e);
-                throw new ParseException(
-                        ParseException.INVALID_JSON,
-                        ParseException.ERR_INVALID_RESPONSE,
-                        e);
-            }
+            setData(jsonResponse);
+            current = this;
         } else {
             LOGGER.error("Request failed.");
             throw response.getException();
@@ -352,6 +347,5 @@ public class ParseUser extends ParseObject {
     
     protected void setSessionToken(String sessionToken) {
         this.sessionToken = sessionToken;
-        current = this;
     }
 }

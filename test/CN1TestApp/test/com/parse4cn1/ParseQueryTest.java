@@ -496,16 +496,16 @@ public class ParseQueryTest extends BaseParseTest {
         saveObjects(teams);
 
         // Users
-        ParseUser user1 = ParseUser.create("user1", "user1");
+        ParseUser user1 = ParseUser.create("user1", TEST_PASSWORD);
         user1.signUp();
         users.add(user1);
 
-        ParseUser user2 = ParseUser.create("user2", "user2");
+        ParseUser user2 = ParseUser.create("user2", TEST_PASSWORD);
         user2.put(fieldHometown, cityEindhoven);
         user2.signUp();
         users.add(user2);
 
-        ParseUser user3 = ParseUser.create("user3", "user3");
+        ParseUser user3 = ParseUser.create("user3", TEST_PASSWORD);
         user3.put(fieldHometown, cityEindhoven.toLowerCase()); // Different city for case-sensitive search
         user3.signUp();
         users.add(user3);

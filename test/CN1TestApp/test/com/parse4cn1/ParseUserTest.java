@@ -129,7 +129,7 @@ public class ParseUserTest extends BaseParseTest {
         assertEqual(loggedIn.getString(email),          userById.getString(email));
         assertEqual(loggedIn.getCreatedAt(),            userById.getCreatedAt());
         assertEqual(loggedIn.getUpdatedAt(),            userById.getUpdatedAt());
-        assertNull(userById.getSessionToken(), "Session token is not returned on retrieval by object id");
+        assertEqual(userById.getSessionToken(),         loggedIn.getSessionToken());
         
         // Retrieve by sessionToken
         ParseUser userBySession = ParseUser.fetchBySession(loggedIn.getSessionToken());
