@@ -24,10 +24,12 @@ import com.parse4cn1.Parse.DefaultParseObjectFactory;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseFile;
+import com.parse4cn1.ParseGeoPoint;
 import java.util.Map;
 import java.util.HashMap;
 
 import com.parse4cn1.ParseObject;
+import com.parse4cn1.ParseRelation;
 import com.parse4cn1.ParseRole;
 import com.parse4cn1.ParseUser;
 
@@ -72,7 +74,10 @@ public class ParseRegistry {
      */
     public static void registerExternalizableClasses() {
         Util.register(ExternalizableParseObject.getClassName(), ExternalizableParseObject.class);
+        Util.register(ExternalizableJsonEntity.getClassName(), ExternalizableJsonEntity.class);
         Util.register(ParseFile.getClassName(), ParseFile.class);
+        Util.register(ParseRelation.getClassName(), ParseRelation.class);
+        Util.register(ParseGeoPoint.getClassName(), ParseGeoPoint.class);
     }
     
     /**

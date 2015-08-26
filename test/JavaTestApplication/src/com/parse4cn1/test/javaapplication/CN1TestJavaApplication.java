@@ -15,6 +15,7 @@
  */
 package com.parse4cn1.test.javaapplication;
 
+import com.codename1.io.Log;
 import com.codename1.ui.Display;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.BaseParseTest;
@@ -98,6 +99,7 @@ public class CN1TestJavaApplication {
         final int testCount = testClasses.size();
         System.out.println("Testing Java application based on CN1 Parse port!!!");
         System.out.println("About to run " + testCount + " tests...\n");
+//        com.parse4cn1.util.Logger.getInstance().setLogLevel(Log.DEBUG);
 
         int counter = 1;
         List<String> failedTests = new ArrayList<String>();
@@ -108,7 +110,7 @@ public class CN1TestJavaApplication {
 //             at the time of writing, the CN1 test runner lacks this functionality
 //             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
 //             */
-//            if (!testClass.getCanonicalName().endsWith("ParseBatchTest")) {
+//            if (!testClass.getCanonicalName().endsWith("ParseObjectTest")) {
 //                System.err.println("Ignoring test " + testClass.getCanonicalName());
 //                continue;
 //            }

@@ -19,20 +19,39 @@
 
 package com.parse4cn1;
 
+import com.codename1.io.Externalizable;
+import com.codename1.io.Util;
 import com.codename1.util.MathUtil;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * ParseGeoPoint represents a latitude / longitude point that may be associated 
  * with a key in a ParseObject or used as a reference point for geo queries. 
  * This allows proximity based queries on the key.
  */
-public class ParseGeoPoint {
+public class ParseGeoPoint implements Externalizable {
 
     static double EARTH_MEAN_RADIUS_KM = 6371.0D;
     static double EARTH_MEAN_RADIUS_MILE = 3958.8000000000002D;
 
     private double latitude = 0.0D;
     private double longitude = 0.0D;
+    
+    /**
+     * @return A unique class name.
+     */
+    public static String getClassName() {
+        return "ParseGeoPoint";
+    }
+    
+    /**
+     * Creates a new GeoPoint with default coordinates (0.0, 0.0).
+     */
+    public ParseGeoPoint() {
+        
+    }
 
     /**
      * Creates a new point with the specified latitude and longitude.
@@ -124,5 +143,35 @@ public class ParseGeoPoint {
      */
     public double distanceInMilesTo(ParseGeoPoint point) {
         return distanceInRadiansTo(point) * EARTH_MEAN_RADIUS_MILE;
+    }
+    
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public int getVersion() {
+        return Parse.getSerializationVersion();
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void externalize(DataOutputStream out) throws IOException {
+        Util.writeObject(getLatitude(), out);
+        Util.writeObject(getLongitude(), out);
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void internalize(int version, DataInputStream in) throws IOException {
+        setLatitude((Double)Util.readObject(in));
+        setLongitude((Double)Util.readObject(in));
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public String getObjectId() {
+        return getClassName();
     }
 }

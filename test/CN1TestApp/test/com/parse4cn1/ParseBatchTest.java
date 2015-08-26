@@ -51,7 +51,7 @@ public class ParseBatchTest extends BaseParseTest {
     private void testValidBatch() throws ParseException {
         System.out.println("============== testValidBatch()");
 
-        ArrayList<ParseObject> objects = new ArrayList<>();
+        ArrayList<ParseObject> objects = new ArrayList<ParseObject>();
         for (int i = 0; i < MAX_BATCH_SIZE; ++i) {
             ParseObject gameScore = ParseObject.create(classGameScore);
             gameScore.put("batchNumber", (i + 1));
@@ -76,7 +76,7 @@ public class ParseBatchTest extends BaseParseTest {
         System.out.println("============== testValidMixedBatch()");
 
         // Mix operations on objects of different classes
-        ArrayList<ParseObject> objects = new ArrayList<>();
+        ArrayList<ParseObject> objects = new ArrayList<ParseObject>();
         for (int i = 0; i < MAX_BATCH_SIZE / 4; ++i) {
             ParseObject object = ParseObject.create(classGameScore);
             object.put("batchNumber", (i + 1));
@@ -178,7 +178,7 @@ public class ParseBatchTest extends BaseParseTest {
     private void testBatchIncludingFailures() throws ParseException {
         System.out.println("============== testBatchIncludingFailures()");
 
-        ArrayList<ParseObject> objects = new ArrayList<>();
+        ArrayList<ParseObject> objects = new ArrayList<ParseObject>();
         for (int i = 0; i < Math.min(MAX_BATCH_SIZE, 4); ++i) {
             ParseObject object = ParseObject.create(classGameScore);
             object.put("batchNumber", (i + 1));

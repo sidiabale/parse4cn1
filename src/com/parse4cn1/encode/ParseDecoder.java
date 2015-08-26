@@ -106,6 +106,10 @@ public class ParseDecoder {
         }
         return list;
     }
+    
+    public static JSONArray convertListToJSONArray(ArrayList<Object> list) {
+        return new JSONArray(list);
+    }
 
     public static Map<String, Object> convertJSONObjectToMap(JSONObject object) {
         Map<String, Object> outputMap = new HashMap<String, Object>();
@@ -116,6 +120,10 @@ public class ParseDecoder {
             outputMap.put(key, decode(value));
         }
         return outputMap;
+    }
+    
+    public static JSONObject convertMapToJSONObject(HashMap<String, Object> map) {
+        return new JSONObject(map);
     }
 
     private static ParseObject decodePointer(String className, String objectId) {

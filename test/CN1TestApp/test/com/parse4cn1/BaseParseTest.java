@@ -16,7 +16,9 @@
 
 package com.parse4cn1;
 
+import com.codename1.io.Storage;
 import com.codename1.testing.AbstractTest;
+import com.parse4cn1.util.ExternalizableParseObject;
 import com.parse4cn1.util.Logger;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -167,6 +169,14 @@ public class BaseParseTest extends AbstractTest {
         for (ParseObject object: objects) {
             object.save();
         }
+    }
+    
+    protected ParseObject serializeAndRetrieveParseObject(final ParseObject input) {
+        assertTrue(Storage.getInstance().writeObject(input.getObjectId(), input.asExternalizable()), 
+                "Serialization of ParseObject failed");
+        Storage.getInstance().clearCache(); // Absolutely necessary to force retrieval from storage
+        return ((ExternalizableParseObject) Storage.getInstance().readObject(
+                input.getObjectId())).getParseObject();
     }
     
     protected void compareParseObjects(final ParseObject obj1, final ParseObject obj2,

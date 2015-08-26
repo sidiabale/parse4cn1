@@ -17,6 +17,7 @@ package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Storage;
 import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 import com.parse4cn1.encode.PointerEncodingStrategy;
 import com.parse4cn1.operation.ParseOperation;
@@ -53,6 +54,7 @@ public class ParseRelationTest extends BaseParseTest {
         testAddOrRemoveNullObject();
         testQuery();
         testIllegalState();
+        testSerialization();
         return true;
     }
 
@@ -191,6 +193,73 @@ public class ParseRelationTest extends BaseParseTest {
         } catch (IllegalStateException ex) {
             assertTrue(ex.getMessage().equals("Relation key is null"));
         }
+    }
+    
+    private void testSerialization() throws ParseException, JSONException {
+        ParseObject contributor1, contributor2, contributor3;
+        final ParseObject parent = new ParseObject("Report");
+        
+        try {
+            contributor1 = ParseObject.create(targetClass);
+            contributor1.put("key", "val");
+            contributor1.save();
+
+            contributor2 = ParseObject.create(targetClass);
+            contributor2.put("key", "val");
+            contributor2.save();
+
+            contributor3 = ParseObject.create(targetClass);
+            contributor3.put("key", "val");
+            contributor3.save();
+
+            ParseRelation<ParseObject> relation = new ParseRelation<ParseObject>(
+                parent, parentKey, targetClass);
+
+            relation.add(contributor1);
+            relation.add(contributor2);
+            relation.add(contributor3);
+            
+            parent.save();
+
+            ParseRelation<ParseObject> retrieved = serializeAndRetrieveRelation(relation);
+            compareParseRelations(relation, retrieved);
+            
+            relation.remove(contributor2);
+            retrieved = serializeAndRetrieveRelation(relation);
+            compareParseRelations(relation, retrieved);
+            
+            relation = parent.getRelation(parentKey);
+            parent.save();
+            retrieved = serializeAndRetrieveParseObject(parent).getRelation(parentKey);
+            
+            compareParseRelations(relation, retrieved);
+        } finally {
+            deleteObjects(targetClass);
+            parent.delete();
+        }
+    }
+    
+    private void compareParseRelations(final ParseRelation rel1, final ParseRelation rel2) throws JSONException {
+        assertEqual(rel1.getTargetClass(), rel2.getTargetClass());
+        
+        final JSONObject encodedRel1 = rel1.encode(encoder);
+        final JSONObject encodedRel2 = rel2.encode(encoder);
+
+        assertEqual(encodedRel1.getString(ParseConstants.FIELD_CLASSNAME), 
+                encodedRel2.getString(ParseConstants.FIELD_CLASSNAME));
+        assertEqual(encodedRel1.getString(ParseConstants.KEYWORD_TYPE), 
+                encodedRel2.getString(ParseConstants.KEYWORD_TYPE));
+        assertEqual(encodedRel1.getJSONArray("objects").length(), 
+                encodedRel2.getJSONArray("objects").length());
+        assertEqual(encodedRel1.length(), encodedRel2.length());
+    }
+    
+    private ParseRelation serializeAndRetrieveRelation(final ParseRelation input) {
+        final String id = String.valueOf(Math.random() * 10);
+        assertTrue(Storage.getInstance().writeObject(id, input),
+                "Serialization of ParseRelation failed");
+        Storage.getInstance().clearCache(); // Absolutely necessary to force retrieval from storage
+        return (ParseRelation) Storage.getInstance().readObject(id);
     }
 
     private void checkRelationInParent(final ParseObject parent,

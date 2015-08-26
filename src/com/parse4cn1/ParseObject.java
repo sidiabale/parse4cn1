@@ -40,6 +40,7 @@ import com.parse4cn1.operation.RemoveFromArrayOperation;
 import com.parse4cn1.operation.SetFieldOperation;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.encode.ParseDecoder;
+import com.parse4cn1.util.ExternalizableJsonEntity;
 import com.parse4cn1.util.ExternalizableParseObject;
 import com.parse4cn1.util.ParseRegistry;
 import java.io.DataInputStream;
@@ -929,7 +930,13 @@ public class ParseObject implements IPersistable {
         out.writeInt(keySet().size());
         for (String key : keySet()) {
             out.writeUTF(key);
-            Util.writeObject(get(key), out);
+            Object value = get(key);
+            if (value instanceof ParseObject) {
+                value = ((ParseObject)value).asExternalizable();
+            } else if (ExternalizableJsonEntity.isExternalizableJsonEntity(value)) {
+                value = new ExternalizableJsonEntity(value);
+            }
+            Util.writeObject(value, out);
         }
     }
 
@@ -960,6 +967,13 @@ public class ParseObject implements IPersistable {
         for (int i = 0; i < keyCount; ++i) {
             key = in.readUTF();
             value = Util.readObject(in);
+            
+            if (value instanceof ExternalizableParseObject) {
+                value = ((ExternalizableParseObject) value).getParseObject();
+            } else if (value instanceof ExternalizableJsonEntity) {
+                value = ((ExternalizableJsonEntity) value).getJsonEntity();
+            }
+            
             if (value != null) {
                 data.put(key, value);
             }
