@@ -31,6 +31,7 @@ public class ParseGeoPointTest extends BaseParseTest {
     }
 
     private void testSerialization() {
+        System.out.println("============== testSerialization()");
         ParseGeoPoint geoPoint = new ParseGeoPoint(-32.4, 110.23);
         final String id = "geoPoint";
         

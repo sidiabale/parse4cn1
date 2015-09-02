@@ -21,12 +21,16 @@ package com.parse4cn1;
 
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Util;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParseDeleteCommand;
 import com.parse4cn1.command.ParseGetCommand;
 import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * The ParseUser is a local representation of user data that can be saved and 
@@ -242,6 +246,7 @@ public class ParseUser extends ParseObject {
                 String createdAt = jsonResponse.getString(ParseConstants.FIELD_CREATED_AT);
                 setCreatedAt(Parse.parseDate(createdAt));
                 setUpdatedAt(Parse.parseDate(createdAt));
+                setData(new JSONObject()); // Resest dirty flag, etc.
 
             } else {
                 LOGGER.error("Request failed.");
@@ -309,6 +314,38 @@ public class ParseUser extends ParseObject {
             }
             setSessionToken(null);
         }
+    }
+    
+    /**
+     * Serializes ParseUser-specific data in addition to regular ParseObject data.
+     *
+     * @param out The data stream to serialize to.
+     * @throws IOException if any IO error occurs
+     * @throws ParseException if the object is {@link #isDirty() dirty}
+     * @see ParseObject#externalize(java.io.DataOutputStream) 
+     */
+    @Override
+    public void externalize(DataOutputStream out) throws IOException, ParseException {
+        super.externalize(out);
+        
+        Util.writeUTF(sessionToken, out);
+        Util.writeUTF(password, out);
+    }
+
+    /**
+     * Deserializes ParseUser-specific data in addition to regular ParseObject data.
+     * 
+     * @param version The version of the previously serialized object (defaults to {@link ParseConstants#API_VERSION}).
+     * @param in The data input stream to deserialize from.
+     * @throws IOException if any IO error occurs
+     * @see ParseObject#internalize(int, java.io.DataInputStream) 
+     */
+    @Override
+    public void internalize(int version, DataInputStream in) throws IOException, ParseException {
+        super.internalize(version, in);
+        
+        sessionToken = Util.readUTF(in);
+        password = Util.readUTF(in);
     }
 
     @Override

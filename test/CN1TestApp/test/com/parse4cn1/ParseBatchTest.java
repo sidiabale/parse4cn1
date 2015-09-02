@@ -206,6 +206,8 @@ public class ParseBatchTest extends BaseParseTest {
     }
 
     private void testBatchWithInvalidObjects() throws ParseException {
+        System.out.println("============== testBatchWithInvalidObjects()");
+        
         ParseObject obj = ParseObject.create(classGameScore);
         obj.put("key", "value");
         

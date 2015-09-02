@@ -110,7 +110,7 @@ public class CN1TestJavaApplication {
 //             at the time of writing, the CN1 test runner lacks this functionality
 //             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
 //             */
-//            if (!testClass.getCanonicalName().endsWith("ParseObjectTest")) {
+//            if (!testClass.getCanonicalName().endsWith("ParseCloudTest")) {
 //                System.err.println("Ignoring test " + testClass.getCanonicalName());
 //                continue;
 //            }

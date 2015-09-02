@@ -18,7 +18,6 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.command.ParseGetCommand;
 import com.parse4cn1.command.ParseResponse;
-import com.parse4cn1.util.ParseRegistry;
 import java.util.Date;
 import java.util.List;
 

@@ -59,6 +59,8 @@ public class ParseRelationTest extends BaseParseTest {
     }
 
     private void testAddOrRemove() throws ParseException, JSONException {
+        System.out.println("============== testAddOrRemove()");
+        
         ParseObject contributor1 = ParseObject.create(targetClass);
         contributor1.setObjectId("Contributor1");
 
@@ -104,6 +106,8 @@ public class ParseRelationTest extends BaseParseTest {
     }
 
     private void testAddOrRemoveNullObject() {
+        System.out.println("============== testAddOrRemoveNullObject()");
+        
         ParseRelation<ParseObject> relation = new ParseRelation<ParseObject>(null, null, null);
         boolean exceptionOccurred = false;
         try {
@@ -117,6 +121,8 @@ public class ParseRelationTest extends BaseParseTest {
     }
 
     private void testCreateFromJsonObject() throws JSONException {
+        System.out.println("============== testCreateFromJsonObject()");
+        
         JSONObject relationObject = new JSONObject();
         relationObject.put(ParseConstants.KEYWORD_TYPE, "Relation");
         
@@ -135,6 +141,8 @@ public class ParseRelationTest extends BaseParseTest {
     }
 
     private void testQuery() throws ParseException, JSONException {
+       System.out.println("============== testQuery()");
+        
        ParseObject contributor = ParseObject.create(targetClass);
        contributor.setObjectId("Contributor");
        report.setObjectId(getCurrentTimeInHex());
@@ -160,6 +168,8 @@ public class ParseRelationTest extends BaseParseTest {
     }
 
     private void testIllegalState() {
+        System.out.println("============== testIllegalState()");
+        
         ParseObject contributor = ParseObject.create("IncorrectClass");
         contributor.setObjectId("Contributor");
         
@@ -196,6 +206,8 @@ public class ParseRelationTest extends BaseParseTest {
     }
     
     private void testSerialization() throws ParseException, JSONException {
+        System.out.println("============== testSerialization()");
+        
         ParseObject contributor1, contributor2, contributor3;
         final ParseObject parent = new ParseObject("Report");
         

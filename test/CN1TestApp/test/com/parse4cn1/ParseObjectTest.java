@@ -18,22 +18,15 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.codename1.io.Externalizable;
 import com.codename1.io.Storage;
-import com.codename1.io.Util;
 import com.parse4cn1.encode.ParseDecoder;
 import com.parse4cn1.util.ExternalizableParseObject;
 import com.parse4cn1.util.ParseRegistry;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  *
@@ -70,42 +63,6 @@ public class ParseObjectTest extends BaseParseTest {
             super.put(key, value);
         }
     }
-    
-//    private static class UserDefinedExternalizable implements Externalizable {
-//        public String value;
-//        
-//        public static String getClassName() {
-//            return "UserDefinedExternalizable";
-//        }
-//        
-//        public UserDefinedExternalizable(final String value) {
-//            this.value = value;
-//        }
-//        
-//        public String getValue() {
-//            return value;
-//        }
-//
-//        @Override
-//        public int getVersion() {
-//            return 1;
-//        }
-//
-//        @Override
-//        public void externalize(DataOutputStream stream) throws IOException {
-//            Util.writeUTF(value, stream);
-//        }
-//
-//        @Override
-//        public void internalize(int i, DataInputStream stream) throws IOException {
-//            value = Util.readUTF(stream);
-//        }
-//
-//        @Override
-//        public String getObjectId() {
-//            return getClassName();
-//        }
-//    }
 
     @Override
     public boolean runTest() throws Exception {
@@ -130,6 +87,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
 
     private void testRestApiExample() throws ParseException {
+        System.out.println("============== testRestApiExample()");
         // Create
         ParseObject gameScore = ParseObject.create(classGameScore);
         gameScore.put("score", 1337);
@@ -217,6 +175,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
 
     private void testArrayOperations(final ParseObject obj) throws ParseException {
+        System.out.println("============== testArrayOperations()");
         final String skillBoxing = "boxing";
 
         List<String> skills = new ArrayList<String>();
@@ -266,6 +225,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
 
     private void testCreateObjectExtended() throws ParseException, JSONException {
+        System.out.println("============== testCreateObjectExtended()");
         ParseObject obj = ParseObject.create(classCar);
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("brand", "Peugeot");
@@ -302,6 +262,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
 
     private void testUpdateObjectExtended() throws ParseException {
+        System.out.println("============== testUpdateObjectExtended()");
         ParseObject obj = ParseObject.create(classKitchen);
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("color", "White");
@@ -353,6 +314,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
     
     private void testSimpleParseObjectSerialization() throws ParseException {
+        System.out.println("============== testSimpleParseObjectSerialization()");
         assertEqual(ExternalizableParseObject.getClassName(), "ExternalizableParseObject");
         
         final ParseObject gameScore = ParseObject.create(classGameScore);
@@ -368,6 +330,7 @@ public class ParseObjectTest extends BaseParseTest {
         // Make object dirty object
         gameScore.put("score", 1378);
 
+        System.out.println("-------------- Serialization of dirty ParseObject should fail");
         assertFalse(Storage.getInstance().writeObject(gameScore.getObjectId(), gameScore.asExternalizable()),
                 "Serialization of dirty ParseObject should be disallowed");
 
@@ -375,6 +338,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
     
     private void testCollectionInParseObjectSerialization() throws ParseException, JSONException {
+        System.out.println("============== testCollectionInParseObjectSerialization()");
         ParseObject parseObject = ParseObject.create(classCar);
         HashMap<String, Object> specsList = new HashMap<String, Object>();
         specsList.put("brand", "Peugeot");
@@ -418,6 +382,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
 
     private void testParseFileInParseObjectSerialization() throws ParseException {
+        System.out.println("============== testParseFileInParseObjectSerialization()");
         final ParseFile textFile = new ParseFile("hello.txt", "Hello World!".getBytes());
         textFile.save();
         
@@ -432,6 +397,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
     
     private void testObjectsInParseObjectSerialization() throws ParseException {
+        System.out.println("============== testObjectsInParseObjectSerialization()");
         final String key = "aKey";
         final String value = "aValue";
         final String keyCustomParseObject = "customParseObject";

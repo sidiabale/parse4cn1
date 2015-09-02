@@ -51,6 +51,8 @@ public class ParseConfigTest extends BaseParseTest {
         assertEqual("value1", data.get("key1"));
         assertEqual(true, data.get("key2"));
         assertEqual(5, data.get("key3"));
+        assertEqual("{select={query={className=players, where={games={exists=true}}}, key=username}}",
+                config.get("compoundObject").toString());
     }
     
     /*
