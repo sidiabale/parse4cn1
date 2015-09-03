@@ -23,6 +23,7 @@ import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.ConnectionRequest;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.util.Logger;
+import java.io.UnsupportedEncodingException;
 
 /**
  * This class encapsulates a response to a ParseCommand issued to the Parse
@@ -153,10 +154,14 @@ public class ParseResponse {
      */
     public JSONObject getJsonObject() throws ParseException {
         try {
-            return new JSONObject(new String(responseBody));
+            return new JSONObject(new String(responseBody, "UTF-8"));
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON,
                     "Unable to parse the response received from Parse", ex);
+        } catch(UnsupportedEncodingException err) {
+            // silly and will never happen....
+            err.printStackTrace();
+            return null;
         }
     }
 
