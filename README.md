@@ -2,7 +2,18 @@
 
 **Ths library is a port of Parse's [REST API](https://www.parse.com/docs/rest) to [CodenameOne](http://www.codenameone.com/) (and by extension to Java).** 
 
-[TOC]
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [Parse4CN1 - Codename One Library for Parse](#)
+	- [Synopsis](#)
+	- [License](#)
+	- [Requirements](#)
+	- [Installation](#)
+	- [Coverage](#)
+		- [Release Planning](#)
+	- [Usage Examples](#)
+	- [Contributing](#)
+	- [Credits](#)
 
 ## Synopsis ##
 The Parse platform provides a complete backend solution for your mobile application. Parse provides a REST API as well as libraries for different mobile platforms like Android and iOS. CodenameOne (CN1 for short) on the other hand is a great framework for cross-platform mobile application development. Although some of the functionality provided by Parse is offered to *paying* CN1 users, integration of third-party libraries is allowed and even encouraged in CN1. This project aims at making the Parse platform available to CN1 apps thereby giving developers more options for cloud-based backend solutions in CN1. In order to maximize platform support, this library aims at implementing the REST API specification rather than for instance, integrating the existing Parse native libraries for various platforms. Of course, where possible, advanced features that go beyond the REST API (e.g., background operations) will also be supported by this library provided they can be implemented in a generic manner. Since CN1 is written in Java, this library can also be used in pure Java projects as illustrated [here](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples#using-parse4cn1-in-a-regular-java-project).
