@@ -42,6 +42,7 @@ public class ParseUser extends ParseObject {
     private static final String KEY_USERNAME = "username";
     private static final String KEY_PASSWORD = "password";
     private static final String KEY_EMAIL = "email";
+    private static final String KEY_EMAIL_VERIFIED = "emailVerified";
     private static final String OBJECT_ID_CURRENT = "me";
     private static final String ENDPOINT_LOGIN = "login";
     private static final String ENDPOINT_LOGOUT = "logout";
@@ -108,6 +109,15 @@ public class ParseUser extends ParseObject {
 
     public String getEmail() {
         return getString(KEY_EMAIL);
+    }
+    
+    /**
+     * Retrieves the email verification status of this user.
+     * @return null if the field is not present or otherwise a boolean value representing
+     * the verification status.
+     */
+    public Boolean getEmailVerified() {
+        return getBoolean(KEY_EMAIL_VERIFIED);
     }
 
     /**
