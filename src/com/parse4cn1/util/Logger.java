@@ -40,8 +40,8 @@ public class Logger {
     
     private Logger() {
         log = Log.getInstance();
-        setLogLevel(Log.INFO);
-        log.setFileURL("log.txt");
+       // setLogLevel(Log.INFO);
+        //log.setFileURL("log.txt");
     }
 
     public boolean isDebugEnabled() {
