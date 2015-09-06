@@ -19,16 +19,15 @@ package com.parse4cn1.util;
 import com.codename1.io.Log;
 
 /**
- * Minimalist file logger.
+ * Minimalist file logger. Logs to the default CN1 log file.
  * <p>
  * By default, debug logging is disabled and should <em>not</em> not be 
  * enabled in production code for performance and security reasons.
- * 
- * @author sidiabale
  */
 public class Logger {
    
     private static Logger wrapper;
+    private static final String PREFIX = "[parse4cn1] ";
     private final Log log;
     
     public static Logger getInstance() {
@@ -41,7 +40,6 @@ public class Logger {
     private Logger() {
         log = Log.getInstance();
         setLogLevel(Log.INFO);
-        log.setFileURL("log.txt");
     }
 
     public boolean isDebugEnabled() {
@@ -53,18 +51,18 @@ public class Logger {
     }
 
     public void debug(String data) {
-        log.p(data, Log.DEBUG);
+        log.p(PREFIX + data, Log.DEBUG);
     }
     
     public void info(String data) {
-        log.p(data, Log.DEBUG);
+        log.p(PREFIX + data, Log.DEBUG);
     }
     
     public void warn(String data) {
-        log.p(data, Log.DEBUG);
+        log.p(PREFIX + data, Log.DEBUG);
     }
     
     public void error(String data) {
-        log.p(data, Log.ERROR);
+        log.p(PREFIX + data, Log.ERROR);
     }
 }
