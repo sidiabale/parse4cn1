@@ -39,6 +39,9 @@ public class ParseObjectTest extends BaseParseTest {
     private final String classCar = "Car";
     private final String classKitchen = "Kitchen";
 
+    private final ParseGeoPoint location = new ParseGeoPoint(40.2, -24);
+    private final String fieldLocation = "fieldLocation";
+    
     private static class CustomParseObject extends ParseObject {
 
         public static final String CLASS_NAME = "CustomParseObject";
@@ -226,7 +229,9 @@ public class ParseObjectTest extends BaseParseTest {
 
     private void testCreateObjectExtended() throws ParseException, JSONException {
         System.out.println("============== testCreateObjectExtended()");
+        
         ParseObject obj = ParseObject.create(classCar);
+        obj.put(fieldLocation, location);
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("brand", "Peugeot");
         data.put("model", "208");
@@ -258,6 +263,9 @@ public class ParseObjectTest extends BaseParseTest {
         assertEqual(obj.getCreatedAt(), retrieved.getCreatedAt());
         assertEqual(obj.getUpdatedAt(), retrieved.getUpdatedAt());
         assertEqual(obj.getObjectId(), retrieved.getObjectId());
+        
+        compareGeoLocations(location, retrieved.getParseGeoPoint(fieldLocation));
+        
         checkData(retrieved, data);
     }
 
@@ -402,30 +410,33 @@ public class ParseObjectTest extends BaseParseTest {
         final String value = "aValue";
         final String keyCustomParseObject = "customParseObject";
         final String keyInnerParseObject = "innerParseObject";
-        
+
         CustomParseObject customParseObject = new CustomParseObject();
         customParseObject.put(key, value);
         customParseObject.save();
-        
+
         ParseObject innerObject = ParseObject.create(classPlayer);
         innerObject.put(key, value);
         innerObject.save();
-        
+
         ParseObject parseObject = ParseObject.create(classGameScore);
         parseObject.put(keyCustomParseObject, customParseObject);
         parseObject.put(keyInnerParseObject, innerObject);
-        
+
+        parseObject.put(fieldLocation, location);
+
         parseObject.save();
-        
-        ParseObject retrieved = serializeAndRetrieveParseObject(parseObject);
-        compareParseObjects(parseObject.getParseObject(keyCustomParseObject), 
+
+        final ParseObject retrieved = serializeAndRetrieveParseObject(parseObject);
+        compareParseObjects(parseObject.getParseObject(keyCustomParseObject),
                 retrieved.getParseObject(keyCustomParseObject), null);
-        compareParseObjects(parseObject.getParseObject(keyInnerParseObject), 
+        compareParseObjects(parseObject.getParseObject(keyInnerParseObject),
                 retrieved.getParseObject(keyInnerParseObject), null);
-        
-       customParseObject.delete();
-       innerObject.delete();
-       parseObject.delete();
+        compareGeoLocations(location, retrieved.getParseGeoPoint(fieldLocation));
+
+        customParseObject.delete();
+        innerObject.delete();
+        parseObject.delete();
     }
 
     private void checkData(final ParseObject obj, HashMap<String, Object> data) {

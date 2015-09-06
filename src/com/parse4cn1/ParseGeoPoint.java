@@ -30,6 +30,8 @@ import java.io.IOException;
  * ParseGeoPoint represents a latitude / longitude point that may be associated 
  * with a key in a ParseObject or used as a reference point for geo queries. 
  * This allows proximity based queries on the key.
+ * <p>
+ * Distances are  calculated using the 'Haversine' formula {@link https://en.wikipedia.org/wiki/Haversine_formula}.
  */
 public class ParseGeoPoint implements Externalizable {
 
@@ -50,7 +52,6 @@ public class ParseGeoPoint implements Externalizable {
      * Creates a new GeoPoint with default coordinates (0.0, 0.0).
      */
     public ParseGeoPoint() {
-        
     }
 
     /**
@@ -70,10 +71,6 @@ public class ParseGeoPoint implements Externalizable {
      * @param latitude The point's latitude
      */
     public final void setLatitude(double latitude) {
-        if ((latitude > 90.0D) || (latitude < -90.0D)) {
-            throw new IllegalArgumentException(
-                    "Latitude must be within the range (-90.0, 90.0).");
-        }
         this.latitude = latitude;
     }
 
@@ -83,10 +80,6 @@ public class ParseGeoPoint implements Externalizable {
      * @param longitude The point's longitude.
      */
     public final void setLongitude(double longitude) {
-        if ((longitude > 180.0D) || (longitude < -180.0D)) {
-            throw new IllegalArgumentException(
-                    "Longitude must be within the range (-180.0, 180.0).");
-        }
         this.longitude = longitude;
     }
 

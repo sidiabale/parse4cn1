@@ -194,6 +194,13 @@ public class BaseParseTest extends AbstractTest {
         }
     }
     
+    protected void compareGeoLocations(final ParseGeoPoint p1, final ParseGeoPoint p2) {
+        assertEqual(p1.getLatitude(), p2.getLatitude(), 
+                String.format("Latitudes %f and %f are not equal", p1.getLatitude(), p2.getLatitude()));
+        assertEqual(p1.getLongitude(), p2.getLongitude(),
+                String.format("Longitudes %f and %f are not equal", p1.getLongitude(), p2.getLongitude()));
+    }
+    
     protected void compareParseFiles(final ParseFile file1, final ParseFile file2, boolean hasData) throws ParseException {
         assertEqual(file1.getName(), file2.getName());
         assertEqual(file1.getContentType(), file2.getContentType());

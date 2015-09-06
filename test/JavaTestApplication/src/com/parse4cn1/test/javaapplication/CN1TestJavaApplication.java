@@ -99,7 +99,7 @@ public class CN1TestJavaApplication {
         final int testCount = testClasses.size();
         System.out.println("Testing Java application based on CN1 Parse port!!!");
         System.out.println("About to run " + testCount + " tests...\n");
-//        com.parse4cn1.util.Logger.getInstance().setLogLevel(Log.DEBUG);
+//        com.parse4cn1.util.Logger.getInstance().setLogLevel(Log.DEBUG); // Show extra details e.g. to debug failing test
 
         int counter = 1;
         List<String> failedTests = new ArrayList<String>();

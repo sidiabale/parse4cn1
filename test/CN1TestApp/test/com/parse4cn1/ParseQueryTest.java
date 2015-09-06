@@ -39,6 +39,7 @@ public class ParseQueryTest extends BaseParseTest {
     private final String classTeam = "Team";
     private final String classPost = "Post";
     private final String classComment = "Comment";
+    private final String classPlaceObjects = "PlaceObjects";
     private final String fieldScore = "score";
     private final String fieldPlayerName = "playerName";
     private final String fieldArrayField = "arrayField";
@@ -46,12 +47,13 @@ public class ParseQueryTest extends BaseParseTest {
     private final String fieldImage = "image";
     private final String fieldAuthor = "author";
     private final String fieldPost = "post";
+    private final String fieldLocation = "location";
 
     @Override
     public boolean runTest() throws Exception {
         testQueryFormat();
         testRestApiExample();
-        // TODO: Test GeoPoint-related queries
+        testGeoPointQueries();
         return true;
     }
 
@@ -72,6 +74,51 @@ public class ParseQueryTest extends BaseParseTest {
         batchDeleteObjects(classTeam);
         batchDeleteObjects(classPost);
         batchDeleteObjects(classComment);
+        batchDeleteObjects(classPlaceObjects);
+    }
+    
+    private void prepareGeoPointData() throws ParseException {
+        batchDeleteObjects(classPlaceObjects);
+            
+        ParseObject obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint(89, 122.37));
+        obj.put(fieldTitle, 1);
+        obj.save();
+        
+        obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint(40, -30));
+        obj.put(fieldTitle, 2);
+        obj.save();
+        
+        obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint(30.82, -122.37));
+        obj.put(fieldTitle, 3);
+        obj.save();
+
+        obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint(30, -20));
+        obj.put(fieldTitle, 4);
+        obj.save();
+
+        obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint(60, -20));
+        obj.put(fieldTitle, 5);
+        obj.save();
+
+        obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint(37.71, -122.53));
+        obj.put(fieldTitle, 6);
+        obj.save();
+        
+        obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint());
+        obj.put(fieldTitle, 7);
+        obj.save();
+        
+        obj = ParseObject.create(classPlaceObjects);
+        obj.put(fieldLocation, new ParseGeoPoint(-79.82, -145));
+        obj.put(fieldTitle, 8);
+        obj.save();
     }
 
     private void prepareData() throws ParseException {
@@ -140,8 +187,75 @@ public class ParseQueryTest extends BaseParseTest {
         }
         saveObjects(comments);
     }
+    
+    private void testGeoPointQueries() throws ParseException {
+        System.out.println("============== testGeoPointQueries()");
+        
+        prepareGeoPointData();
+        
+        System.out.println("-------------- nearSphere");
+        final ParseGeoPoint refPoint = new ParseGeoPoint(30, -20);
+        ParseQuery query = ParseQuery.getQuery(classPlaceObjects);
+        query.whereNear(fieldLocation, refPoint);
+        
+        // Results should be ordered by distance
+        List<ParseObject> results = query.find();
+        assertTrue(results.size() > 0);
+        
+        double lastDistanceFromRef = 0;
+        for (ParseObject obj: results) {
+            double distanceFromRef = refPoint.distanceInKilometersTo(obj.getParseGeoPoint(fieldLocation));
+            assertTrue(distanceFromRef >= lastDistanceFromRef, 
+                    String.format("Results should be ordered by distance to the reference point, i.e., "
+                            + "%f should be greater than or equal to %f", distanceFromRef, lastDistanceFromRef));
+            lastDistanceFromRef = distanceFromRef;
+        }
+        
+        System.out.println("-------------- Ordered by custom field");
+        // Results should be ordered by selected field
+        query = ParseQuery.getQuery(classPlaceObjects);
+        query.whereNear(fieldLocation, refPoint).orderByAscending(fieldTitle);
+        
+        results = query.find();
+        assertTrue(results.size() > 0);
+        
+        int title = 1;
+        for (ParseObject obj: results) {
+            assertEqual(title++, (int)obj.getInt(fieldTitle));
+        }
+        
+        System.out.println("-------------- Limit radius");
+        // Limit radius
+        final double maxDistanceInMi = 10;
+        query = ParseQuery.getQuery(classPlaceObjects);
+        query.whereNear(fieldLocation, refPoint).whereWithinMiles(fieldLocation, refPoint, maxDistanceInMi);
+        results = query.find();
+        
+        assertTrue(results.size() > 0);
+        for (ParseObject obj: results) {
+            assertTrue(refPoint.distanceInMilesTo(obj.getParseGeoPoint(fieldLocation)) < maxDistanceInMi,
+                    "Result should be within specified max distance of " + maxDistanceInMi + " miles");
+        }
+        
+        System.out.println("-------------- Within box");
+        final ParseGeoPoint northEast = new ParseGeoPoint(70, -10);
+        final ParseGeoPoint southWest = new ParseGeoPoint(0, -40);
+        query = ParseQuery.getQuery(classPlaceObjects);
+        query.whereWithinGeoBox(fieldLocation, southWest, northEast);
+        results = query.find();
+   
+        assertTrue(results.size() > 0);
+        for (ParseObject obj: results) {
+            ParseGeoPoint geoPoint = obj.getParseGeoPoint(fieldLocation);
+            assertTrue(geoPoint.getLatitude() >= 0 && geoPoint.getLatitude() <= 70, 
+                    String.format("Latitude %f should be within bounding box [-0, 70]", geoPoint.getLatitude()));
+            assertTrue(geoPoint.getLongitude() >= -40 && geoPoint.getLongitude() <= -10, 
+                    String.format("Longitude %f should be within bounding box [-10, -40]", geoPoint.getLongitude()));
+        }
+    }
 
     private void testRestApiExample() throws ParseException {
+        System.out.println("============== testRestApiExample()");
         prepareData();
 
         checkEqualsAndNotEqualsConstraints();
