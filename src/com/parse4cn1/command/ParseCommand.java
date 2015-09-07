@@ -185,6 +185,7 @@ public abstract class ParseCommand {
             }
         };
         request.setReadResponseForErrors(true);
+        request.setDuplicateSupported(true);
         return request;
     }
 

@@ -87,6 +87,7 @@ public class ParseUploadCommand extends ParseCommand {
         };
 
         request.setReadResponseForErrors(true);
+        request.setDuplicateSupported(true);
         return request;
     }
 }

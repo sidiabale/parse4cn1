@@ -40,7 +40,7 @@ public class Logger {
     
     private Logger() {
         log = Log.getInstance();
-       // setLogLevel(Log.INFO);
+        setLogLevel(Log.INFO);
         //log.setFileURL("log.txt");
     }
 

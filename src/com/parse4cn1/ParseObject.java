@@ -21,6 +21,7 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Log;
 import com.parse4cn1.Parse.IPersistable;
 import com.parse4cn1.callback.GetCallback;
 import com.parse4cn1.callback.ParseCallback;
@@ -272,6 +273,15 @@ public class ParseObject implements IPersistable {
 
         Object value = this.data.get(key);
         if (!(value instanceof Integer)) {
+            if ((value instanceof Double)) {
+                return new Integer(((Double)value).intValue());
+            }
+            if ((value instanceof Float)) {
+                return new Integer(((Float)value).intValue());
+            }
+            if ((value instanceof Long)) {
+                return new Integer((int)((Long)value).longValue());
+            }
             logGetValueError("getInt", key, value);
             return null;
         }
@@ -314,6 +324,15 @@ public class ParseObject implements IPersistable {
 
         Object value = this.data.get(key);
         if (!(value instanceof Long)) {
+            if ((value instanceof Double)) {
+                return new Long(((Double)value).longValue());
+            }
+            if ((value instanceof Float)) {
+                return new Long(((Float)value).longValue());
+            }
+            if ((value instanceof Integer)) {
+                return new Long(((Integer)value).longValue());
+            }
             logGetValueError("getLong", key, value);
             return null;
         }
