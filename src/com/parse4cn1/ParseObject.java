@@ -21,10 +21,8 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.codename1.io.Log;
 import com.parse4cn1.Parse.IPersistable;
 import com.parse4cn1.callback.GetCallback;
-import com.parse4cn1.callback.ParseCallback;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParseDeleteCommand;
 import com.parse4cn1.command.ParseGetCommand;
@@ -41,6 +39,7 @@ import com.parse4cn1.operation.RemoveFromArrayOperation;
 import com.parse4cn1.operation.SetFieldOperation;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.encode.ParseDecoder;
+import com.parse4cn1.operation.ParseOperationUtil;
 import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -261,10 +260,10 @@ public class ParseObject implements IPersistable {
     /**
      * Retrieves the {@link Integer} value associated with {@code key}.
      *
-     *
      * @param key The key associated with the integer value.
      * @return The retrieved integer value or null if there is no such
-     * {@code key} or if it is not associated with a Integer.
+     * {@code key} or if it cannot be converted to an Integer because it is not of 
+     * a supported number type.
      */
     public Integer getInt(String key) {
         if (!this.data.containsKey(key)) {
@@ -273,14 +272,20 @@ public class ParseObject implements IPersistable {
 
         Object value = this.data.get(key);
         if (!(value instanceof Integer)) {
-            if ((value instanceof Double)) {
-                return new Integer(((Double)value).intValue());
+            if (value instanceof Double) {
+                return ((Double)value).intValue();
             }
-            if ((value instanceof Float)) {
-                return new Integer(((Float)value).intValue());
+            if (value instanceof Float) {
+                return ((Float)value).intValue();
             }
-            if ((value instanceof Long)) {
-                return new Integer((int)((Long)value).longValue());
+            if (value instanceof Long) {
+                return (int)((Long)value).longValue();
+            }
+            if (value instanceof Short) {
+                return (int)((Short)value).shortValue();
+            }
+            if (value instanceof Byte) {
+                return (int)((Byte)value).byteValue();
             }
             logGetValueError("getInt", key, value);
             return null;
@@ -294,7 +299,8 @@ public class ParseObject implements IPersistable {
      *
      * @param key The key associated with the double value.
      * @return The retrieved boolean value or null if there is no such
-     * {@code key} or if it is not associated with a Double.
+     * {@code key} or if it cannot be converted to a Double because it is not of 
+     * a supported number type.
      */
     public Double getDouble(String key) {
         if (!this.data.containsKey(key)) {
@@ -303,6 +309,21 @@ public class ParseObject implements IPersistable {
 
         Object value = this.data.get(key);
         if (!(value instanceof Double)) {
+            if (value instanceof Float) {
+                return ((Float)value).doubleValue();
+            }
+            if (value instanceof Long) {
+                return ((Long)value).doubleValue();
+            }
+            if (value instanceof Integer) {
+                return ((Integer) value).doubleValue();
+            }
+            if (value instanceof Short) {
+                return (double)((Short)value).shortValue();
+            }
+            if (value instanceof Byte) {
+                return (double)((Byte)value).byteValue();
+            }
             logGetValueError("getDouble", key, value);
             return null;
         }
@@ -315,7 +336,8 @@ public class ParseObject implements IPersistable {
      *
      * @param key The key associated with the long value.
      * @return The retrieved boolean value or null if there is no such
-     * {@code key} or if it is not associated with a Long.
+     * {@code key} or if it cannot be converted to a Long because it is not of 
+     * a supported number type.
      */
     public Long getLong(String key) {
         if (!this.data.containsKey(key)) {
@@ -324,14 +346,20 @@ public class ParseObject implements IPersistable {
 
         Object value = this.data.get(key);
         if (!(value instanceof Long)) {
-            if ((value instanceof Double)) {
-                return new Long(((Double)value).longValue());
+            if (value instanceof Double) {
+                return ((Double)value).longValue();
             }
-            if ((value instanceof Float)) {
-                return new Long(((Float)value).longValue());
+            if (value instanceof Float) {
+                return ((Float)value).longValue();
             }
-            if ((value instanceof Integer)) {
-                return new Long(((Integer)value).longValue());
+            if (value instanceof Integer) {
+                return ((Integer)value).longValue();
+            }
+            if (value instanceof Short) {
+                return (long)((Short)value).shortValue();
+            }
+            if (value instanceof Byte) {
+                return (long)((Byte)value).byteValue();
             }
             logGetValueError("getLong", key, value);
             return null;
