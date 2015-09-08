@@ -5,8 +5,8 @@ jdk:
 
 script: 
  - ant jar
- #- cd ./test/JavaTestApplication
- #- ant run
+ - cd ./test/JavaTestApplication
+ - ant run
  - cd ./../CN1TestApp
  - ant test
 
