@@ -1,6 +1,6 @@
 language: java
 # TODO: Run tests
-script: ant build jar
+script: ant jar
 # whitelist
 branches:
   only:
