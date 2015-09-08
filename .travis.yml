@@ -1,4 +1,5 @@
 language: java
+# TODO: Run tests
 script: ant build jar
 # whitelist
 branches:
