@@ -1,23 +1,14 @@
 language: java
-# TODO: Run tests
-#env:
-#  global:
-#    - CI_HOME=`pwd`
-#    - JAVA_TEST_PROJECT_DIR=$CI_HOME/test/JavaTestApplication
-#    - CN1_TEST_PROJECT_DIR=$CI_HOME/test/CN1TestApp
 
 jdk:
   - oraclejdk8    
 
 script: 
-# - echo "Home dir: " $CI_HOME
-# - echo "Java test project dir: " $JAVA_TEST_PROJECT_DIR
-# - echo "CN1 test project dir: " $CN1_TEST_PROJECT_DIR 
- - echo Building parse4cn1
  - ant jar
- - echo Running Java Test Application
- - cd ./test/JavaTestApplication
- - ant run
+ #- cd ./test/JavaTestApplication
+ #- ant run
+ - cd ./../CN1TestApp
+ - ant test
 
 # whitelist
 branches:
