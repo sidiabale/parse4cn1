@@ -5,7 +5,10 @@ language: java
 #    - CI_HOME=`pwd`
 #    - JAVA_TEST_PROJECT_DIR=$CI_HOME/test/JavaTestApplication
 #    - CN1_TEST_PROJECT_DIR=$CI_HOME/test/CN1TestApp
-    
+
+jdk:
+  - oraclejdk8    
+
 script: 
 # - echo "Home dir: " $CI_HOME
 # - echo "Java test project dir: " $JAVA_TEST_PROJECT_DIR
