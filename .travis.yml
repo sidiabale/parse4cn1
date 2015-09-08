@@ -1,6 +1,7 @@
 language: java
 # TODO: Run tests
 script: 
+ - pwd
  - cd .
  - ant jar
 # whitelist
