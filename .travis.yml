@@ -1,0 +1,6 @@
+language: java
+script: ant build jar
+# whitelist
+branches:
+  only:
+    - develop
