@@ -81,17 +81,19 @@
         <delete file="lib/parse4cn1.jar"/>
     </target>
     
-    <target name="run-travis-tests" depends="init,compile,jar"
-      description="A very hacky target to run tests on travis. It contains hardcoded paths and variables which is very fragile. The problem was that I couldn't find anyway to override the run target and add the failsonerror=true which is needed to cause the build to fail when the application returns an exit code. Hopefully a better solution can be found">
-        
+    <target name="-post-jar">
         <mkdir dir="${dist.dir}/resources"/>
         <copy todir="${dist.dir}/resources">
             <fileset dir="${src.resources.dir}" />
         </copy>
+    </target>
+    
+    <target name="run-travis-tests" depends="init,compile,jar"
+      description="A very hacky target to run tests on travis. It contains hardcoded paths and variables which is very fragile. The problem was that I couldn't find anyway to override the run target and add the failsonerror=true which is needed to cause the build to fail when the application returns an exit code. Hopefully a better solution can be found">
         
         <exec executable="java" failonerror="true" dir="/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication">
             <arg value="-cp"/>
-            <arg value="/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/CN1JSON.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/JavaSE.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/reflections-0.9.9-RC1-uberjar.jar:/home/travis/build/sidiabale/parse4cn1/dist/parse4cn1.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/dist/JavaTestApplication.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/guava-18.0.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/javassist.jar"/>
+            <arg value="/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/resources:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/dist/resources:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/CN1JSON.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/JavaSE.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/reflections-0.9.9-RC1-uberjar.jar:/home/travis/build/sidiabale/parse4cn1/dist/parse4cn1.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/dist/JavaTestApplication.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/guava-18.0.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/javassist.jar"/>
             <arg value="com.parse4cn1.test.javaapplication.CN1TestJavaApplication"/>
         </exec>
     </target>
