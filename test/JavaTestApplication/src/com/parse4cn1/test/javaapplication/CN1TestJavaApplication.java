@@ -65,7 +65,11 @@ public class CN1TestJavaApplication {
 
     private static void createAppWithoutProperContext() {
         // This approach is handy for a non-GUI application
-        Display.init(null);
+        try {
+            Display.init(null);
+        } catch (java.awt.HeadlessException ex) {
+            System.err.println("Ignoring HeadlessException: " + ex.getMessage());
+        }
         runTests();
         Display.getInstance().exitApplication();
     }
