@@ -83,8 +83,9 @@
     
     <target name="run-travis-tests" depends="init,compile,jar">
         <exec executable="java" failonerror="true">
-            <arg value="-jar"/>
-            <arg value="/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/${dist.jar}"/>
+            <arg value="-cp"/>
+            <arg value="/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/CN1JSON.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/JavaSE.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/reflections-0.9.9-RC1-uberjar.jar:/home/travis/build/sidiabale/parse4cn1/dist/parse4cn1.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/dist/JavaTestApplication.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/guava-18.0.jar:/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/lib/javassist.jar"/>
+            <arg value="com.parse4cn1.test.javaapplication.CN1TestJavaApplication"/>
         </exec>
     </target>
 
