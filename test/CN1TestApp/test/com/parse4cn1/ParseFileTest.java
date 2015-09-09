@@ -144,9 +144,11 @@ public class ParseFileTest extends BaseParseTest {
     }
 
     private void uploadAndCheck(final String fileName) throws ParseException, IOException {
-        assertNotNull(getClass().getResource("/" + fileName), "Test file missing");
+        assertNotNull(getClass().getResource("/resources/" + fileName), "Test file missing");
 
-        byte[] inputBytes = getBytes("/" + fileName);
+        System.err.println("Resource root path: " + getClass().getResource("/"));
+        
+        byte[] inputBytes = getBytes("/resources/" + fileName);
         ParseFile file = new ParseFile(fileName, inputBytes,
                 MimeType.getMimeType(getFileExtension(fileName)));
         file.save();
