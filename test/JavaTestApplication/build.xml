@@ -81,7 +81,7 @@
         <delete file="lib/parse4cn1.jar"/>
     </target>
     
-    <target name="run-travis-tests" depends="init,compile,-post-jar">
+    <target name="run-travis-tests" depends="init,compile,jar">
         <exec executable="java" failonerror="true">
             <arg value="-jar"/>
             <arg value="/home/travis/build/sidiabale/parse4cn1/test/JavaTestApplication/${dist.jar}"/>
