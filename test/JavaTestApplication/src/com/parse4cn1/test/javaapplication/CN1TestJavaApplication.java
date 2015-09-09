@@ -70,15 +70,15 @@ public class CN1TestJavaApplication {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        throw new RuntimeException("Force stopping");
-//        
-//        Status status = new Status();
-//        try {
-//            status = createAppWithoutProperContext();
-////            status = createAppWithProperContext(false);
-//        } finally {
-//            System.exit(status.getValue());
-//        }
+        
+        Status status = new Status();
+        try {
+            status = createAppWithoutProperContext();
+//            status = createAppWithProperContext(false);
+        } finally {
+            System.out.println("Return code: " + status.getValue());
+            System.exit(status.getValue());
+        }
     }
 
     private static Status createAppWithoutProperContext() {
