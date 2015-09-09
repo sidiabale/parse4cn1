@@ -1,0 +1,23 @@
+language: java
+
+# Set JDK needed for JavaTestApplication
+jdk:
+  - oraclejdk8    
+
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  
+script: 
+ - ant jar
+ # TODO: Investigate feasibility of running tests (JavaTestApp fails on initialization of Display; CN1TestApp is not compiling)
+ - cd ./test/JavaTestApplication
+ - ant run-travis-tests
+ #- cd ./../CN1TestApp
+ #- ant test
+
+# whitelist
+branches:
+  only:
+   - master
+   - develop
