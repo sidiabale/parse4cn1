@@ -8,7 +8,7 @@ script:
  - ant jar
  # TODO: Investigate feasibility of running tests (JavaTestApp fails on initialization of Display; CN1TestApp is not compiling)
  - cd ./test/JavaTestApplication
- - ant run-tests
+ - ant run-travis-tests
  #- cd ./../CN1TestApp
  #- ant test
 

@@ -81,10 +81,10 @@
         <delete file="lib/parse4cn1.jar"/>
     </target>
     
-    <target name="run-tests" depends="init,compile">
-        <exec executable="java">
+    <target name="run-travis-tests" depends="init,compile">
+        <exec executable="java" failonerror="true">
             <arg value="-jar"/>
-            <arg value="${dist.jar}"/>
+            <arg value="./${dist.jar}"/>
         </exec>
     </target>
 
