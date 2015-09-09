@@ -16,6 +16,8 @@
 package com.parse4cn1;
 
 import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -43,7 +45,17 @@ public class ParseConfigTest extends BaseParseTest {
                 config.getParseGeoPoint("eventLocation").getLatitude());
         assertEqual(-122.390335, 
                 config.getParseGeoPoint("eventLocation").getLongitude());
-        assertEqual("Sun May 17 18:28:03 CEST 2015", config.getDate("lastUpdate").toString());
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.YEAR, 2015);
+        cal.set(Calendar.MONTH, 4); // = May; month is 0-based.
+        cal.set(Calendar.DAY_OF_MONTH, 17);
+        cal.set(Calendar.HOUR_OF_DAY, 18);
+        cal.set(Calendar.MINUTE, 28);
+        cal.set(Calendar.SECOND, 03);
+        cal.set(Calendar.MILLISECOND, 721);
+
+        assertEqual(0, cal.getTime().compareTo(config.getDate("lastUpdate")));
         assertEqual("Have fun!", config.getString("welcomeMessage"));
         assertEqual(42, config.getInt("winningNumber").intValue());
         final Map data = (Map) config.get("data");

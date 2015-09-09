@@ -70,6 +70,10 @@ import java.util.Set;
  * <p>
  * ParseObjects are {@link com.codename1.io.Externalizable}, i.e., they 
  * can be converted to an externalizable form via {@link #asExternalizable()}.
+ * <p>
+ * <em>Note</em>: The Parse backend always stores and returns UTC dates 
+ * so the time zone information in any {@link Date} objects should be ignored
+ * and all dates retrived from Parse or sent to Parse should be in UTC.
  */
 public class ParseObject implements IPersistable {
 
