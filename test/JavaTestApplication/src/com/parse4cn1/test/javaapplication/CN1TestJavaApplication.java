@@ -41,6 +41,17 @@ import org.reflections.Reflections;
  */
 public class CN1TestJavaApplication {
 
+    private static class Status {
+        private int value = -1;
+        
+        public void setValue(int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
+    }
     /**
      * A helper class to initialize the application's main frame.
      */
@@ -59,22 +70,30 @@ public class CN1TestJavaApplication {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        createAppWithoutProperContext();
-//        createAppWithProperContext(false);
+        Status status = new Status();
+        try {
+            status = createAppWithoutProperContext();
+//            status = createAppWithProperContext(false);
+        } finally {
+            System.exit(status.getValue());
+        }
     }
 
-    private static void createAppWithoutProperContext() {
+    private static Status createAppWithoutProperContext() {
         // This approach is handy for a non-GUI application
+        Status status = new Status();
         try {
             Display.init(null);
         } catch (java.awt.HeadlessException ex) {
             System.err.println("Ignoring HeadlessException: " + ex.getMessage());
         }
-        runTests();
+        status.setValue(runTests());
         Display.getInstance().exitApplication();
+        return status;
     }
 
-    private static void createAppWithProperContext(final boolean aShowFrame) {
+    private static Status createAppWithProperContext(final boolean aShowFrame) {
+        final Status status = new Status();
         // This approach is recommended for a GUI-application or in the case
         // where the blank frame shown for createAppWithoutProperContext() is an issue.
         final JFrame f = new MainFrame();
@@ -85,14 +104,16 @@ public class CN1TestJavaApplication {
             @Override
             public void run() {
                 f.setVisible(aShowFrame);
-                runTests();
+                status.setValue(runTests());
                 // Close frame
                 f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
             }
         });
+        
+        return status;
     }
 
-    private static void runTests() {
+    private static int runTests() {
         // Auto-detect defined test classes
         // cf. lib/reflections-0.9.9-RC1-uberjar.jar and its dependencies 
         // (lib/javassist.jar, lib/guava-18.0.jar)
@@ -149,10 +170,13 @@ public class CN1TestJavaApplication {
             }
         }
 
+        int status = 0;
         if (failedTests.isEmpty()) {
             System.out.println("\nALL tests passed!!!");
         } else {
+            status = failedTests.size();
             System.err.println("\nThe following tests failed:\n" + failedTests);
         }
+        return status;
     }
 }
