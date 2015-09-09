@@ -59,8 +59,8 @@ public class CN1TestJavaApplication {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-//        createAppWithoutProperContext();
-        createAppWithProperContext(false);
+        createAppWithoutProperContext();
+//        createAppWithProperContext(false);
     }
 
     private static void createAppWithoutProperContext() {
