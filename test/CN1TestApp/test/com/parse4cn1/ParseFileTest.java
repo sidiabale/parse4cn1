@@ -144,8 +144,9 @@ public class ParseFileTest extends BaseParseTest {
     }
 
     private void uploadAndCheck(final String fileName) throws ParseException, IOException {
-        System.err.println("Resource root path: " + getClass().getResource("/"));
-        System.err.println("Resource root path (classLoader): " + getClass().getClassLoader().getResource(""));
+//        System.out.println("Resource root path: " + getClass().getResource("/"));
+//        System.out.println("Resource root path (classLoader): " + getClass().getClassLoader().getResource(""));
+        
         assertNotNull(getClass().getResource("/" + fileName), "Test file missing");
         
         byte[] inputBytes = getBytes("/" + fileName);
