@@ -80,4 +80,12 @@
         <delete file="lib/CN1JSON.jar"/>
         <delete file="lib/parse4cn1.jar"/>
     </target>
+    
+    <target name="run-tests" depends="init,compile">
+        <exec executable="java">
+            <arg value="-jar"/>
+            <arg value="${dist.jar}"/>
+        </exec>
+    </target>
+
 </project>
