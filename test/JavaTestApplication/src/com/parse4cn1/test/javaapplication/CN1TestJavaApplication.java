@@ -90,7 +90,7 @@ public class CN1TestJavaApplication {
             System.err.println("Ignoring HeadlessException: " + ex.getMessage());
         }
         status.setValue(runTests());
-        Display.getInstance().exitApplication();
+//        Display.getInstance().exitApplication();
         return status;
     }
 
