@@ -76,7 +76,7 @@ public class CN1TestJavaApplication {
             status = createAppWithoutProperContext();
 //            status = createAppWithProperContext(false);
         } finally {
-            System.out.println("Return code: " + status.getValue());
+            // Return exit code that is possibly checked by caller
             System.exit(status.getValue());
         }
     }
@@ -90,7 +90,6 @@ public class CN1TestJavaApplication {
             System.err.println("Ignoring HeadlessException: " + ex.getMessage());
         }
         status.setValue(runTests());
-//        Display.getInstance().exitApplication();
         return status;
     }
 
