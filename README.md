@@ -1,5 +1,6 @@
-[![Build Status (master)](https://travis-ci.org/sidiabale/parse4cn1.svg?branch=master)](https://travis-ci.org/sidiabale/parse4cn1)
-[![Build Status (develop)](https://travis-ci.org/sidiabale/parse4cn1.svg?branch=develop)](https://travis-ci.org/sidiabale/parse4cn1)
+Build Status (master): [![Build Status (master)](https://travis-ci.org/sidiabale/parse4cn1.svg?branch=master)](https://travis-ci.org/sidiabale/parse4cn1)
+
+Build Status (develop): [![Build Status (develop)](https://travis-ci.org/sidiabale/parse4cn1.svg?branch=develop)](https://travis-ci.org/sidiabale/parse4cn1)
 
 # Parse4CN1 - Codename One Library for [Parse](https://parse.com) #
 
