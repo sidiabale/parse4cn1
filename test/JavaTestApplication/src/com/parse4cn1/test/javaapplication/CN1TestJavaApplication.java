@@ -101,14 +101,15 @@ public class CN1TestJavaApplication {
             @Override
             public void run() {
                 f.setVisible(aShowFrame);
-                status.setValue(runTests());
-                // Close frame
-                f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
+//                status.setValue(runTests());
+                if (status.getValue() == 0) {
+                    // Close frame only if all tests passed otherwise, build will still succeed
+                    f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
+                }
             }
         });
         
-//        return status;
-        return new Status();
+        return status;
     }
 
     private static int runTests() {
