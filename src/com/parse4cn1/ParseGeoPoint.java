@@ -31,7 +31,7 @@ import java.io.IOException;
  * with a key in a ParseObject or used as a reference point for geo queries. 
  * This allows proximity based queries on the key.
  * <p>
- * Distances are  calculated using the 'Haversine' formula {@link https://en.wikipedia.org/wiki/Haversine_formula}.
+ * Distances are  calculated using the <a href="https://en.wikipedia.org/wiki/Haversine_formula">'Haversine' formula</a>.
  */
 public class ParseGeoPoint implements Externalizable {
 

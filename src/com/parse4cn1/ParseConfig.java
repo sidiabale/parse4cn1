@@ -40,7 +40,7 @@ public class ParseConfig {
      * Retrieves the parse configuration singleton object.
      * 
      * @return The singleton ParseConfig instance.
-     * @throw ParseException if the ParseConfig object creation fails.
+     * @throws ParseException if the ParseConfig object creation fails.
      */
     public static ParseConfig getInstance() throws ParseException {
         if (instance == null) {
@@ -54,7 +54,7 @@ public class ParseConfig {
      * This is only useful if configuration items can change at runtime.
      * 
      * @return The new ParseConfig instance.
-     * @throw ParseException if the ParseConfig data retrieval fails.
+     * @throws ParseException if the ParseConfig data retrieval fails.
      */
     public ParseConfig refresh() throws ParseException {
         instance = null;
