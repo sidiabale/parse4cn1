@@ -1,10 +1,27 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+
+- [Parse4CN1 - Codename One Library for [Parse](https://parse.com)](#parse4cn1---codename-one-library-for-parsehttpsparsecom)
+  - [Synopsis](#synopsis)
+  - [License](#license)
+  - [Requirements](#requirements)
+  - [Installation](#installation)
+  - [Coverage](#coverage)
+    - [Release Planning](#release-planning)
+  - [Usage Examples](#usage-examples)
+  - [Contributing](#contributing)
+  - [Credits](#credits)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 Build Status (master): [![Build Status (master)](https://travis-ci.org/sidiabale/parse4cn1.svg?branch=master)](https://travis-ci.org/sidiabale/parse4cn1)
 
 Build Status (develop): [![Build Status (develop)](https://travis-ci.org/sidiabale/parse4cn1.svg?branch=develop)](https://travis-ci.org/sidiabale/parse4cn1)
 
 # Parse4CN1 - Codename One Library for [Parse](https://parse.com) #
 
-**Ths library is a port of Parse's [REST API](https://www.parse.com/docs/rest) to [CodenameOne](http://www.codenameone.com/) (and by extension to Java).** 
+**Ths library is a port of Parse's [REST API](https://www.parse.com/docs/rest) to [CodenameOne](http://www.codenameone.com/) (and by extension to Java).**
 
 [TOC]
 
@@ -27,31 +44,32 @@ The Parse RESTAPI is quite extensive. As such, we maintain an overview of the fu
 
 | API | Status | Remarks 	|
 |:-------:	|:-------:	|:-------:	|
-| Objects	| IMPLEMENTED | Still pending: Batch operations (planned for release 1.1) |
+| Objects	| IMPLEMENTED | |
 | Queries | IMPLEMENTED | |
 | Users | IMPLEMENTED | Still pending: (1) Linking users (Facebook, Twitter, etc.) (2) Security (ACLs) |
 | Sessions | Pending | |
 | Roles | Pending | |
 | Files | IMPLEMENTED | |
 | Analytics | Pending | |
-| Config | Pending | Planned for release 1.1 |
+| Config | IMPLEMENTED | |
 | Push Notifications* | Pending | |
 | Installations | Pending | |
 | Cloud Code | IMPLEMENTED | |
-| GeoPoints | Pending | |
+| GeoPoints | IMPLEMENTED | |
 \*Advanced feature that cannot be realized using REST API only. However, it *should* be realizable via CN1 native interfaces.
 
-### Release Planning ###
-v1.1: Expected in Q3 2015
-Target features:
-* Batch operations (already implemented in develop branch)
-* Config (already implemented in develop branch)
-* Roles
-* GeoPoints
+| Advanced Features | Remarks |
+|:-------:	|:-------: |
+| Serialization	| Realized via CN1's Externalizable interface. See example [here](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples#serializing-parseobjects) |
+| User-defined ParseObject subclasses | See example [here](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples#registering-custom-sub-classes) |
 
-v1.x: Unscheduled
+### Release Planning ###
+v1.3: Q4 2015
 * Installations
 * Push Notifications
+
+v1.x: Unscheduled
+* Roles
 * Sessions
 * Linking users
 
@@ -62,7 +80,7 @@ See [Usage examples](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples)
 Contributing to this project is most welcome; the more, the merrier! Simply fork the master branch, implement a feature / bug fix and initiate a pull request. Please bear the following in mind though to ensure smooth and timely integration of your changes:
 
 1. The public interface of this API is as much as possible aligned to the [official Parse Android SDK](http://www.parse.com/docs/android/api/index.html?com/). When implementing functionality already present there, please try to use the same method names and structure where possible. This just makes it consistent and easier to follow.
-    
+
     Of course, there may be cases where you really think a different name for a given functionality or different semantics for the same method name are much better. That's fine. Just try to make the deviations clear in the method documentation, which leads me to the next point.
 
 

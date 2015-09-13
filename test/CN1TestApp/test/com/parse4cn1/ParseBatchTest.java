@@ -32,6 +32,7 @@ public class ParseBatchTest extends BaseParseTest {
 
     @Override
     public boolean runTest() throws Exception {
+        testRestApiExample();
         testValidBatch();
         testValidMixedBatch();
         testBatchSizeExceedingLimit();
@@ -46,6 +47,31 @@ public class ParseBatchTest extends BaseParseTest {
         batchDeleteObjects(classPlayer);
         batchDeleteObjects(classCar);
         batchDeleteObjects(classKitchen);
+    }
+    
+    private void testRestApiExample() throws ParseException {
+        System.out.println("============== testRestApiExample()");
+
+        final ParseObject gameScore1 = ParseObject.create(classGameScore);
+        gameScore1.put("playerName", "Sean Plott");
+        gameScore1.put("score", 1337);
+        
+        final ParseObject gameScore2 = ParseObject.create(classGameScore);
+        gameScore2.put("playerName", "ZeroCool");
+        gameScore2.put("score", 1338);
+        
+        // Run a batch to create the objects
+        ParseBatch batch = ParseBatch.create();
+        batch.addObject(gameScore1, ParseBatch.EBatchOpType.CREATE);
+        batch.addObject(gameScore2, ParseBatch.EBatchOpType.CREATE);
+
+        assertTrue(batch.execute(), "Batch operation should succeed");
+
+        gameScore1.put("score", 999999);
+        batch.addObject(gameScore1, ParseBatch.EBatchOpType.UPDATE);
+        batch.addObject(gameScore2, ParseBatch.EBatchOpType.DELETE);
+        
+        assertTrue(batch.execute(), "Batch operation should succeed");
     }
 
     private void testValidBatch() throws ParseException {

@@ -228,7 +228,7 @@ public class ParseQueryTest extends BaseParseTest {
         // Limit radius
         final double maxDistanceInMi = 10;
         query = ParseQuery.getQuery(classPlaceObjects);
-        query.whereNear(fieldLocation, refPoint).whereWithinMiles(fieldLocation, refPoint, maxDistanceInMi);
+        query.whereWithinMiles(fieldLocation, refPoint, maxDistanceInMi);
         results = query.find();
         
         assertTrue(results.size() > 0);
