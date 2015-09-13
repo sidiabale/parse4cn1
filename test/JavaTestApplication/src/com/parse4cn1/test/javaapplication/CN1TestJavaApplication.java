@@ -101,7 +101,7 @@ public class CN1TestJavaApplication {
             @Override
             public void run() {
                 f.setVisible(aShowFrame);
-//                status.setValue(runTests());
+                status.setValue(runTests());
                 if (status.getValue() == 0) {
                     // Close frame only if all tests passed otherwise, build will still succeed
                     f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
