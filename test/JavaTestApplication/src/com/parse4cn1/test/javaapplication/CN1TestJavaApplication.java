@@ -73,8 +73,8 @@ public class CN1TestJavaApplication {
         
         Status status = new Status();
         try {
-            status = createAppWithoutProperContext();
-//            status = createAppWithProperContext(false);
+//            status = createAppWithoutProperContext();
+            status = createAppWithProperContext(false);
         } finally {
             // Return exit code that is possibly checked by caller
             System.exit(status.getValue());
@@ -84,11 +84,7 @@ public class CN1TestJavaApplication {
     private static Status createAppWithoutProperContext() {
         // This approach is handy for a non-GUI application
         Status status = new Status();
-        try {
-            Display.init(null);
-        } catch (java.awt.HeadlessException ex) {
-            System.err.println("Ignoring HeadlessException: " + ex.getMessage());
-        }
+        Display.init(null);
         status.setValue(runTests());
         return status;
     }
@@ -111,7 +107,8 @@ public class CN1TestJavaApplication {
             }
         });
         
-        return status;
+//        return status;
+        return new Status();
     }
 
     private static int runTests() {
@@ -136,7 +133,7 @@ public class CN1TestJavaApplication {
 //             at the time of writing, the CN1 test runner lacks this functionality
 //             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
 //             */
-//            if (!testClass.getCanonicalName().endsWith("ParseFileTest")) {
+//            if (!testClass.getCanonicalName().endsWith("ParseBatchTest")) {
 //                System.err.println("Ignoring test " + testClass.getCanonicalName());
 //                continue;
 //            }
