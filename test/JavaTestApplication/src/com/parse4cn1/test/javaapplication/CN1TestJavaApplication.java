@@ -1,10 +1,21 @@
 /*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2015 Chidiebere Okwudire.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.parse4cn1.test.javaapplication;
 
+import com.codename1.io.Log;
 import com.codename1.ui.Display;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.BaseParseTest;
@@ -20,15 +31,27 @@ import javax.swing.JFrame;
 import org.reflections.Reflections;
 
 /**
- * A simple test app to illustrate how to create a regular Java application 
+ * A simple test app to illustrate how to create a regular Java application
  * using parse4cn1.jar.
- * 
- * It executes the Parse4CN1 tests written using CodenameOne's (Java) test library.
- * 
+ *
+ * It executes the Parse4CN1 tests written using CodenameOne's (Java) test
+ * library.
+ *
  * @author sidiabale
  */
 public class CN1TestJavaApplication {
 
+    private static class Status {
+        private int value = -1;
+        
+        public void setValue(int value) {
+            this.value = value;
+        }
+        
+        public int getValue() {
+            return value;
+        }
+    }
     /**
      * A helper class to initialize the application's main frame.
      */
@@ -47,18 +70,27 @@ public class CN1TestJavaApplication {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-//        createAppWithoutProperContext();
-        createAppWithProperContext(false);
+        
+        Status status = new Status();
+        try {
+//            status = createAppWithoutProperContext();
+            status = createAppWithProperContext(false);
+        } finally {
+            // Return exit code that is possibly checked by caller
+            System.exit(status.getValue());
+        }
     }
 
-    private static void createAppWithoutProperContext() {
+    private static Status createAppWithoutProperContext() {
         // This approach is handy for a non-GUI application
+        Status status = new Status();
         Display.init(null);
-        runTests();
-        Display.getInstance().exitApplication();
+        status.setValue(runTests());
+        return status;
     }
 
-    private static void createAppWithProperContext(final boolean aShowFrame) {
+    private static Status createAppWithProperContext(final boolean aShowFrame) {
+        final Status status = new Status();
         // This approach is recommended for a GUI-application or in the case
         // where the blank frame shown for createAppWithoutProperContext() is an issue.
         final JFrame f = new MainFrame();
@@ -69,14 +101,18 @@ public class CN1TestJavaApplication {
             @Override
             public void run() {
                 f.setVisible(aShowFrame);
-                runTests();
-                // Close frame
-                f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
+                status.setValue(runTests());
+                if (status.getValue() == 0) {
+                    // Close frame only if all tests passed otherwise, build will still succeed
+                    f.dispatchEvent(new WindowEvent(f, WindowEvent.WINDOW_CLOSING));
+                }
             }
         });
+        
+        return status;
     }
 
-    private static void runTests() {
+    private static int runTests() {
         // Auto-detect defined test classes
         // cf. lib/reflections-0.9.9-RC1-uberjar.jar and its dependencies 
         // (lib/javassist.jar, lib/guava-18.0.jar)
@@ -87,13 +123,27 @@ public class CN1TestJavaApplication {
         final int testCount = testClasses.size();
         System.out.println("Testing Java application based on CN1 Parse port!!!");
         System.out.println("About to run " + testCount + " tests...\n");
+//        com.parse4cn1.util.Logger.getInstance().setLogLevel(Log.DEBUG); // Show extra details e.g. to debug failing test
 
         int counter = 1;
         List<String> failedTests = new ArrayList<String>();
-        try {
-            for (Class<? extends BaseParseTest> testClass : testClasses) {
+        for (Class<? extends BaseParseTest> testClass : testClasses) {
+            
+//            /*
+//             Filter for running subsets of tests if necessary (particularly useful since 
+//             at the time of writing, the CN1 test runner lacks this functionality
+//             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
+//             */
+//            if (!testClass.getCanonicalName().endsWith("ParseBatchTest")) {
+//                System.err.println("Ignoring test " + testClass.getCanonicalName());
+//                continue;
+//            }
+
+            try {
+                failedTests.add(testClass.getCanonicalName());
+
                 System.out.println("\n:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
-                System.out.println("Running test " + counter + "/" + testCount 
+                System.out.println("Running test " + counter + "/" + testCount
                         + ": " + testClass.getCanonicalName());
                 System.out.println(":=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
                 ++counter;
@@ -101,30 +151,31 @@ public class CN1TestJavaApplication {
                 BaseParseTest test = (BaseParseTest) testClass.newInstance();
                 test.prepare();
                 final boolean result = test.runTest();
-                
-                // TODO: (22-07-15) Check why it seems that result is true even when 
-                // a test fails e.g. ParseQueryTest.checkLimitAndSkipConstraints()
-                if (!result) {
-                    failedTests.add(testClass.getCanonicalName());
-                }
+
                 test.cleanup();
 
+                if (result) {
+                    failedTests.remove(testClass.getCanonicalName());
+                }
+            } catch (ParseException ex) {
+                Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (Exception ex) {
+                Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
+            } finally {
                 System.out.println("\n:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
                 System.out.println("Test: " + testClass.getCanonicalName()
-                    + " " +(result ? "PASSED" : "FAILED"));
+                        + " " + (!failedTests.contains(testClass.getCanonicalName()) ? "PASSED" : "FAILED"));
                 System.out.println(":=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:=:");
             }
-        } catch (ParseException ex) {
-            Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception ex) {
-            Logger.getLogger(CN1TestJavaApplication.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
+        int status = 0;
         if (failedTests.isEmpty()) {
             System.out.println("\nALL tests passed!!!");
         } else {
+            status = failedTests.size();
             System.err.println("\nThe following tests failed:\n" + failedTests);
         }
-        
+        return status;
     }
 }

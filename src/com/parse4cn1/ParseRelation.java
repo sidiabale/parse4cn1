@@ -21,8 +21,14 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Externalizable;
+import com.codename1.io.Util;
 import com.parse4cn1.encode.IParseObjectEncodingStrategy;
 import com.parse4cn1.operation.RelationOperation;
+import com.parse4cn1.util.ExternalizableParseObject;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -35,14 +41,24 @@ import java.util.Set;
  *
  * @param <T> The type of {@link ParseObject}
  */
-public class ParseRelation<T extends ParseObject> {
+public class ParseRelation<T extends ParseObject> implements Externalizable {
 
     private ParseObject parent;
     private String key;
     private String targetClass;
     private final Set<T> addedObjects = new HashSet<T>();
     private final Set<T> removedObjects = new HashSet<T>();
+    
+    /**
+     * @return A unique class name.
+     */
+    public static String getClassName() {
+        return "ParseRelation";
+    }
 
+    public ParseRelation() {
+    }
+    
     /**
      * Creates a ParseRelation object from JSON data, for example, retrieved
      * from a Parse API call.
@@ -177,6 +193,75 @@ public class ParseRelation<T extends ParseObject> {
         }
         relation.put("objects", knownObjectsArray);
         return relation;
+    }
+    
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public int getVersion() {
+        return Parse.getSerializationVersion();
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void externalize(DataOutputStream out) throws IOException {
+        /* 
+        Note that ParseRelations are applied on ParseObjects and since only saved
+        ParseObjects are serialized by design, the only piece of information 
+        needed to reconstruct the relation is the targetClass. However,
+        for completeness, we include other fields except the parent since
+        serializing the parent will result in an infinite loop. If there's 
+        ever a usecase where a ParseRelation is deemed useful outside a ParseObject,
+        a smart way to store the parent would be implemented.
+        */
+        Util.writeUTF(targetClass, out);
+        Util.writeUTF(key, out);
+        Util.writeObject(setToArray(addedObjects), out);
+        Util.writeObject(setToArray(removedObjects), out);
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void internalize(int version, DataInputStream in) throws IOException {
+        targetClass = Util.readUTF(in);
+        key = Util.readUTF(in);
+        arrayToSet((Object[]) Util.readObject(in), addedObjects);
+        arrayToSet((Object[]) Util.readObject(in), removedObjects);
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public String getObjectId() {
+        return getClassName();
+    }
+    
+    private ExternalizableParseObject[] setToArray(final Set<T> in) {
+        if (in == null) {
+            return null;
+        }
+        
+        ExternalizableParseObject[] externalizables = new ExternalizableParseObject[in.size()];
+        
+        int i = 0;
+        for (T obj : in) {
+            externalizables[i++] = obj.asExternalizable();
+        }
+        return externalizables;
+    }
+    
+    private void arrayToSet(final Object[] in, final Set<T> out) {
+        if (in == null || out == null) {
+            return;
+        }
+        
+        out.clear();
+        for (Object obj: in) {
+            ExternalizableParseObject<T> externalizable = (ExternalizableParseObject)obj; 
+            out.add(externalizable.getParseObject());
+        }
     }
 
     /**

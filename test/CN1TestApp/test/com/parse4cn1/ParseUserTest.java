@@ -52,10 +52,9 @@ public class ParseUserTest extends BaseParseTest {
     
     @Override
     public boolean runTest() throws Exception {
-        
         testRestApiExample();
         testQueryingUsers();
-        
+        testParseUserSerialization();
         return true;
     }
 
@@ -66,6 +65,8 @@ public class ParseUserTest extends BaseParseTest {
     }
     
     private void testRestApiExample() throws ParseException { 
+        System.out.println("============== testRestApiExample()");
+        
         deleteAllUsers(); // Avoid failures due to duplicate info
         
         // Create and sign up
@@ -113,31 +114,30 @@ public class ParseUserTest extends BaseParseTest {
                     + "from previous one");
         
         // Verify email
-        final String emailVerified = "emailVerified";
         final String email = "email";
-        assertNull(loggedIn.getBoolean(emailVerified), 
+        assertNull(loggedIn.getEmailVerified(), 
                 "emailVerified field should not be defined initially");
         loggedIn.put(email, "test@test.com");
         loggedIn.save();
-        assertFalse(loggedIn.getBoolean(emailVerified), 
-                emailVerified + " field should be defined but false");
+        assertFalse(loggedIn.getEmailVerified(), 
+                "emailVerified field should be defined (if email verification is enabled in the Parse app) but false");
         
         // Retrieve by object id
         ParseUser userById = ParseUser.fetch(loggedIn.getClassName(), loggedIn.getObjectId());
-        assertEqual(loggedIn.getString(phone),          userById.getString(phone));
-        assertEqual(loggedIn.getBoolean(emailVerified), userById.getBoolean(emailVerified));
-        assertEqual(loggedIn.getString(email),          userById.getString(email));
-        assertEqual(loggedIn.getCreatedAt(),            userById.getCreatedAt());
-        assertEqual(loggedIn.getUpdatedAt(),            userById.getUpdatedAt());
-        assertEqual(userById.getSessionToken(),         loggedIn.getSessionToken());
+        assertEqual(loggedIn.getString(phone),   userById.getString(phone));
+        assertEqual(loggedIn.getEmailVerified(), userById.getEmailVerified());
+        assertEqual(loggedIn.getString(email),   userById.getString(email));
+        assertEqual(loggedIn.getCreatedAt(),     userById.getCreatedAt());
+        assertEqual(loggedIn.getUpdatedAt(),     userById.getUpdatedAt());
+        assertEqual(userById.getSessionToken(),   loggedIn.getSessionToken());
         
         // Retrieve by sessionToken
         ParseUser userBySession = ParseUser.fetchBySession(loggedIn.getSessionToken());
-        assertEqual(loggedIn.getString(phone),          userBySession.getString(phone));
-        assertEqual(loggedIn.getBoolean(emailVerified), userBySession.getBoolean(emailVerified));
-        assertEqual(loggedIn.getString(email),          userBySession.getString(email));
-        assertEqual(loggedIn.getCreatedAt(),            userBySession.getCreatedAt());
-        assertEqual(loggedIn.getUpdatedAt(),            userBySession.getUpdatedAt());
+        assertEqual(loggedIn.getString(phone),   userBySession.getString(phone));
+        assertEqual(loggedIn.getEmailVerified(), userBySession.getEmailVerified());
+        assertEqual(loggedIn.getString(email),   userBySession.getString(email));
+        assertEqual(loggedIn.getCreatedAt(),     userBySession.getCreatedAt());
+        assertEqual(loggedIn.getUpdatedAt(),     userBySession.getUpdatedAt());
         
         // Reset password
         ParseUser.requestPasswordReset("test@test.com");
@@ -146,6 +146,8 @@ public class ParseUserTest extends BaseParseTest {
     }
 
     private void testQueryingUsers() throws ParseException {
+        System.out.println("============== testQueryingUsers()");
+        
         deleteAllUsers();
         final int userCount = 5;
         for (int i = 1; i <= userCount; ++i) {
@@ -155,5 +157,26 @@ public class ParseUserTest extends BaseParseTest {
         ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseConstants.CLASS_NAME_USER);
         List<ParseUser> results = query.find();
         assertEqual(userCount, results.size(), "All users are returned by query");
+    }
+    
+    private void testParseUserSerialization() throws ParseException {
+        System.out.println("============== testParseUserSerialization()");
+        
+        deleteAllUsers(); // Avoid failures due to duplicate info
+        final String username = "userToSerialize";
+        ParseUser user = ParseUser.create(username, TEST_PASSWORD);
+        user.signUp();
+        
+        ParseUser retrieved = (ParseUser) serializeAndRetrieveParseObject(user);
+        compareParseObjects(user, retrieved, null);
+        assertTrue(user.isAuthenticated(), "Signed up user should be authenticated");
+        assertTrue(retrieved.isAuthenticated(), "Deserialized user should be authenticated");
+        assertNotNull(retrieved.getSessionToken(), "Deserialized user should retain session token");
+        assertEqual(user.getUsername(), retrieved.getUsername());
+        assertEqual(user.getSessionToken(), retrieved.getSessionToken());
+        
+        // Verify indirectly that password is persisted by logging out and logging back in
+        retrieved.logout();
+        retrieved.login();
     }
 }

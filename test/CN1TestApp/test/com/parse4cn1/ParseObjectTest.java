@@ -18,15 +18,15 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Storage;
 import com.parse4cn1.encode.ParseDecoder;
+import com.parse4cn1.util.ExternalizableParseObject;
 import com.parse4cn1.util.ParseRegistry;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  *
@@ -39,6 +39,9 @@ public class ParseObjectTest extends BaseParseTest {
     private final String classCar = "Car";
     private final String classKitchen = "Kitchen";
 
+    private final ParseGeoPoint location = new ParseGeoPoint(40.2, -24);
+    private final String fieldLocation = "fieldLocation";
+    
     private static class CustomParseObject extends ParseObject {
 
         public static final String CLASS_NAME = "CustomParseObject";
@@ -47,6 +50,7 @@ public class ParseObjectTest extends BaseParseTest {
         private CustomParseObject() {
             super(CLASS_NAME);
             put(CUSTOM_FIELD_NAME, "ReadOnly");
+            setDirty(false);
         }
 
         public String getCustomField() {
@@ -69,19 +73,24 @@ public class ParseObjectTest extends BaseParseTest {
         testCreateObjectExtended();
         testUpdateObjectExtended();
         testCustomParseObjectClass();
+        testSimpleParseObjectSerialization();
+        testCollectionInParseObjectSerialization();
+        testParseFileInParseObjectSerialization();
+        testObjectsInParseObjectSerialization();
         return true;
     }
 
     @Override
     protected void resetClassData() {
-        deleteObjects(classGameScore);
-        deleteObjects(classPlayer);
-        deleteObjects(classCar);
-        deleteObjects(classKitchen);
-        deleteObjects(CustomParseObject.CLASS_NAME);
+        batchDeleteObjects(classGameScore);
+        batchDeleteObjects(classPlayer);
+        batchDeleteObjects(classCar);
+        batchDeleteObjects(classKitchen);
+        batchDeleteObjects(CustomParseObject.CLASS_NAME);
     }
 
     private void testRestApiExample() throws ParseException {
+        System.out.println("============== testRestApiExample()");
         // Create
         ParseObject gameScore = ParseObject.create(classGameScore);
         gameScore.put("score", 1337);
@@ -138,6 +147,15 @@ public class ParseObjectTest extends BaseParseTest {
         assertNotNull(retrievedRelation);
         assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());
         opponent.delete();
+        
+        assertNull(opponent.getObjectId(),
+                "Deleted object should have no objectId");
+        assertNull(opponent.getCreatedAt(),
+                "Deleted object should have no creation date");
+        assertNull(opponent.getUpdatedAt(),
+                "Deleted object should have no update date");
+        assertTrue(opponent.keySet().isEmpty(),
+                "Deleted object should have no keys");
 
         // Array operations (manually)
         List<String> skills = new ArrayList<String>();
@@ -160,6 +178,7 @@ public class ParseObjectTest extends BaseParseTest {
     }
 
     private void testArrayOperations(final ParseObject obj) throws ParseException {
+        System.out.println("============== testArrayOperations()");
         final String skillBoxing = "boxing";
 
         List<String> skills = new ArrayList<String>();
@@ -209,7 +228,10 @@ public class ParseObjectTest extends BaseParseTest {
     }
 
     private void testCreateObjectExtended() throws ParseException, JSONException {
+        System.out.println("============== testCreateObjectExtended()");
+        
         ParseObject obj = ParseObject.create(classCar);
+        obj.put(fieldLocation, location);
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("brand", "Peugeot");
         data.put("model", "208");
@@ -241,10 +263,14 @@ public class ParseObjectTest extends BaseParseTest {
         assertEqual(obj.getCreatedAt(), retrieved.getCreatedAt());
         assertEqual(obj.getUpdatedAt(), retrieved.getUpdatedAt());
         assertEqual(obj.getObjectId(), retrieved.getObjectId());
+        
+        compareGeoLocations(location, retrieved.getParseGeoPoint(fieldLocation));
+        
         checkData(retrieved, data);
     }
 
     private void testUpdateObjectExtended() throws ParseException {
+        System.out.println("============== testUpdateObjectExtended()");
         ParseObject obj = ParseObject.create(classKitchen);
         HashMap<String, Object> data = new HashMap<String, Object>();
         data.put("color", "White");
@@ -293,6 +319,124 @@ public class ParseObjectTest extends BaseParseTest {
         checkData(retrieved, data);
         retrieved = ParseObject.fetch(obj.getClassName(), obj.getObjectId());
         checkData(retrieved, data);
+    }
+    
+    private void testSimpleParseObjectSerialization() throws ParseException {
+        System.out.println("============== testSimpleParseObjectSerialization()");
+        assertEqual(ExternalizableParseObject.getClassName(), "ExternalizableParseObject");
+        
+        final ParseObject gameScore = ParseObject.create(classGameScore);
+        gameScore.put("score", 1337);
+        gameScore.put("rating", 4.5);
+        gameScore.put("playerName", "Sean Plott");
+        gameScore.put("cheatMode", false);
+        gameScore.save();
+
+        final ParseObject retrieved = serializeAndRetrieveParseObject(gameScore);
+        compareParseObjects(gameScore, retrieved, null);
+
+        // Make object dirty object
+        gameScore.put("score", 1378);
+
+        System.out.println("-------------- Serialization of dirty ParseObject should fail");
+        assertFalse(Storage.getInstance().writeObject(gameScore.getObjectId(), gameScore.asExternalizable()),
+                "Serialization of dirty ParseObject should be disallowed");
+
+        gameScore.delete();
+    }
+    
+    private void testCollectionInParseObjectSerialization() throws ParseException, JSONException {
+        System.out.println("============== testCollectionInParseObjectSerialization()");
+        ParseObject parseObject = ParseObject.create(classCar);
+        HashMap<String, Object> specsList = new HashMap<String, Object>();
+        specsList.put("brand", "Peugeot");
+        specsList.put("model", "208");
+        specsList.put("nrOfDoors", 5);
+        specsList.put("convertible", true);
+        specsList.put("color", "SkyBlue");
+        specsList.put("batchNr", getCurrentTimeInHex());
+
+        ArrayList<String> usersLIst = new ArrayList<String>();
+        usersLIst.add("User 1");
+        usersLIst.add("User 2");
+        usersLIst.add("User 3");
+        
+        final JSONArray usersJsonArray = new JSONArray(usersLIst);
+        final JSONObject specsJsonArray = new JSONObject(specsList);
+        
+        final String keySpecsMap = "specificationsHashMap";
+        final String keySpecsJsonObject = "specificationsJsonObject";
+        final String keyUsersList = "pastUsersArrayList";
+        final String keyUsersJsonArray = "pastUsersJsonArray";
+        final String keyNull = "null";
+        
+        parseObject.put(keySpecsMap, specsList);
+        parseObject.put(keySpecsJsonObject, specsJsonArray);
+        parseObject.put(keyUsersList, usersLIst);
+        parseObject.put(keyUsersJsonArray, usersJsonArray);
+        parseObject.put(keyNull, JSONObject.NULL);
+        
+        parseObject.save();
+
+        ParseObject retrieved = serializeAndRetrieveParseObject(parseObject);
+
+        assertEqual(parseObject.get(keySpecsMap).toString(), retrieved.get(keySpecsMap).toString());
+        assertEqual(parseObject.get(keySpecsJsonObject).toString(), retrieved.get(keySpecsJsonObject).toString());
+        assertEqual(parseObject.get(keyUsersList).toString(), retrieved.get(keyUsersList).toString());
+        assertEqual(parseObject.get(keyUsersJsonArray).toString(), retrieved.get(keyUsersJsonArray).toString());
+        assertEqual(parseObject.get(keyNull), retrieved.get(keyNull));
+        
+        parseObject.delete();
+    }
+
+    private void testParseFileInParseObjectSerialization() throws ParseException {
+        System.out.println("============== testParseFileInParseObjectSerialization()");
+        final ParseFile textFile = new ParseFile("hello.txt", "Hello World!".getBytes());
+        textFile.save();
+        
+        final ParseObject gameScore = ParseObject.create(classGameScore);
+        gameScore.put("profile", textFile);
+        gameScore.save();
+        
+        final ParseObject retrieved = serializeAndRetrieveParseObject(gameScore);
+        compareParseFiles(textFile, retrieved.getParseFile("profile"), true);
+        
+        gameScore.delete();
+    }
+    
+    private void testObjectsInParseObjectSerialization() throws ParseException {
+        System.out.println("============== testObjectsInParseObjectSerialization()");
+        final String key = "aKey";
+        final String value = "aValue";
+        final String keyCustomParseObject = "customParseObject";
+        final String keyInnerParseObject = "innerParseObject";
+
+        CustomParseObject customParseObject = new CustomParseObject();
+        customParseObject.put(key, value);
+        customParseObject.save();
+
+        ParseObject innerObject = ParseObject.create(classPlayer);
+        innerObject.put(key, value);
+        innerObject.save();
+
+        ParseObject parseObject = ParseObject.create(classGameScore);
+        parseObject.put(keyCustomParseObject, customParseObject);
+        parseObject.put(keyInnerParseObject, innerObject);
+
+        parseObject.put(fieldLocation, location);
+
+        parseObject.save();
+
+        final ParseObject retrieved = serializeAndRetrieveParseObject(parseObject);
+        compareParseObjects(parseObject.getParseObject(keyCustomParseObject),
+                retrieved.getParseObject(keyCustomParseObject), null);
+        compareParseObjects(parseObject.getParseObject(keyInnerParseObject),
+                retrieved.getParseObject(keyInnerParseObject), null);
+        compareGeoLocations(location, retrieved.getParseGeoPoint(fieldLocation));
+
+        customParseObject.delete();
+        innerObject.delete();
+        parseObject.delete();
     }
 
     private void checkData(final ParseObject obj, HashMap<String, Object> data) {

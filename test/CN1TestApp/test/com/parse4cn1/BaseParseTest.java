@@ -16,12 +16,17 @@
 
 package com.parse4cn1;
 
+import com.codename1.io.Storage;
 import com.codename1.testing.AbstractTest;
+import com.parse4cn1.util.ExternalizableParseObject;
 import com.parse4cn1.util.Logger;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Ideally, this test should have been abstract but when that is done,
@@ -96,7 +101,6 @@ public class BaseParseTest extends AbstractTest {
     }
     
     protected void deleteAllUsers() {
-        // TODO: Replace with batch deletion when batch operations are implemented
         ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseConstants.CLASS_NAME_USER);
         try {
             List<ParseUser> results = query.find();
@@ -106,7 +110,16 @@ public class BaseParseTest extends AbstractTest {
                 user.delete();
             }
         } catch (ParseException ex) {
-            fail("Deleting objects failed\n" + ex);
+            fail("Deleting one or more users failed\n" + ex);
+        }
+    }
+    
+    protected void batchDeleteObjects(final String className) {
+        ParseQuery<ParseObject> query = ParseQuery.getQuery(className);
+        try {
+            batchDeleteObjects(query.find());
+        } catch (ParseException ex) {
+            fail("Retrieving objects to delete failed\n" + ex);
         }
     }
     
@@ -115,12 +128,11 @@ public class BaseParseTest extends AbstractTest {
         try {
             deleteObjects(query.find());
         } catch (ParseException ex) {
-            fail("Deleting objects failed\n" + ex);
+            fail("Retrieving objects to delete failed\n" + ex);
         }
     }
     
-    protected void deleteObjects(List<? extends ParseObject> objects) {
-        // TODO: Replace with batch deletion when batch operations are implemented
+    protected void deleteObjects(List<? extends ParseObject> objects) {  
         for (ParseObject object : objects) {
             if (object.getObjectId() != null) {
                 try {
@@ -131,19 +143,82 @@ public class BaseParseTest extends AbstractTest {
                     }
                     object.delete();
                 } catch (ParseException ex) {
-                    fail("Deleting object failed\n" + ex);
+                    fail("Deleting object " + object.getObjectId() + " failed\n" + ex);
                 }
             }
         }
     }
     
+    protected void batchDeleteObjects(List<? extends ParseObject> objects) {
+        final int maxBatchSize = 50; // Batch size limit as at May 2015
+        
+        // Split into acceptably-sized batches if necessary
+        int i = 0;
+        int remaining = objects.size();
+        do {
+            int batchSize = Math.min((i + maxBatchSize), remaining);
+            try {
+                assertTrue(ParseBatch.create().addObjects(
+                        objects.subList(i, (i + batchSize)), 
+                                ParseBatch.EBatchOpType.DELETE).execute(),
+                        "Deleting one or more objects in batch failed");
+            } catch (ParseException ex) {
+                fail("Deleting one or more objects in batch failed\n" + ex);
+            }
+            i += maxBatchSize;
+            remaining -= batchSize;
+        } while (i < objects.size());
+    }
+    
     protected void saveObjects(List<? extends ParseObject> objects) throws ParseException {
-        // TODO: Replace with batch creation when batch operations are implemented
         for (ParseObject object: objects) {
             object.save();
         }
     }
     
+    protected ParseObject serializeAndRetrieveParseObject(final ParseObject input) {
+        assertTrue(Storage.getInstance().writeObject(input.getObjectId(), input.asExternalizable()), 
+                "Serialization of ParseObject failed");
+        Storage.getInstance().clearCache(); // Absolutely necessary to force retrieval from storage
+        return ((ExternalizableParseObject) Storage.getInstance().readObject(
+                input.getObjectId())).getParseObject();
+    }
+    
+    protected void compareParseObjects(final ParseObject obj1, final ParseObject obj2,
+            final Set<String> fieldsToSkip) {
+        assertEqual(obj1.getObjectId(), obj2.getObjectId());
+        assertEqual(obj1.getCreatedAt(), obj2.getCreatedAt());
+        assertEqual(obj1.getUpdatedAt(), obj2.getUpdatedAt());
+        assertEqual(obj1.getEndPoint(), obj2.getEndPoint());
+        assertEqual(obj1.keySet(), obj2.keySet());
+
+        for (String key : obj1.keySet()) {
+            if (fieldsToSkip == null || !fieldsToSkip.contains(key)) {
+                assertEqual(obj1.get(key), obj2.get(key));
+            }
+        }
+    }
+    
+    protected void compareGeoLocations(final ParseGeoPoint p1, final ParseGeoPoint p2) {
+        assertEqual(p1.getLatitude(), p2.getLatitude(), 
+                String.format("Latitudes %f and %f are not equal", p1.getLatitude(), p2.getLatitude()));
+        assertEqual(p1.getLongitude(), p2.getLongitude(),
+                String.format("Longitudes %f and %f are not equal", p1.getLongitude(), p2.getLongitude()));
+    }
+    
+    protected void compareParseFiles(final ParseFile file1, final ParseFile file2, boolean hasData) throws ParseException {
+        assertEqual(file1.getName(), file2.getName());
+        assertEqual(file1.getContentType(), file2.getContentType());
+        assertEqual(file1.getEndPoint(), file2.getEndPoint());
+        assertEqual(file1.getUrl(), file2.getUrl());
+        if (hasData) {
+            assertTrue(Arrays.equals((byte[]) file1.getData(), (byte[]) file2.getData()),
+                    "File byte data should be equal after (de)serialization");
+        }
+        assertEqual(file1.isDirty(), file2.isDirty());
+        assertEqual(file1.isDataAvailable(), file2.isDataAvailable());
+    }
+ 
     protected byte[] getBytes(String fileName) throws ParseException {
         try {
             RandomAccessFile f = new RandomAccessFile(getClass().getResource(fileName).getFile(), "r");

@@ -15,6 +15,7 @@
  */
 package com.parse4cn1;
 
+import com.codename1.io.Storage;
 import com.parse4cn1.callback.ProgressCallback;
 import com.parse4cn1.util.MimeType;
 import static com.parse4cn1.util.MimeType.getFileExtension;
@@ -40,12 +41,13 @@ public class ParseFileTest extends BaseParseTest {
         testDataFileUpload();
         testArbitraryExtensionFileUpload();
         testSaveWithProgressListener();
+        testParseFileSerialization();
         return true;
     }
 
     @Override
     protected void resetClassData() {
-        deleteObjects(classGameScore);
+        batchDeleteObjects(classGameScore);
     }
 
     private void testRestApiExample() throws ParseException {
@@ -114,10 +116,39 @@ public class ParseFileTest extends BaseParseTest {
         assertEqual(100, percentDone.get(), "100% expected after successful upload");
         deleteFile(file.getName());
     }
+    
+    private void testParseFileSerialization() throws ParseException {
+        System.out.println("============== testParseFileSerialization()");
+        assertEqual(ParseFile.getClassName(), "ParseFile");
+        
+        final ParseFile textFile = new ParseFile("hello.txt", null, null);
+        
+        // Dirty file can be saved
+        ParseFile retrieved  = serializeAndRetrieveFile(textFile);
+        compareParseFiles(textFile, retrieved, false);
+        
+        // Clean file can be saved
+        textFile.setData("Hello World!".getBytes());
+        textFile.save();
+        retrieved  = serializeAndRetrieveFile(textFile);
+        compareParseFiles(textFile, retrieved, true);
+  
+        deleteFile(textFile.getName());
+    }
+    
+    private ParseFile serializeAndRetrieveFile(final ParseFile input) {
+        assertTrue(Storage.getInstance().writeObject(input.getName(), input),
+                "Serialization of ParseObject failed");
+        Storage.getInstance().clearCache(); // Absolutely necessary to force retrieval from storage
+        return (ParseFile) Storage.getInstance().readObject(input.getName());
+    }
 
     private void uploadAndCheck(final String fileName) throws ParseException, IOException {
+//        System.out.println("Resource root path: " + getClass().getResource("/"));
+//        System.out.println("Resource root path (classLoader): " + getClass().getClassLoader().getResource(""));
+        
         assertNotNull(getClass().getResource("/" + fileName), "Test file missing");
-
+        
         byte[] inputBytes = getBytes("/" + fileName);
         ParseFile file = new ParseFile(fileName, inputBytes,
                 MimeType.getMimeType(getFileExtension(fileName)));
@@ -148,7 +179,7 @@ public class ParseFileTest extends BaseParseTest {
                     + "Input: " + inputPath + "\nOutput: " + outputPath);
         }
     }
-
+    
     private void deleteFile(final String filename) throws ParseException {
         assertNotNull(filename, "File name is null");
         final HashMap<String, String> params = new HashMap<String, String>();

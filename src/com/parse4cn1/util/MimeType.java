@@ -35,6 +35,7 @@ public class MimeType {
         mimeTypes.put("3dmf", "x-world/x-3dmf");
         mimeTypes.put("a", "application/octet-stream");
         mimeTypes.put("aab", "application/x-authorware-bin");
+        mimeTypes.put("aac", "audio/aac");
         mimeTypes.put("aam", "application/x-authorware-map");
         mimeTypes.put("aas", "application/x-authorware-seg");
         mimeTypes.put("abc", "ext/vnd.abc");
@@ -149,7 +150,9 @@ public class MimeType {
         mimeTypes.put("mxu", "video/vnd.mpegurl");
         mimeTypes.put("nc", "application/x-netcdf");
         mimeTypes.put("oda", "application/oda");
-        mimeTypes.put("ogg", "application/ogg");
+        mimeTypes.put("ogg", "audio/ogg");
+        mimeTypes.put("oga", "audio/ogg");
+        mimeTypes.put("ogv", "video/ogg");
         mimeTypes.put("pbm", "image/x-portable-bitmap");
         mimeTypes.put("pct", "image/pict");
         mimeTypes.put("pdb", "chemical/x-pdb");

@@ -19,20 +19,40 @@
 
 package com.parse4cn1;
 
+import com.codename1.io.Externalizable;
+import com.codename1.io.Util;
 import com.codename1.util.MathUtil;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * ParseGeoPoint represents a latitude / longitude point that may be associated 
  * with a key in a ParseObject or used as a reference point for geo queries. 
  * This allows proximity based queries on the key.
+ * <p>
+ * Distances are  calculated using the 'Haversine' formula {@link https://en.wikipedia.org/wiki/Haversine_formula}.
  */
-public class ParseGeoPoint {
+public class ParseGeoPoint implements Externalizable {
 
     static double EARTH_MEAN_RADIUS_KM = 6371.0D;
     static double EARTH_MEAN_RADIUS_MILE = 3958.8000000000002D;
 
     private double latitude = 0.0D;
     private double longitude = 0.0D;
+    
+    /**
+     * @return A unique class name.
+     */
+    public static String getClassName() {
+        return "ParseGeoPoint";
+    }
+    
+    /**
+     * Creates a new GeoPoint with default coordinates (0.0, 0.0).
+     */
+    public ParseGeoPoint() {
+    }
 
     /**
      * Creates a new point with the specified latitude and longitude.
@@ -51,10 +71,6 @@ public class ParseGeoPoint {
      * @param latitude The point's latitude
      */
     public final void setLatitude(double latitude) {
-        if ((latitude > 90.0D) || (latitude < -90.0D)) {
-            throw new IllegalArgumentException(
-                    "Latitude must be within the range (-90.0, 90.0).");
-        }
         this.latitude = latitude;
     }
 
@@ -64,10 +80,6 @@ public class ParseGeoPoint {
      * @param longitude The point's longitude.
      */
     public final void setLongitude(double longitude) {
-        if ((longitude > 180.0D) || (longitude < -180.0D)) {
-            throw new IllegalArgumentException(
-                    "Longitude must be within the range (-180.0, 180.0).");
-        }
         this.longitude = longitude;
     }
 
@@ -124,5 +136,35 @@ public class ParseGeoPoint {
      */
     public double distanceInMilesTo(ParseGeoPoint point) {
         return distanceInRadiansTo(point) * EARTH_MEAN_RADIUS_MILE;
+    }
+    
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public int getVersion() {
+        return Parse.getSerializationVersion();
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void externalize(DataOutputStream out) throws IOException {
+        Util.writeObject(getLatitude(), out);
+        Util.writeObject(getLongitude(), out);
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void internalize(int version, DataInputStream in) throws IOException {
+        setLatitude((Double)Util.readObject(in));
+        setLongitude((Double)Util.readObject(in));
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public String getObjectId() {
+        return getClassName();
     }
 }

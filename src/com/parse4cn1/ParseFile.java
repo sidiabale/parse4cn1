@@ -25,12 +25,17 @@ import com.parse4cn1.command.ParseUploadCommand;
 import com.parse4cn1.util.Logger;
 import com.parse4cn1.util.MimeType;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Externalizable;
+import com.codename1.io.Util;
 import com.parse4cn1.command.ParseDownloadCommand;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * ParseFile is a local representation of a file that is saved to the Parse cloud.
  */
-public class ParseFile implements Parse.IPersistable {
+public class ParseFile implements Parse.IPersistable, Externalizable {
 
     private static final Logger LOGGER = Logger.getInstance();
 
@@ -40,6 +45,13 @@ public class ParseFile implements Parse.IPersistable {
     private String url = null;
     private String contentType = null;
     byte[] data;
+    
+    /**
+     * @return A unique class name.
+     */
+    public static String getClassName() {
+        return "ParseFile";
+    }
 
     /**
      * Creates a new file from a byte array, file name, and content type.
@@ -98,6 +110,13 @@ public class ParseFile implements Parse.IPersistable {
     public ParseFile(String name, String url) {
         this.name = name;
         this.url = url;
+    }
+    
+    /**
+     * Creates a file with all null fields.
+     */
+    public ParseFile() {
+        this(null);
     }
 
     public String getName() {
@@ -244,5 +263,43 @@ public class ParseFile implements Parse.IPersistable {
             }
         }
         return data;
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public int getVersion() {
+        return Parse.getSerializationVersion();
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void externalize(DataOutputStream out) throws IOException {
+        out.writeBoolean(isDirty());
+        Util.writeUTF(getEndPoint(), out);
+        Util.writeUTF(getName(), out);
+        Util.writeUTF(getUrl(), out);
+        Util.writeUTF(getContentType(), out);
+        Util.writeObject(data, out);
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public void internalize(int version, DataInputStream in) throws IOException {
+        setDirty(in.readBoolean());
+        endPoint = Util.readUTF(in);
+        setName(Util.readUTF(in));
+        setUrl(Util.readUTF(in));
+        setContentType(Util.readUTF(in));
+        data = (byte[]) Util.readObject(in);
+    }
+
+    /**
+     * @see com.codename1.io.Externalizable
+     */
+    public String getObjectId() {
+        return getClassName();
     }
 }

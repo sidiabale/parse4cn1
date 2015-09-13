@@ -123,21 +123,16 @@ public class Parse {
 
     private static String mApplicationId;
     private static String mClientKey;
-    private static final DateFormat dateFormat;
-
-    static {
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-
-        ParseRegistry.registerDefaultSubClasses();
-        ParseOperationDecoder.registerDefaultDecoders();
-    }
+    private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
-     * Authenticates this client as belonging to your application.
+     * Authenticates this client as belonging to your application. 
+     * <p> It also initializes internal state required for the library to function 
+     * properly, e.g., enabling persistence to CN1 storage.
      * <p>
      * This method must be called before your application can use the Parse
      * library. The recommended way is to put a call to Parse.initialize in your
-     * CN! Application's state machine as follows:
+     * CN1 Application's state machine as follows:
      * <pre>
      * <code>
      * public class StateMachine extends StateMachineBase {
@@ -160,6 +155,10 @@ public class Parse {
     static public void initialize(String applicationId, String clientKey) {
         mApplicationId = applicationId;
         mClientKey = clientKey;
+
+        ParseRegistry.registerDefaultSubClasses();
+        ParseRegistry.registerExternalizableClasses();
+        ParseOperationDecoder.registerDefaultDecoders();
     }
 
     /**
@@ -303,20 +302,20 @@ public class Parse {
      * supported by ParseObjects and their child fields.
      */
     public static boolean isValidType(Object value) {
-        return ((value instanceof JSONObject))
-                || ((value instanceof JSONArray))
-                || ((value instanceof String))
-                || (ParseOperationUtil.isSupportedNumberType(value))
-                || ((value instanceof Boolean))
+        return (value instanceof JSONObject)
+                || (value instanceof JSONArray)
+                || (value instanceof String)
+                || (ParseOperationUtil.isSupportedNumberType(value)
+                || (value instanceof Boolean)
                 || (value == JSONObject.NULL)
-                || ((value instanceof ParseObject))
-                || ((value instanceof ParseFile))
-                || ((value instanceof ParseRelation))
-                || ((value instanceof ParseGeoPoint))
-                || ((value instanceof Date))
-                || ((value instanceof byte[]))
-                || ((value instanceof List))
-                || ((value instanceof Map));
+                || (value instanceof ParseObject)
+                || (value instanceof ParseFile)
+                || (value instanceof ParseRelation)
+                || (value instanceof ParseGeoPoint)
+                || (value instanceof Date)
+                || (value instanceof byte[])
+                || (value instanceof List)
+                || (value instanceof Map));
     }
 
     /**
@@ -338,5 +337,14 @@ public class Parse {
             }
         }
         return buffer.toString();
+    }
+    
+    /**
+     * Retrieved the default ID to used for serialization of objects.
+     * @return The serialization ID which is the integer value of {@link ParseConstants#API_VERSION}.
+     * @see com.codename1.io.Externalizable#getVersion() 
+     */
+    public static int getSerializationVersion() {
+        return Integer.valueOf(ParseConstants.API_VERSION);
     }
 }
