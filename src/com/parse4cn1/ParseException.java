@@ -48,6 +48,7 @@ public class ParseException extends Exception {
     public static final int INVALID_ACL = 123;
     public static final int TIMEOUT = 124;
     public static final int INVALID_EMAIL_ADDRESS = 125;
+    public static final int MISSING_MANDATORY_FIELD = 135;
     public static final int DUPLICATE_VALUE = 137;
     public static final int INVALID_ROLE_NAME = 139;
     public static final int EXCEEDED_QUOTA = 140;

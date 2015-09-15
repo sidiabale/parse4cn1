@@ -43,6 +43,7 @@ public class ParseConstants {
     public static final String CLASS_NAME_USER = "_User";
     public static final String CLASS_NAME_ROLE = "_Role";
     public static final String CLASS_NAME_SESSION = "_Session";
+    public static final String CLASS_NAME_INSTALLATION = "_Installation";
     public static final String ENDPOINT_USERS = "users";
     public static final String ENDPOINT_ROLES = "roles";
     public static final String ENDPOINT_SESSIONS = "sessions";
