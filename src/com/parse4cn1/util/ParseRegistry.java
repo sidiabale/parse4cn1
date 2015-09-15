@@ -25,6 +25,7 @@ import com.parse4cn1.Parse;
 import com.parse4cn1.ParseConstants;
 import com.parse4cn1.ParseFile;
 import com.parse4cn1.ParseGeoPoint;
+import com.parse4cn1.ParseInstallation;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -61,6 +62,7 @@ public class ParseRegistry {
     public static void registerDefaultSubClasses() {
         registerSubclass(ParseUser.class, ParseConstants.CLASS_NAME_USER);
         registerSubclass(ParseRole.class, ParseConstants.CLASS_NAME_ROLE);
+        registerSubclass(ParseInstallation.class, ParseConstants.CLASS_NAME_INSTALLATION);
         // TODO: Register other Parse sub-classes
     }
     
