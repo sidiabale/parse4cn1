@@ -22,6 +22,7 @@ import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.l10n.DateFormat;
 import com.codename1.l10n.SimpleDateFormat;
+import com.codename1.ui.Display;
 import com.parse4cn1.operation.ParseOperationUtil;
 import com.parse4cn1.operation.ParseOperationDecoder;
 import com.parse4cn1.util.ParseRegistry;
@@ -38,6 +39,15 @@ import java.util.Map;
  */
 public class Parse {
 
+    public enum EPlatform {
+        IOS,
+        ANDROID,
+        WINDOWS_PHONE,
+        BLACKBERRY,
+        JAVA_ME,
+        UNKNOWN
+    }
+    
     /**
      * An interface for a persistable entity.
      */
@@ -111,6 +121,8 @@ public class Parse {
             } else if (ParseConstants.ENDPOINT_ROLES.equals(className)
                     || ParseConstants.CLASS_NAME_ROLE.equals(className)) {
                 obj = (T) new ParseRole();
+            } else if (ParseConstants.CLASS_NAME_INSTALLATION.equals(className)) { 
+                obj = (T) new ParseInstallation();
             } else {
                 obj = (T) new ParseObject(className);
             }
@@ -119,6 +131,29 @@ public class Parse {
 
             return obj;
         }
+    }
+    
+    /**
+     * Retrieves the current platform
+     * @return A literal matching the current platform or {@link EPlatform#UNKNOWN}
+     */
+    public static EPlatform getPlatform() {
+        final String platformStr = Display.getInstance().getPlatformName().toLowerCase();
+        EPlatform platform = EPlatform.UNKNOWN;
+        
+        if ("and".equals(platformStr)) {
+            platform = EPlatform.ANDROID;
+        } else if ("ios".equals(platformStr)) {
+            platform = EPlatform.IOS;
+        } else if ("me".equals(platformStr)) {
+            platform = EPlatform.JAVA_ME;
+        } else if ("rim".equals(platformStr)) {
+            platform = EPlatform.BLACKBERRY;
+        } else if ("win".equals(platformStr)) {
+            platform = EPlatform.WINDOWS_PHONE;
+        }
+        
+        return platform;
     }
 
     private static String mApplicationId;
