@@ -66,10 +66,12 @@ v1.3: Q4 2015
 * Installations
 * Push Notifications
 
-v1.x: Unscheduled
+Unscheduled
 * Roles
 * Sessions
 * Linking users
+* Background operations (e.g. saving, fetching)
+* Pinning items (offline mode)
 
 ## Usage Examples ##
 See [Usage examples](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples)
