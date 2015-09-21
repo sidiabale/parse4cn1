@@ -71,8 +71,8 @@
 
     -->
     <target name="-pre-compile">
-        <copy file="../../lib/CN1JSON.jar" todir="lib" failonerror="true" overwrite="false"/>
-        <copy file="../CN1TestApp/JavaSE.jar" todir="lib" failonerror="true" overwrite="false" />
+        <copy file="../../lib/CN1JSON.jar" todir="lib" failonerror="true" overwrite="true"/>
+        <copy file="../CN1TestApp/JavaSE.jar" todir="lib" failonerror="true" overwrite="true" />
     </target> 
    
     <target name="-post-clean">

@@ -26,6 +26,17 @@ public class ParseException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public static final int OTHER_CAUSE = -1;
+    
+    // Internal error codes: General
+    public static final int PARSE4CN1_NOT_INITIALIZED = -2;
+    public static final int PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED = -3;
+    
+    // Internal error codes: Push- and installation-related
+    public static final int PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK = -101;
+    public static final int PARSE4CN1_MULTIPLE_INSTALLATIONS_FOUND = -102;
+    public static final int PARSE4CN1_INSTALLATION_NOT_FOUND = -103;
+    
+    // Parse-defined error codes
     public static final int INTERNAL_SERVER_ERROR = 1;
     public static final int CONNECTION_FAILED = 100;
     public static final int OBJECT_NOT_FOUND = 101;

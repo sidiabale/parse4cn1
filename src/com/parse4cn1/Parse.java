@@ -156,8 +156,8 @@ public class Parse {
         return platform;
     }
 
-    private static String mApplicationId;
-    private static String mClientKey;
+    private static String mApplicationId = null;
+    private static String mClientKey = null;
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
@@ -210,6 +210,16 @@ public class Parse {
      */
     static public String getClientKey() {
         return mClientKey;
+    }
+    
+    /**
+     * Checks if the library has been initialized.
+     * @return {@code true} if the library has been initialized; otherwise, returns {@code false}.
+     * @see #initialize(java.lang.String, java.lang.String) 
+     */
+    static public boolean isInitialized() {
+        return (getApplicationId() != null && getApplicationId().length() > 0
+                && getClientKey() != null && getClientKey().length() > 0);
     }
 
     /**

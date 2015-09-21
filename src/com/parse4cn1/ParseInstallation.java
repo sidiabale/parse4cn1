@@ -16,6 +16,9 @@
 package com.parse4cn1;
 
 import com.codename1.io.Preferences;
+import com.codename1.system.NativeLookup;
+import com.parse4cn1.nativeinterface.ParseInstallationNative;
+import com.parse4cn1.nativeinterface.ParsePushNative;
 import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -48,6 +51,7 @@ public class ParseInstallation extends ParseObject {
     public static final String PARSE_INSTALLATION_ID_SETTING_KEY = "parse4cn1_installationId";
     private static final String KEY_INSTALLATION_ID = "installationId";
     private static final String KEY_CHANNELS = "channels";
+    private static boolean parseSdkInitialized = false;
 
     private static ParseInstallation currentInstallation;
     
@@ -63,31 +67,61 @@ public class ParseInstallation extends ParseObject {
      * 
      * @return The current installation if one exists (all platforms), could be 
      * created (Android and iOS) or could be retrieved (Windows Phone).
+     * 
+     * @throws com.parse4cn1.ParseException if any error occurs while 
+     * trying to retrieve the current installation.
      */
-    public static ParseInstallation getCurrentInstallation() {
+    public static ParseInstallation getCurrentInstallation() throws ParseException {
         
         if (currentInstallation == null) {
-        
             final String installationId;
-            try {
-                installationId = retrieveInstallationId();
-                if (installationId != null) {
-                    final ParseQuery<ParseInstallation> query = 
-                            ParseInstallation.getQuery().whereEqualTo(KEY_INSTALLATION_ID, installationId);
-                    final List<ParseInstallation> results = query.find();
-                    if (results.size() == 1) {
-                        currentInstallation = results.get(0);
-                    } else if (results.size() > 1) {
-                        throw new ParseException("Found multiple installations with ID " 
-                                + installationId + " (installation IDs must be unique)", null);
+            installationId = retrieveInstallationId();
+            if (installationId != null) {
+              
+                try {
+                    currentInstallation = fetchInstallation(installationId);
+                } catch (ParseException ex) {
+                    if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND) {
+                        // No result (yet?)... It could be that saveInBackground call in native code 
+                        // (used to avoid blocking) has not yet completed so retry.
+                        // Under normal conditions, this won't happen but with slow connections, 
+                        // for example, we may end up here.
+                        final long delayInMilliSeconds = 1500;
+                        Logger.getInstance().warn("First attempt to retrieve current installation "
+                                + "with installation ID '" + installationId 
+                                + "' failed. Will retry in " + delayInMilliSeconds + " milliseconds.");
+                        try {
+                            Thread.sleep(delayInMilliSeconds);
+                            currentInstallation = fetchInstallation(installationId);
+                        } catch (InterruptedException e) {
+                            throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND,
+                                    "Found no installation with ID (after retry) " + installationId);
+                        }
+                    } else {
+                        throw ex;
+                    }  
+                }
+            } else {
+                throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
+                        "Failed to retrieve installation ID");
+            }
+            
+            // Testing badge code
+            // TODO: Move to ParsePush class when it is created.
+            if (Parse.getPlatform() == Parse.EPlatform.IOS) {
+                final ParsePushNative nativePush
+                        = (ParsePushNative) NativeLookup.create(ParsePushNative.class);
+                if (nativePush != null && nativePush.isSupported()) {
+                    try {
+                        nativePush.setBadge(0);
+                    } catch (Exception ex) {
+                        throw new ParseException("Resetting badge failed."
+                                + (ex != null ? " Error: " + ex.getMessage() : ""), ex);
                     }
                 }
-
-            } catch (ParseException ex) {
-                Logger.getInstance().error("Unable to retrieve installation ID. Error: " + ex);
             }
         }
-        
+
         return currentInstallation;
     }
     
@@ -257,6 +291,29 @@ public class ParseInstallation extends ParseObject {
     }
     
     /**
+     * Executes a query for retrieving an installation by ID.
+     * @param installationId The installation ID of the installation to be queried for.
+     * @return The retrieved installation.
+     * @throws ParseException if no installation is found or multiple installations are found.
+     */
+    private static ParseInstallation fetchInstallation(final String installationId) throws ParseException {
+
+        final ParseQuery<ParseInstallation> query
+                = ParseInstallation.getQuery().whereEqualTo(KEY_INSTALLATION_ID, installationId);
+        final List<ParseInstallation> results = query.find();
+        if (results.size() == 1) {
+            return results.get(0);
+        } else if (results.size() > 1) {
+            throw new ParseException(ParseException.PARSE4CN1_MULTIPLE_INSTALLATIONS_FOUND,
+                    "Found multiple installations with ID "
+                    + installationId + " (installation IDs must be unique)");
+        } else {
+            throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND,
+                    "Found no installation with ID " + installationId);
+        }
+    }
+    
+    /**
      * Retrieves the installation id.
      * <p> For Android and iOS, a native call is made to the Parse SDK; for 
      * every other platform, the {@link com.codename1.io.Preferences} approach is used.
@@ -265,10 +322,42 @@ public class ParseInstallation extends ParseObject {
      * @throws ParseException if anything goes wrong
      */
     private static String retrieveInstallationId() throws ParseException {
+        
         if (Parse.getPlatform() == Parse.EPlatform.ANDROID
                 || Parse.getPlatform() == Parse.EPlatform.IOS) {
-            // TODO invoke native interface
-            throw new RuntimeException("Unimplemented");
+            final ParseInstallationNative nativeInstallation = 
+                    (ParseInstallationNative)NativeLookup.create(ParseInstallationNative.class);
+            if (nativeInstallation != null && nativeInstallation.isSupported()) {
+                try {
+                    if (!parseSdkInitialized) {
+                        if (!Parse.isInitialized()) {
+                           throw new ParseException("The Parse library is not yet initialized.", null); 
+                        }
+                        try {
+                            nativeInstallation.initialize(Parse.getApplicationId(), Parse.getClientKey());
+                            parseSdkInitialized = true;
+                        } catch (Exception ex) {
+                            // Something went wrong but it could be a false alarm
+                            // for example the Android SDK may throw if it is already initialized.
+                            // So we proceed with attempting to retrieve the installation ID.
+                            // If that also goes wrong, then there's a real problem and an exception will be thrown.
+                            parseSdkInitialized = false;
+                            Logger.getInstance().warn("Attemptinig to retrieve the installation ID "
+                                    + "though initialization of Parse SDK failed!"
+                                    + "\n\nError: " + ex.getMessage());
+                        }
+                    }
+                    
+                    return nativeInstallation.getInstallationId();
+                } catch (Exception ex) {
+                   throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
+                           "Failed to retrieve installation ID." +
+                           (ex != null ? " Error: " + ex.getMessage() : ""), ex); 
+                }
+            } else {
+                throw new ParseException(ParseException.PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED, 
+                        "Failed to retrieve installation ID");
+            }
         }
         
         return Preferences.get(PARSE_INSTALLATION_ID_SETTING_KEY, null);

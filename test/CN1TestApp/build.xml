@@ -434,10 +434,18 @@
             classpath="${javac.classpath}:${build.classes.dir}">
             <src path="native/javase"/>
             <src path="lib/impl/native/javase"/>
-        </javac>        
+        </javac> 
+        
+         <!-- [parse4cn1] Included copying of parse4cn1.cn1lib -->   
+        <copy file="../../dist/parse4cn1.cn1lib" todir="lib" failonerror="true" overwrite="true"/>  
+        
+        <!-- [parse4cn1] Refresh project libs so the newly copied lib is used; doesn't seem to work though 
+             and not sure why. For now, we refresh the normal way via the GUI -->
+        <!-- <antcall target="refresh-libs" /> -->
     </target>
 
     <target name="-post-clean" depends="refresh-libs">
+        <delete file="lib/parse4cn1.cn1lib"/>
     </target>
 
     <target name="refresh-libs">

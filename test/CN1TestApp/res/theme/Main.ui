@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<component type="Form" name="Main" cloudDestinationProperty="Main" scrollableY="false" layout="BorderLayout" borderLayoutAbsoluteCenter="false" title="Tabs" >
+  <component type="Tabs" name="Tabs1" cloudDestinationProperty="Tabs1" >
+    <layoutConstraint value="Center" />
+    <custom name="titles" type="java.lang.String" array="true" dimensions="1" >
+      <str>About</str>
+      <str>Demo</str>
+      <str>Map</str>
+      <str>Settings</str>
+    </custom>
+    <component type="Container" name="Container" tabTitle="About" cloudDestinationProperty="Container" layout="BorderLayout" borderLayoutAbsoluteCenter="false" >
+      <component type="SpanLabel" name="SpanLabel" cloudDestinationProperty="SpanLabel" >
+        <layoutConstraint value="North" />
+        <custom name="text" type="java.lang.String" value="This demo illustrates the usage of parse4cn1" />
+      </component>
+      <component type="Container" name="Container4" cloudDestinationProperty="Container4" layout="BoxLayout" boxLayoutAxis="Y" >
+        <layoutConstraint value="Center" />
+        <component type="Container" name="Container5" cloudDestinationProperty="Container5" layout="FlowLayout" flowLayoutFillRows="false" flowLayoutAlign="4" flowLayoutValign="4" >
+          <component type="Label" name="Label2" cloudDestinationProperty="Label2" uiid="Title" text="Installation check" >
+          </component>
+        </component>
+        <component type="Label" name="Label3" cloudDestinationProperty="Label3" text="Installation ID:" >
+        </component>
+        <component type="SpanLabel" name="LabelInstallation" cloudDestinationProperty="LabelInstallation" >
+        </component>
+      </component>
+    </component>
+    <component type="Container" name="Container1" tabTitle="Demo" cloudDestinationProperty="Container1" layout="BoxLayout" boxLayoutAxis="Y" >
+      <component type="ComponentGroup" name="ComponentGroup" cloudDestinationProperty="ComponentGroup" >
+        <component type="Label" name="Label" cloudDestinationProperty="Label" text="Information Can Fit Here" >
+        </component>
+        <component type="MultiButton" name="MultiButton" cloudDestinationProperty="MultiButton" >
+          <custom name="line1" type="java.lang.String" value="Multi Button With Details" />
+          <custom name="line2" type="java.lang.String" value="And Some more details" />
+        </component>
+        <component type="Button" name="Button" cloudDestinationProperty="Button" text="Button With Functionality" >
+        </component>
+      </component>
+    </component>
+    <component type="Container" name="Container2" tabTitle="Map" cloudDestinationProperty="Container2" layout="BorderLayout" borderLayoutAbsoluteCenter="false" >
+      <component type="MapComponent" name="MapComponent" cloudDestinationProperty="MapComponent" >
+        <layoutConstraint value="Center" />
+      </component>
+    </component>
+    <component type="Container" name="Container3" tabTitle="Settings" cloudDestinationProperty="Container3" layout="BoxLayout" boxLayoutAxis="Y" >
+      <component type="Label" name="Label1" cloudDestinationProperty="Label1" uiid="Label" text="Setting One" >
+      </component>
+      <component type="ComponentGroup" name="ComponentGroup1" cloudDestinationProperty="ComponentGroup1" >
+        <component type="MultiButton" name="MultiButton2" cloudDestinationProperty="MultiButton2" >
+          <custom name="line1" type="java.lang.String" value="One Option" />
+          <custom name="line2" type="java.lang.String" value="Click this if you choose" />
+          <custom name="radioButton" type="java.lang.Boolean" value="true" />
+          <custom name="group" type="java.lang.String" value="radio" />
+        </component>
+        <component type="MultiButton" name="MultiButton4" cloudDestinationProperty="MultiButton4" >
+          <custom name="line1" type="java.lang.String" value="Second Option" />
+          <custom name="line2" type="java.lang.String" value="You might prefer this" />
+          <custom name="radioButton" type="java.lang.Boolean" value="true" />
+          <custom name="group" type="java.lang.String" value="radio" />
+        </component>
+        <component type="MultiButton" name="MultiButton1" cloudDestinationProperty="MultiButton1" >
+          <custom name="line1" type="java.lang.String" value="Third Option" />
+          <custom name="line2" type="java.lang.String" value="This is your last choice..." />
+          <custom name="radioButton" type="java.lang.Boolean" value="true" />
+          <custom name="group" type="java.lang.String" value="radio" />
+        </component>
+      </component>
+      <component type="Label" name="Label11" cloudDestinationProperty="Label11" uiid="Label" text="Setting Two" >
+      </component>
+      <component type="ComponentGroup" name="ComponentGroup2" cloudDestinationProperty="ComponentGroup2" >
+        <component type="MultiButton" name="MultiButton3" cloudDestinationProperty="MultiButton3" >
+          <custom name="line1" type="java.lang.String" value="What do you think about this?" />
+          <custom name="line2" type="java.lang.String" value="Seriously?" />
+          <custom name="checkBox" type="java.lang.Boolean" value="true" />
+        </component>
+      </component>
+    </component>
+  </component>
+</component>
