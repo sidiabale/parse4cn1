@@ -1,0 +1,68 @@
+Steps for using (native) Parse Push in parse4cn1:
+
+0. Add an application class to initialize the native Parse SDK and include in via
+
+android.xapplication_attr=android:name="<ApplicationName>" // e.g. android:name="ParseApplication"
+
+1. Add build hints for registering for Parse Push (step 1) and setting permissions (step 2) as explained here
+https://parse.com/apps/quickstart#parse_push/android/native/existing
+https://parse.com/tutorials/android-push-notifications
+
+In particular:
+
+android.xapplication = <service android:name="com.parse.PushService" />
+<receiver android:name="com.parse.ParseBroadcastReceiver">
+  <intent-filter>
+    <action android:name="android.intent.action.BOOT_COMPLETED" />
+    <action android:name="android.intent.action.USER_PRESENT" />
+  </intent-filter>
+</receiver>
+<receiver android:name="com.parse.ParsePushBroadcastReceiver"
+    android:exported="false">
+  <intent-filter>
+    <action android:name="com.parse.push.intent.RECEIVE" />
+    <action android:name="com.parse.push.intent.DELETE" />
+    <action android:name="com.parse.push.intent.OPEN" />
+    </intent-filter>
+</receiver>
+<receiver android:name="com.parse.GcmBroadcastReceiver"
+    android:permission="com.google.android.c2dm.permission.SEND">
+  <intent-filter>
+    <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+    <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+    <category android:name="com.parse4cn1.TestApp" />
+  </intent-filter>
+</receiver>
+
+android.xpermissions =
+
+<uses-permission android:name="android.permission.INTERNET" />
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.WAKE_LOCK" />
+<uses-permission android:name="android.permission.VIBRATE" />
+<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+<uses-permission android:name="android.permission.GET_ACCOUNTS" />
+<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+<permission android:protectionLevel="signature"
+    android:name="com.parse4cn1.TestApp.permission.C2D_MESSAGE" />
+<uses-permission android:name="com.parse4cn1.TestApp.permission.C2D_MESSAGE" />
+
+2. Invoke <TODO: Method name> to enable push support
+3. Subscribe to channels of interest
+
+That's it! Send a push from the dashboard and get notified
+
+Useful links:
+https://parse.com/docs/android/guide#push-notifications-troubleshooting
+https://parse.com/apps/quickstart#parse_push/android/native/existing
+
+TESTED with NativeInterface in CN1Application. TODO: Test with NativeInterface in parse4cn1
+
+TODO: Include Parse.Initialize() in Custom Application class so that push can be received even when app is closed
+
+Notes for detecting push open e.g. to store payload so that app can deal with it as appropriate:
+Idea - Subclass BroadcastReceiver and override onPushOpen()
+Useful links:
+- http://www.intridea.com/blog/2011/5/24/how-to-use-application-object-of-android
+- https://www.parse.com/questions/push-notification-in-android-while-app-closed
+- https://parse.com/docs/android/guide#push-notifications-setting-up-push
