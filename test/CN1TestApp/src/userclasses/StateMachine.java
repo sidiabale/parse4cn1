@@ -16,14 +16,14 @@
 
 package userclasses;
 
+import com.codename1.components.SpanLabel;
 import generated.StateMachineBase;
 import com.codename1.ui.*; 
-import com.codename1.ui.events.*;
 import com.codename1.ui.util.Resources;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseException;
-import com.parse4cn1.command.ParseGetCommand;
-import com.parse4cn1.command.ParseResponse;
+import com.parse4cn1.ParseInstallation;
+import com.parse4cn1.ParseUser;
 
 /**
  *
@@ -41,6 +41,35 @@ public class StateMachine extends StateMachineBase {
      * the constructor/class scope to avoid race conditions
      */
     protected void initVars(Resources res) {
+        Parse.initialize("j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", 
+                "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB");
     }
+    
+    @Override
+    protected void postMain(Form f) {
+        SpanLabel installationLabel = findLabelInstallation(f);
+        
+        if (installationLabel != null) {
+            boolean failed = true;
+            String installationIdText = "Unspecified error";
+  
+            try {
+                ParseInstallation installation = ParseInstallation.getCurrentInstallation();
 
+                if (installation != null) {
+                    installationIdText = installation.getInstallationId();
+                    failed = false;
+                } else {
+                    installationIdText = "Could not retrieve current installation!";
+                }
+            } catch (ParseException ex) {
+                installationIdText = "An exception occurred: " + ex.getMessage();
+            }
+            
+            installationLabel.setText(installationIdText);
+            if (failed) {
+                installationLabel.setTextUIID("WarningLabel");
+            }
+        }
+    }
 }

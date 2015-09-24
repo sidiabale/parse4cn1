@@ -36,11 +36,11 @@ public abstract class StateMachineBase extends UIBuilder {
         UIBuilder.registerCustomComponent("Container", com.codename1.ui.Container.class);
         UIBuilder.registerCustomComponent("ComponentGroup", com.codename1.ui.ComponentGroup.class);
         UIBuilder.registerCustomComponent("Form", com.codename1.ui.Form.class);
-        UIBuilder.registerCustomComponent("TextArea", com.codename1.ui.TextArea.class);
         UIBuilder.registerCustomComponent("Button", com.codename1.ui.Button.class);
         UIBuilder.registerCustomComponent("Label", com.codename1.ui.Label.class);
         UIBuilder.registerCustomComponent("MapComponent", com.codename1.maps.MapComponent.class);
         UIBuilder.registerCustomComponent("Tabs", com.codename1.ui.Tabs.class);
+        UIBuilder.registerCustomComponent("SpanLabel", com.codename1.components.SpanLabel.class);
         UIBuilder.registerCustomComponent("MultiButton", com.codename1.components.MultiButton.class);
         if(loadTheme) {
             if(res == null) {
@@ -79,11 +79,11 @@ public abstract class StateMachineBase extends UIBuilder {
         UIBuilder.registerCustomComponent("Container", com.codename1.ui.Container.class);
         UIBuilder.registerCustomComponent("ComponentGroup", com.codename1.ui.ComponentGroup.class);
         UIBuilder.registerCustomComponent("Form", com.codename1.ui.Form.class);
-        UIBuilder.registerCustomComponent("TextArea", com.codename1.ui.TextArea.class);
         UIBuilder.registerCustomComponent("Button", com.codename1.ui.Button.class);
         UIBuilder.registerCustomComponent("Label", com.codename1.ui.Label.class);
         UIBuilder.registerCustomComponent("MapComponent", com.codename1.maps.MapComponent.class);
         UIBuilder.registerCustomComponent("Tabs", com.codename1.ui.Tabs.class);
+        UIBuilder.registerCustomComponent("SpanLabel", com.codename1.components.SpanLabel.class);
         UIBuilder.registerCustomComponent("MultiButton", com.codename1.components.MultiButton.class);
         if(loadTheme) {
             if(res == null) {
@@ -170,18 +170,6 @@ public abstract class StateMachineBase extends UIBuilder {
         return cmp;
     }
 
-    public com.codename1.ui.TextArea findTextArea(Component root) {
-        return (com.codename1.ui.TextArea)findByName("TextArea", root);
-    }
-
-    public com.codename1.ui.TextArea findTextArea() {
-        com.codename1.ui.TextArea cmp = (com.codename1.ui.TextArea)findByName("TextArea", Display.getInstance().getCurrent());
-        if(cmp == null && aboutToShowThisContainer != null) {
-            cmp = (com.codename1.ui.TextArea)findByName("TextArea", aboutToShowThisContainer);
-        }
-        return cmp;
-    }
-
     public com.codename1.ui.ComponentGroup findComponentGroup1(Component root) {
         return (com.codename1.ui.ComponentGroup)findByName("ComponentGroup1", root);
     }
@@ -206,18 +194,6 @@ public abstract class StateMachineBase extends UIBuilder {
         return cmp;
     }
 
-    public com.codename1.ui.Label findLabel1(Component root) {
-        return (com.codename1.ui.Label)findByName("Label1", root);
-    }
-
-    public com.codename1.ui.Label findLabel1() {
-        com.codename1.ui.Label cmp = (com.codename1.ui.Label)findByName("Label1", Display.getInstance().getCurrent());
-        if(cmp == null && aboutToShowThisContainer != null) {
-            cmp = (com.codename1.ui.Label)findByName("Label1", aboutToShowThisContainer);
-        }
-        return cmp;
-    }
-
     public com.codename1.ui.Container findContainer3(Component root) {
         return (com.codename1.ui.Container)findByName("Container3", root);
     }
@@ -226,6 +202,18 @@ public abstract class StateMachineBase extends UIBuilder {
         com.codename1.ui.Container cmp = (com.codename1.ui.Container)findByName("Container3", Display.getInstance().getCurrent());
         if(cmp == null && aboutToShowThisContainer != null) {
             cmp = (com.codename1.ui.Container)findByName("Container3", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
+    public com.codename1.ui.Container findContainer4(Component root) {
+        return (com.codename1.ui.Container)findByName("Container4", root);
+    }
+
+    public com.codename1.ui.Container findContainer4() {
+        com.codename1.ui.Container cmp = (com.codename1.ui.Container)findByName("Container4", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.Container)findByName("Container4", aboutToShowThisContainer);
         }
         return cmp;
     }
@@ -250,6 +238,18 @@ public abstract class StateMachineBase extends UIBuilder {
         com.codename1.ui.Container cmp = (com.codename1.ui.Container)findByName("Container2", Display.getInstance().getCurrent());
         if(cmp == null && aboutToShowThisContainer != null) {
             cmp = (com.codename1.ui.Container)findByName("Container2", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
+    public com.codename1.ui.Container findContainer5(Component root) {
+        return (com.codename1.ui.Container)findByName("Container5", root);
+    }
+
+    public com.codename1.ui.Container findContainer5() {
+        com.codename1.ui.Container cmp = (com.codename1.ui.Container)findByName("Container5", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.Container)findByName("Container5", aboutToShowThisContainer);
         }
         return cmp;
     }
@@ -346,6 +346,66 @@ public abstract class StateMachineBase extends UIBuilder {
         com.codename1.ui.Tabs cmp = (com.codename1.ui.Tabs)findByName("Tabs1", Display.getInstance().getCurrent());
         if(cmp == null && aboutToShowThisContainer != null) {
             cmp = (com.codename1.ui.Tabs)findByName("Tabs1", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
+    public com.codename1.components.SpanLabel findLabelInstallation(Component root) {
+        return (com.codename1.components.SpanLabel)findByName("LabelInstallation", root);
+    }
+
+    public com.codename1.components.SpanLabel findLabelInstallation() {
+        com.codename1.components.SpanLabel cmp = (com.codename1.components.SpanLabel)findByName("LabelInstallation", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.components.SpanLabel)findByName("LabelInstallation", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
+    public com.codename1.ui.Label findLabel1(Component root) {
+        return (com.codename1.ui.Label)findByName("Label1", root);
+    }
+
+    public com.codename1.ui.Label findLabel1() {
+        com.codename1.ui.Label cmp = (com.codename1.ui.Label)findByName("Label1", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.Label)findByName("Label1", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
+    public com.codename1.ui.Label findLabel3(Component root) {
+        return (com.codename1.ui.Label)findByName("Label3", root);
+    }
+
+    public com.codename1.ui.Label findLabel3() {
+        com.codename1.ui.Label cmp = (com.codename1.ui.Label)findByName("Label3", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.Label)findByName("Label3", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
+    public com.codename1.components.SpanLabel findSpanLabel(Component root) {
+        return (com.codename1.components.SpanLabel)findByName("SpanLabel", root);
+    }
+
+    public com.codename1.components.SpanLabel findSpanLabel() {
+        com.codename1.components.SpanLabel cmp = (com.codename1.components.SpanLabel)findByName("SpanLabel", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.components.SpanLabel)findByName("SpanLabel", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
+    public com.codename1.ui.Label findLabel2(Component root) {
+        return (com.codename1.ui.Label)findByName("Label2", root);
+    }
+
+    public com.codename1.ui.Label findLabel2() {
+        com.codename1.ui.Label cmp = (com.codename1.ui.Label)findByName("Label2", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.Label)findByName("Label2", aboutToShowThisContainer);
         }
         return cmp;
     }
@@ -476,10 +536,6 @@ public abstract class StateMachineBase extends UIBuilder {
         }
         if(rootContainerName == null) return;
         if(rootContainerName.equals("Main")) {
-            if("TextArea".equals(c.getName())) {
-                onMain_TextAreaAction(c, event);
-                return;
-            }
             if("MultiButton".equals(c.getName())) {
                 onMain_MultiButtonAction(c, event);
                 return;
@@ -506,9 +562,6 @@ public abstract class StateMachineBase extends UIBuilder {
             }
         }
     }
-
-      protected void onMain_TextAreaAction(Component c, ActionEvent event) {
-      }
 
       protected void onMain_MultiButtonAction(Component c, ActionEvent event) {
       }
