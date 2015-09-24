@@ -15,7 +15,9 @@
  */
 package com.parse4cn1;
 
+import com.codename1.io.Log;
 import com.codename1.io.Preferences;
+import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -41,7 +43,11 @@ public class ParseInstallationTest extends BaseParseTest {
     public void prepare() {
         super.prepare();
         Preferences.set(ParseInstallation.PARSE_INSTALLATION_ID_SETTING_KEY, installationId);
-        currentInstallation = ParseInstallation.getCurrentInstallation();
+        try {
+            currentInstallation = ParseInstallation.getCurrentInstallation();
+        } catch (ParseException ex) {
+            Logger.getInstance().error("Retrieving current installation failed! Error: " +  ex);
+        }
         assertNotNull(currentInstallation, "Current installation is null");
     }
     
