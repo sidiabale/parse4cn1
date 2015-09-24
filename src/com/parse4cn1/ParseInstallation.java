@@ -322,7 +322,7 @@ public class ParseInstallation extends ParseObject {
      * @throws ParseException if anything goes wrong
      */
     private static String retrieveInstallationId() throws ParseException {
-        
+        String installationId = null;
         if (Parse.getPlatform() == Parse.EPlatform.ANDROID
                 || Parse.getPlatform() == Parse.EPlatform.IOS) {
             final ParseInstallationNative nativeInstallation = 
@@ -342,13 +342,14 @@ public class ParseInstallation extends ParseObject {
                             // So we proceed with attempting to retrieve the installation ID.
                             // If that also goes wrong, then there's a real problem and an exception will be thrown.
                             parseSdkInitialized = false;
-                            Logger.getInstance().warn("Attemptinig to retrieve the installation ID "
+                            Logger.getInstance().warn("Attempting to retrieve the installation ID "
                                     + "though initialization of Parse SDK failed!"
                                     + "\n\nError: " + ex.getMessage());
                         }
                     }
                     
-                    return nativeInstallation.getInstallationId();
+                    installationId = nativeInstallation.getInstallationId();
+                    parseSdkInitialized = (installationId != null && installationId.length() > 0);
                 } catch (Exception ex) {
                    throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
                            "Failed to retrieve installation ID." +
@@ -358,9 +359,11 @@ public class ParseInstallation extends ParseObject {
                 throw new ParseException(ParseException.PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED, 
                         "Failed to retrieve installation ID");
             }
+        } else {
+            installationId = Preferences.get(PARSE_INSTALLATION_ID_SETTING_KEY, null);
         }
         
-        return Preferences.get(PARSE_INSTALLATION_ID_SETTING_KEY, null);
+        return installationId;
     }
 
     /*
