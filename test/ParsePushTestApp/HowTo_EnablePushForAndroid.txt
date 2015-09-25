@@ -2,7 +2,14 @@ Steps for using (native) Parse Push in parse4cn1:
 
 0. Add an application class to initialize the native Parse SDK and include in via
 
-android.xapplication_attr=android:name="<ApplicationName>" // e.g. android:name="ParseApplication"
+android.xapplication_attr=android:name="<packageName>.<ApplicationName>" // e.g. android:name="ParseApplication"
+
+- Remember to create the package directory if not present in the /native/android and to add a "package <packageName>;" declaration at the top of your application file otherwise the app will crash with a 'Unable to instantiate application com.parse4cn1.TestApp.ParseApplication: java.lang.ClassNotFoundException' error.
+- Note that if you omit the <packageName> part, the default app package will be used.
+
+Useful links
+- Pushes will not be received when an app is force-stopped
+https://www.parse.com/questions/problem-with-push-notification-where-android-apps-force-stop
 
 1. Add build hints for registering for Parse Push (step 1) and setting permissions (step 2) as explained here
 https://parse.com/apps/quickstart#parse_push/android/native/existing
@@ -66,3 +73,10 @@ Useful links:
 - http://www.intridea.com/blog/2011/5/24/how-to-use-application-object-of-android
 - https://www.parse.com/questions/push-notification-in-android-while-app-closed
 - https://parse.com/docs/android/guide#push-notifications-setting-up-push
+
+
+General
+- Enabling USB debugging
+http://www.teamandroid.com/2012/07/30/how-to-set-up-adb-fastboot-with-android-sdk/2/
+- Samsung usb drivers
+http://developer.samsung.com/technical-doc/view.do?v=T000000117

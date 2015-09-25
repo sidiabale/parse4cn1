@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package com.parse4cn1.TestApp;
+
 import android.app.Application;
 import com.parse.Parse;
 import com.parse.ParseInstallation;

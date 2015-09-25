@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+package com.parse4cn1.TestApp;
+
 import com.parse.ParsePushBroadcastReceiver;
 
 /**
