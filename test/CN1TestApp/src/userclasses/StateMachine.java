@@ -16,14 +16,17 @@
 
 package userclasses;
 
+import ca.weblite.codename1.json.JSONException;
+import ca.weblite.codename1.json.JSONObject;
 import com.codename1.components.SpanLabel;
 import generated.StateMachineBase;
 import com.codename1.ui.*; 
+import com.codename1.ui.events.ActionEvent;
 import com.codename1.ui.util.Resources;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseInstallation;
-import com.parse4cn1.ParseUser;
+import com.parse4cn1.ParsePush;
 
 /**
  *
@@ -58,6 +61,7 @@ public class StateMachine extends StateMachineBase {
 
                 if (installation != null) {
                     installationIdText = installation.getInstallationId();
+                    installation.subscribeToChannel("test");
                     failed = false;
                 } else {
                     installationIdText = "Could not retrieve current installation!";
@@ -70,6 +74,98 @@ public class StateMachine extends StateMachineBase {
             if (failed) {
                 installationLabel.setTextUIID("WarningLabel");
             }
+            initPushButton(f, !failed, 
+                    (failed ? "Sending push is disabled since installion id could not be retrieved" : ""));
+        }
+    }
+
+    @Override
+    protected void beforeMain(Form f) {
+        final SpanLabel pushNotes = findSpanLabelPushNotes(f);
+        pushNotes.setText("Note:"
+                + "\n- Message will be delivered to all subscribers of the \"test\" channel (which includes this device)."
+                + "\n- (Part of) the installation ID of the sender will automatically be included in the push message.");
+    }
+
+    @Override
+    protected void onMain_ButtonSendPushAction(Component c, ActionEvent event) {
+        final SpanLabel statusLabel = findSpanLabelPushStatus();
+        
+        final String pushMsg = findTextAreaPush().getText();
+        if (pushMsg.length() == 0) {
+            Dialog.show("No push text", "Please enter a message to be sent", "Ok", null);
+            return;
+        }
+        
+        boolean succeeded = false;
+        try {
+            statusLabel.setTextUIID("Label");
+            statusLabel.setText("Preparing message for sending...");
+            final String senderInfo = "[Triggered from " + Parse.getPlatform().name() 
+                    + " device with installationId ending in '" + getInstallationIdPrefix() + "']";
+            
+            ParsePush parsePush = ParsePush.create();
+            parsePush.setChannel("test");
+            if (((CheckBox)findCheckBoxRawJson()).isSelected()) {
+                final JSONObject data = new JSONObject(pushMsg);
+                data.put("senderInfo", senderInfo);
+                parsePush.setData(data);
+            } else {
+                parsePush.setMessage(pushMsg + " " + senderInfo);
+            }
+            
+            statusLabel.setText("Sending push to 'test' channel subscribers...");
+            parsePush.send();
+            succeeded = true;
+            statusLabel.setText("Push message successfully sent!");
+        } catch (ParseException ex) {
+            Dialog.show("Error", "An error occurred while preparing the push message. Error:\n" + ex.getMessage(), 
+                    Dialog.TYPE_ERROR, null, "Ok", null);
+            statusLabel.setText("An error occurred: " + ex.getMessage());
+        } catch (JSONException ex) {
+             Dialog.show("Error", "The push message contains invalid JSON. Error:\n" + ex.getMessage(), 
+                    Dialog.TYPE_ERROR, null, "Ok", null);
+             statusLabel.setText("An error occurred: " + ex.getMessage());
+        } catch (Exception ex) {
+            statusLabel.setText("An unexpected error occurred: " + ex.getMessage());
+        } 
+        finally {
+            statusLabel.setTextUIID(succeeded ? "Label" : "WarningLabel");
+        }
+    }
+    
+    private String getInstallationIdPrefix() throws ParseException {
+        String prefix = ParseInstallation.getCurrentInstallation().getInstallationId();
+        prefix = prefix.substring(prefix.lastIndexOf('-'));
+        return prefix;
+    }
+    
+    private void initPushButton(final Form f, boolean enable, final String statusMsg) {
+        final Button pushButton = findButtonSendPush(f);
+        pushButton.setEnabled(enable);
+        
+        final SpanLabel pushStatus = findSpanLabelPushStatus(f);
+        pushStatus.setText(statusMsg);
+        pushStatus.setTextUIID(enable ? "Label" : "WarningLabel");
+    }
+
+    @Override
+    protected void onMain_CheckBoxRawJsonAction(Component c, ActionEvent event) {
+        CheckBox rawPushCheckbox = (CheckBox)c;
+        if (rawPushCheckbox.isSelected()) {
+            try {
+                final String existing = findTextAreaPush().getText();
+                JSONObject data = new JSONObject();
+                data.put("alert", existing);
+                findTextAreaPush().setText(data.toString());
+            } catch (JSONException ex) {
+                // Ignore error and initialize to default
+                findTextAreaPush().setText("{\n"
+                        + "  \"alert\":\"message\""
+                        + "\n}");
+            }
+        } else {
+            findTextAreaPush().setText("");
         }
     }
 }
