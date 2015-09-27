@@ -105,21 +105,6 @@ public class ParseInstallation extends ParseObject {
                 throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
                         "Failed to retrieve installation ID");
             }
-            
-            // Testing badge code
-            // TODO: Move to ParsePush class when it is created.
-            if (Parse.getPlatform() == Parse.EPlatform.IOS) {
-                final ParsePushNative nativePush
-                        = (ParsePushNative) NativeLookup.create(ParsePushNative.class);
-                if (nativePush != null && nativePush.isSupported()) {
-                    try {
-                        nativePush.setBadge(0);
-                    } catch (Exception ex) {
-                        throw new ParseException("Resetting badge failed."
-                                + (ex != null ? " Error: " + ex.getMessage() : ""), ex);
-                    }
-                }
-            }
         }
 
         return currentInstallation;
@@ -156,6 +141,31 @@ public class ParseInstallation extends ParseObject {
      */
     public String getInstallationId() throws ParseException {
         return retrieveInstallationId();
+    }
+    
+    /**
+     * (iOS only) Sets the app batch that is shown on the app icon to the specified
+     * count for this installation.
+     * @param count The badge count to be set
+     * @throws ParseException if anything goes wrong.
+     */
+    public void setBadge(final int count) throws ParseException {
+        if (Parse.getPlatform() == Parse.EPlatform.IOS) {
+            final ParsePushNative nativePush
+                    = (ParsePushNative) NativeLookup.create(ParsePushNative.class);
+            if (nativePush != null && nativePush.isSupported()) {
+                try {
+                    nativePush.setBadge(count);
+                } catch (Exception ex) {
+                    throw new ParseException("Resetting badge failed."
+                            + (ex != null ? " Error: " + ex.getMessage() : ""), ex);
+                }
+            }
+        } else {
+            throw new ParseException(ParseException.PARSE4CN1_SETTING_BADGE_NOT_SUPPORTED,
+                    "Setting badge of current installation is not "
+                    + "supported for this platform.");
+        }
     }
 
     /**
@@ -365,23 +375,4 @@ public class ParseInstallation extends ParseObject {
         
         return installationId;
     }
-
-    /*
-     Some known errors when trying to create ParseInstallations via the REST API:
-            
-     {
-        "code": 132,
-        "error": "Invalid installation ID: 982021" // Format is apparently fixed but not documented publicly
-     }
-
-     {
-        "code": 135,
-        "error": "deviceType must be specified in this operation"
-     }
-
-     {
-        "code": 135,
-        "error": "at least one ID field (installationId,deviceToken) must be specified in this operation"
-     }
-     */
 }

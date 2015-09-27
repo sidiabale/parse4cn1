@@ -36,6 +36,7 @@ public class ParseInstallationTest extends BaseParseTest {
         testUserDefinedFields();
         testSubscriptionToChannels();
         testSerialization();
+        testBadging();
         return true;
     }
     
@@ -129,12 +130,27 @@ public class ParseInstallationTest extends BaseParseTest {
         retrieved = retrieveInstallation();
         checkSubscriptions(channels, retrieved.getSubscribedChannels());
     }
-
+    
     private void testSerialization() {
         System.out.println("============== testSerialization()");
 
         ParseInstallation retrieved = (ParseInstallation) serializeAndRetrieveParseObject(currentInstallation);
         compareParseObjects(currentInstallation, retrieved, null);
+    }
+
+    private void testBadging() {
+        System.out.println("============== testBadging()");
+
+        boolean passed = false;
+        try  {
+            currentInstallation.setBadge(0);
+        } catch (ParseException ex) {
+            if (ex.getCode() == ParseException.PARSE4CN1_SETTING_BADGE_NOT_SUPPORTED) {
+                passed = true;
+            }
+        }
+        
+        assertTrue(passed, "Badging is supported only on iOS platform");
     }
     
     private void checkSubscriptions(final List<String> expected, final List<String> actual) {
