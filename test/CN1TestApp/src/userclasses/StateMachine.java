@@ -27,12 +27,13 @@ import com.parse4cn1.Parse;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseInstallation;
 import com.parse4cn1.ParsePush;
+import com.parse4cn1.ParsePush.IPushCallback;
 
 /**
  *
  * @author Your name here
  */
-public class StateMachine extends StateMachineBase {
+public class StateMachine extends StateMachineBase implements IPushCallback {
     public StateMachine(String resFile) {
         super(resFile);
         // do not modify, write code in initVars and initialize class members there,
@@ -46,6 +47,7 @@ public class StateMachine extends StateMachineBase {
     protected void initVars(Resources res) {
         Parse.initialize("j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", 
                 "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB");
+        ParsePush.setPushCallback(this);
     }
     
     @Override
@@ -167,5 +169,19 @@ public class StateMachine extends StateMachineBase {
         } else {
             findTextAreaPush().setText("");
         }
+    }
+
+    public boolean onPushReceived(final JSONObject pushPayload) {
+        Display.getInstance().callSerially(new Runnable() {
+
+            public void run() {
+                Dialog.show("Push received", 
+                (pushPayload == null ? "<Null payload>" : pushPayload.toString()), 
+                "OK", 
+                null);
+            }
+            
+        });
+        return true;
     }
 }

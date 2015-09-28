@@ -17,15 +17,25 @@
 package com.parse4cn1.TestApp;
 
 import android.app.Application;
+import android.os.Bundle;
 import com.parse.Parse;
 import com.parse.ParseInstallation;
+import com.codename1.impl.android.LifecycleListener;
+import com.codename1.impl.android.AndroidNativeUtil;
 
 /**
  * An Android application class that enables correct initialization of the Parse
  * Android native SDK.
  */
 public class ParseApplication extends Application {
-
+    
+    private static LifecycleListener lifecycleListener = null;
+    private static boolean isInForeground = false;
+   
+    public static boolean isAppInForeground() {
+        return isInForeground;
+    }
+    
     @Override
     public void onCreate() {
         super.onCreate();
@@ -36,5 +46,47 @@ public class ParseApplication extends Application {
                 "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", /* Application ID */
                 "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB" /* Client Key */);
         ParseInstallation.getCurrentInstallation().saveInBackground();
+        initializeLifecycleListener();
+        AndroidNativeUtil.addLifecycleListener(lifecycleListener);
     }
+    
+    @Override
+    public void onTerminate() {
+        AndroidNativeUtil.removeLifecycleListener(lifecycleListener);
+    }
+             
+    private static void initializeLifecycleListener() {
+        lifecycleListener = new LifecycleListener() {
+            
+            @Override
+            public void onCreate(Bundle savedInstanceState) {
+                // Not interesting fpr now
+            }
+            
+            @Override
+            public void onResume() {
+                isInForeground = true;
+            }
+            
+            @Override
+            public void onPause() {
+                isInForeground = false;
+            }
+            
+            @Override
+            public void onDestroy() {
+                // Not interesting fpr now
+            }
+            
+            @Override
+            public void onSaveInstanceState(Bundle b) {
+                // Not interesting fpr now
+            }
+            
+            @Override
+            public void onLowMemory() {
+                // Not interesting fpr now
+            }
+        };
+    }   
 }

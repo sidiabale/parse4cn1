@@ -24,6 +24,9 @@ import ca.weblite.codename1.json.JSONException;
 import java.util.Collection;
 import java.util.Date;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Preferences;
+import com.codename1.ui.Dialog;
+import static com.parse4cn1.ParseInstallation.PARSE_INSTALLATION_ID_SETTING_KEY;
 import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
@@ -43,7 +46,14 @@ import java.util.Set;
  * client push in production apps.
  */
 public class ParsePush {
+    
+    public interface IPushCallback {
+        public boolean onPushReceived(final JSONObject pushPayload);
+    }
 
+    public static final String PARSE_PUSH_PAYLOAD_SETTING_KEY = "parse4cn1_pushPayload";
+    private static IPushCallback pushCallback;
+    
     private Set<String> channels = null;
     // private ParseQuery<ParseInstallation> query = null;
     private Date expirationTime = null;
@@ -66,6 +76,43 @@ public class ParsePush {
      */
     public static ParsePush create() {
         return new ParsePush();
+    }
+    
+    public static boolean isAppOpenedViaPushNotification() {
+        return (getPushDataUsedToOpenApp() != null);
+    }
+    
+    public static JSONObject getPushDataUsedToOpenApp() {
+        JSONObject json = null;
+        String jsonStr = null;
+        try {
+            jsonStr = Preferences.get(PARSE_INSTALLATION_ID_SETTING_KEY, null);
+            if (jsonStr != null) {
+                json = new JSONObject(jsonStr);
+            }
+        } catch (JSONException ex) {
+            Logger.getInstance().error("Unable to parse push message payload '" 
+                    + jsonStr + "' to JSON. Error: " + ex);
+        }
+        return json;
+    }
+    
+    public static void setPushCallback(final IPushCallback callback) {        
+        pushCallback = callback;
+    }
+    
+    public static boolean notifyPushReceived(final String jsonPushPayload) {
+        JSONObject json;
+        try {
+            json = new JSONObject(jsonPushPayload);
+            if (pushCallback != null) {
+                return pushCallback.onPushReceived(json);
+            }
+        } catch (JSONException ex) {
+            Logger.getInstance().error("Unable to parse push message payload '" 
+                    + jsonPushPayload + "' to JSON. Error: " + ex);
+        }
+        return false;
     }
 
     /**
