@@ -15,8 +15,6 @@
  */
 package com.parse;
 
-import com.parse.ParsePushBroadcastReceiver;
-import com.parse.ParseNotificationManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -106,9 +104,6 @@ public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
         /*
          Adapted from ParsePushBroadcastReceiver. Main changes
          1. Remove analytics call to log app open; CN1 app should decide if and where to do that
-         2. Fixed issue that new activity (/task?) was being opened because the activityIntent
-         flags were set in the else block of 'if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)'
-         thus, not being applied to the if section.
          */
         String uriString = null;
         try {
@@ -127,8 +122,7 @@ public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
         }
 
         activityIntent.putExtras(intent.getExtras());
-        activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        
         /*
          In order to remove dependency on android-support-library-v4
          The reason why we differentiate between versions instead of just using context.startActivity
@@ -136,11 +130,14 @@ public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
          the back key changed.
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-            stackBuilder.addParentStack(cls);
-            stackBuilder.addNextIntent(activityIntent);
-            stackBuilder.startActivities();
+            TaskStackBuilderHelper.startActivities(context, cls, activityIntent);
+//            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
+//            stackBuilder.addParentStack(cls);
+//            stackBuilder.addNextIntent(activityIntent);
+//            stackBuilder.startActivities();
         } else {
+            activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             context.startActivity(activityIntent);
         }
     }
