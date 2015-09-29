@@ -48,6 +48,7 @@ public class ParsePush {
     public interface IPushCallback {
         public boolean onPushReceivedForeground(final JSONObject pushPayload);
         public boolean onPushReceivedBackground(final JSONObject pushPayload);
+        public void onPushOpened(final JSONObject pushPayload);
     }
 
     private static String appOpenPushPayload;
@@ -163,11 +164,25 @@ public class ParsePush {
         return false;
     }
     
-    public static void handlePushOpen(final String jsonPushPayload) {
-        Logger.getInstance().debug("App about to open via push message. Payload: "
-                + jsonPushPayload);
+    public static void handlePushOpen(final String jsonPushPayload, boolean isAppInForeground) {
+        Logger.getInstance().debug("App about to open via push message. "
+                + "App in foreground? " + (isAppInForeground ? "Yes" : "No") + ". "
+                + "Payload: " + jsonPushPayload);
         
-        appOpenPushPayload = jsonPushPayload;
+        if (isAppInForeground) {
+            JSONObject json;
+            try {
+                json = new JSONObject(jsonPushPayload);
+                if (pushCallback != null) {
+                    pushCallback.onPushOpened(json);
+                }
+            } catch (JSONException ex) {
+                Logger.getInstance().error("Unable to parse push message payload '" 
+                        + jsonPushPayload + "' to JSON. Error: " + ex);
+            }
+        } else {
+            appOpenPushPayload = jsonPushPayload;
+        }
     }
     
     private static boolean handlePushReceivedRunning(final String jsonPushPayload, boolean isForeground) {

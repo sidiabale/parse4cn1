@@ -100,5 +100,6 @@ public class Main {
     }
     
     public void destroy() {
+        ParsePush.setPushCallback(null);
     }
 }

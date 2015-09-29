@@ -180,6 +180,7 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         }
     }
 
+    @Override
     public boolean onPushReceivedForeground(final JSONObject pushPayload) {
         if (handleForegroundPush) {
             Display.getInstance().callSerially(new Runnable() {
@@ -207,11 +208,25 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         return handleForegroundPush;
     }
 
+    @Override
     public boolean onPushReceivedBackground(JSONObject pushPayload) {
         if (handleBackgroundPush) {
             Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, pushPayload.toString());
         }
         return handleBackgroundPush;
+    }
+    
+    @Override
+    public void onPushOpened(final JSONObject pushPayload) {
+        Display.getInstance().callSerially(new Runnable() {
+
+            public void run() {
+                Dialog.show("Push opened (foreground)",
+                        "Push notification opened while app is in foreground. Payload:\n\n"
+                        + pushPayload.toString(), "OK", null);
+            }
+
+        });
     }
 
     @Override
