@@ -48,10 +48,12 @@ import java.util.Set;
 public class ParsePush {
     
     public interface IPushCallback {
-        public boolean onPushReceived(final JSONObject pushPayload);
+        public boolean onPushReceivedForeground(final JSONObject pushPayload);
+        public boolean onPushReceivedBackground(final JSONObject pushPayload);
     }
 
-    public static final String PARSE_PUSH_PAYLOAD_SETTING_KEY = "parse4cn1_pushPayload";
+    public static final String KEY_PARSE_PUSH_APP_OPEN_PAYLOAD = "parse4cn1_appOpenPushPayload";
+    public static final String KEY_PARSE_PUSH_APP_NOT_RUNNING_PAYLOAD = "parse4cn1_appNotRunningPushPayload";
     private static IPushCallback pushCallback;
     
     private Set<String> channels = null;
@@ -82,11 +84,15 @@ public class ParsePush {
         return (getPushDataUsedToOpenApp() != null);
     }
     
+    public static boolean isPushReceivedWhileAppNotRunning() {
+        return (getAppNotRunningPushData() != null);
+    }
+    
     public static JSONObject getPushDataUsedToOpenApp() {
         JSONObject json = null;
         String jsonStr = null;
         try {
-            jsonStr = Preferences.get(PARSE_INSTALLATION_ID_SETTING_KEY, null);
+            jsonStr = Preferences.get(KEY_PARSE_PUSH_APP_OPEN_PAYLOAD, null);
             if (jsonStr != null) {
                 json = new JSONObject(jsonStr);
             }
@@ -97,16 +103,67 @@ public class ParsePush {
         return json;
     }
     
+    public static void resetPushDataUsedToOpenApp() {
+        Preferences.set(KEY_PARSE_PUSH_APP_OPEN_PAYLOAD, null);
+    }
+    
+    public static JSONArray getAppNotRunningPushData() {
+        JSONArray json = null;
+        String jsonStr = null;
+        try {
+            jsonStr = Preferences.get(KEY_PARSE_PUSH_APP_NOT_RUNNING_PAYLOAD, null);
+            if (jsonStr != null) {
+                json = new JSONArray(jsonStr);
+            }
+        } catch (JSONException ex) {
+            Logger.getInstance().error("Unable to parse push message payload '" 
+                    + jsonStr + "' to JSON. Error: " + ex);
+        }
+        return json;
+    }
+    
+    public static void resetAppNotRunningPushData() {
+        Preferences.set(KEY_PARSE_PUSH_APP_NOT_RUNNING_PAYLOAD, null);
+    }
+    
     public static void setPushCallback(final IPushCallback callback) {        
         pushCallback = callback;
     }
     
-    public static boolean notifyPushReceived(final String jsonPushPayload) {
+    public static boolean handlePushReceivedForeground(final String jsonPushPayload) {
+        return handlePushReceivedRunning(jsonPushPayload, true);
+    }
+    
+    public static boolean handlePushReceivedBackground(final String jsonPushPayload) {
+        return handlePushReceivedRunning(jsonPushPayload, false);
+    }
+    
+    public static boolean handlePushReceivedNotRunning(final String jsonPushPayload) {
+        JSONObject received;
+        try {
+            received = new JSONObject(jsonPushPayload);
+            JSONArray existing = getAppNotRunningPushData();
+            if (existing == null) {
+                existing = new JSONArray();
+            }
+            existing.put(0, received);
+        } catch (JSONException ex) {
+            Logger.getInstance().error("Unable to parse push message payload '" 
+                    + jsonPushPayload + "' to JSON. Error: " + ex);
+        }
+        return false;
+    }
+    
+    private static boolean handlePushReceivedRunning(final String jsonPushPayload, boolean isForeground) {
         JSONObject json;
         try {
             json = new JSONObject(jsonPushPayload);
             if (pushCallback != null) {
-                return pushCallback.onPushReceived(json);
+                if (isForeground) {
+                    return pushCallback.onPushReceivedForeground(json);
+                } else {
+                    return pushCallback.onPushReceivedBackground(json);
+                }
             }
         } catch (JSONException ex) {
             Logger.getInstance().error("Unable to parse push message payload '" 

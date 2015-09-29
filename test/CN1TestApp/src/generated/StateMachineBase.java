@@ -186,6 +186,18 @@ public abstract class StateMachineBase extends UIBuilder {
         return cmp;
     }
 
+    public com.codename1.ui.CheckBox findCheckBoxHandleForegroundPush(Component root) {
+        return (com.codename1.ui.CheckBox)findByName("CheckBoxHandleForegroundPush", root);
+    }
+
+    public com.codename1.ui.CheckBox findCheckBoxHandleForegroundPush() {
+        com.codename1.ui.CheckBox cmp = (com.codename1.ui.CheckBox)findByName("CheckBoxHandleForegroundPush", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.CheckBox)findByName("CheckBoxHandleForegroundPush", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
     public com.codename1.ui.ComponentGroup findComponentGroup1(Component root) {
         return (com.codename1.ui.ComponentGroup)findByName("ComponentGroup1", root);
     }
@@ -688,6 +700,10 @@ public abstract class StateMachineBase extends UIBuilder {
                 onMain_CheckBoxRawJsonAction(c, event);
                 return;
             }
+            if("CheckBoxHandleForegroundPush".equals(c.getName())) {
+                onMain_CheckBoxHandleForegroundPushAction(c, event);
+                return;
+            }
             if("TextAreaPush".equals(c.getName())) {
                 onMain_TextAreaPushAction(c, event);
                 return;
@@ -724,6 +740,9 @@ public abstract class StateMachineBase extends UIBuilder {
     }
 
       protected void onMain_CheckBoxRawJsonAction(Component c, ActionEvent event) {
+      }
+
+      protected void onMain_CheckBoxHandleForegroundPushAction(Component c, ActionEvent event) {
       }
 
       protected void onMain_TextAreaPushAction(Component c, ActionEvent event) {

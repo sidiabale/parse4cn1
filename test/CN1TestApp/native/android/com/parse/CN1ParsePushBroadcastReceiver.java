@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.parse;
+package com.parse; // Keep inside the parse package to access package internal classes
 
 import android.app.Activity;
 import android.content.Context;
@@ -24,12 +24,10 @@ import android.os.Bundle;
 import android.app.Notification;
 import android.app.TaskStackBuilder;
 import com.parse4cn1.ParsePush;
-import com.parse4cn1.TestApp.ParseApplication;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 import com.parse4cn1.util.Logger;
-
 
 /**
  * A custom broadcast receiver for handling push messages received via Parse.
@@ -61,44 +59,51 @@ public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
 ////                	intent.setData(null);
 ////                	this.finish();
 //    }
-    
     @Override
     protected void onPushReceive(Context context, Intent intent) {
         JSONObject pushData = null;
         try {
-          pushData = new JSONObject(intent.getStringExtra(ParsePushBroadcastReceiver.KEY_PUSH_DATA));
+            pushData = new JSONObject(intent.getStringExtra(ParsePushBroadcastReceiver.KEY_PUSH_DATA));
         } catch (JSONException e) {
             Logger.getInstance().error("Unexpected JSONException when receiving push data: " + e);
         }
 
         boolean handled = false;
-        if (ParseApplication.isAppInForeground() && pushData != null) {
-            handled = ParsePush.notifyPushReceived(pushData.toString());
+        if (pushData != null && CN1AndroidApplication.isAppRunning()) {
+            if (CN1AndroidApplication.isAppInForeground()) {
+                handled = ParsePush.handlePushReceivedForeground(pushData.toString());
+            } else if (CN1AndroidApplication.isAppInBackground()) {
+                handled = ParsePush.handlePushReceivedBackground(pushData.toString());
+            }
         }
-        
+
         if (!handled) {
-         // If the push data includes an action string, that broadcast intent is fired.
+            // If the push data includes an action string, that broadcast intent is fired.
             String action = null;
             if (pushData != null) {
-              action = pushData.optString("action", null);
+                action = pushData.optString("action", null);
             }
             if (action != null) {
-              Bundle extras = intent.getExtras();
-              Intent broadcastIntent = new Intent();
-              broadcastIntent.putExtras(extras);
-              broadcastIntent.setAction(action);
-              broadcastIntent.setPackage(context.getPackageName());
-              context.sendBroadcast(broadcastIntent);
+                Bundle extras = intent.getExtras();
+                Intent broadcastIntent = new Intent();
+                broadcastIntent.putExtras(extras);
+                broadcastIntent.setAction(action);
+                broadcastIntent.setPackage(context.getPackageName());
+                context.sendBroadcast(broadcastIntent);
             }
 
             Notification notification = getNotification(context, intent);
 
             if (notification != null) {
-              ParseNotificationManager.getInstance().showNotification(context, notification);
+                ParseNotificationManager.getInstance().showNotification(context, notification);
+            } else {
+                if (pushData != null && !CN1AndroidApplication.isAppRunning()) {
+                    handled = ParsePush.handlePushReceivedNotRunning(pushData.toString());
+                }
             }
         }
     }
-    
+
     @Override
     protected void onPushOpen(Context context, Intent intent) {
         /*
@@ -122,7 +127,7 @@ public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
         }
 
         activityIntent.putExtras(intent.getExtras());
-        
+
         /*
          In order to remove dependency on android-support-library-v4
          The reason why we differentiate between versions instead of just using context.startActivity
@@ -131,10 +136,6 @@ public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
          */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
             TaskStackBuilderHelper.startActivities(context, cls, activityIntent);
-//            TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-//            stackBuilder.addParentStack(cls);
-//            stackBuilder.addNextIntent(activityIntent);
-//            stackBuilder.startActivities();
         } else {
             activityIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             activityIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

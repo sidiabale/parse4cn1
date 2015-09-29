@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package com.parse4cn1.TestApp;
+package com.parse;
 
 import android.app.Application;
 import android.os.Bundle;
-import com.parse.Parse;
-import com.parse.ParseInstallation;
 import com.codename1.impl.android.LifecycleListener;
 import com.codename1.impl.android.AndroidNativeUtil;
 
@@ -27,13 +25,28 @@ import com.codename1.impl.android.AndroidNativeUtil;
  * An Android application class that enables correct initialization of the Parse
  * Android native SDK.
  */
-public class ParseApplication extends Application {
+public class CN1AndroidApplication extends Application {
+    
+    public enum EAppState {
+        STATE_FOREGROUND,
+        STATE_BACKGROUND,
+        STATE_NOT_RUNNING,
+        STATE_UNKNOWN
+    }
     
     private static LifecycleListener lifecycleListener = null;
-    private static boolean isInForeground = false;
-   
+    private static EAppState appState = EAppState.STATE_UNKNOWN;
+    
     public static boolean isAppInForeground() {
-        return isInForeground;
+        return appState == EAppState.STATE_FOREGROUND;
+    }
+    
+    public static boolean isAppInBackground() {
+        return appState == EAppState.STATE_BACKGROUND;
+    }
+    
+    public static boolean isAppRunning() {
+        return isAppInForeground() || isAppInBackground();
     }
     
     @Override
@@ -56,36 +69,39 @@ public class ParseApplication extends Application {
     }
              
     private static void initializeLifecycleListener() {
+        // Note: CN1 uses a single activity model so the state of this 
+        // activity effectively represents the state of the application.
+        
         lifecycleListener = new LifecycleListener() {
             
             @Override
             public void onCreate(Bundle savedInstanceState) {
-                // Not interesting fpr now
+                // Not interesting for now
             }
             
             @Override
             public void onResume() {
-                isInForeground = true;
+                appState = EAppState.STATE_FOREGROUND;
             }
             
             @Override
             public void onPause() {
-                isInForeground = false;
+                appState = EAppState.STATE_BACKGROUND;
             }
             
             @Override
             public void onDestroy() {
-                // Not interesting fpr now
+                appState = EAppState.STATE_NOT_RUNNING;
             }
             
             @Override
             public void onSaveInstanceState(Bundle b) {
-                // Not interesting fpr now
+                // Not interesting for now
             }
             
             @Override
             public void onLowMemory() {
-                // Not interesting fpr now
+                // Not interesting for now
             }
         };
     }   

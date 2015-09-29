@@ -17,8 +17,13 @@
 package com.parse4cn1.TestApp;
 
 
+import ca.weblite.codename1.json.JSONArray;
+import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Preferences;
+import com.codename1.ui.Dialog;
 import com.codename1.ui.Display;
 import com.codename1.ui.Form;
+import com.parse4cn1.ParsePush;
 import userclasses.StateMachine;
 
 public class Main {
@@ -41,6 +46,33 @@ public class Main {
     }
 
     public void start() {
+        
+        final String pushReceivedInBackground = 
+                Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+        
+        if (pushReceivedInBackground != null) {
+            Dialog.show("Push received; app in background", 
+                    "The following push messages were received while the app was in background:\n\n"
+                            + pushReceivedInBackground, "OK", null);
+            Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+        }
+        
+        if (ParsePush.isAppOpenedViaPushNotification()) {
+            final JSONObject pushPayload = ParsePush.getPushDataUsedToOpenApp();
+            Dialog.show("App opened via push", 
+                    "The app was opened via clicking a push notification with payload:\n\n"
+                            + pushPayload.toString(), "OK", null);
+            ParsePush.resetPushDataUsedToOpenApp();
+        }
+        
+        if (ParsePush.isPushReceivedWhileAppNotRunning()) {
+            final JSONArray pushPayload = ParsePush.getAppNotRunningPushData();
+            Dialog.show("Push received while app not running", 
+                    "The following push messages were received while the app was not running:\n\n"
+                            + pushPayload.toString(), "OK", null);
+            ParsePush.resetAppNotRunningPushData();
+        }
+        
         if(current != null){
             current.show();
             return;

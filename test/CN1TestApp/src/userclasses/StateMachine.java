@@ -19,6 +19,7 @@ package userclasses;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.components.SpanLabel;
+import com.codename1.io.Preferences;
 import generated.StateMachineBase;
 import com.codename1.ui.*; 
 import com.codename1.ui.events.ActionEvent;
@@ -28,12 +29,16 @@ import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseInstallation;
 import com.parse4cn1.ParsePush;
 import com.parse4cn1.ParsePush.IPushCallback;
+import com.parse4cn1.TestApp.Main;
 
 /**
  *
  * @author Your name here
  */
 public class StateMachine extends StateMachineBase implements IPushCallback {
+    
+    public final static String KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD = "parse4cn1TestApp_AppInBackgroundPush";
+    
     public StateMachine(String resFile) {
         super(resFile);
         // do not modify, write code in initVars and initialize class members there,
@@ -171,17 +176,22 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         }
     }
 
-    public boolean onPushReceived(final JSONObject pushPayload) {
+    public boolean onPushReceivedForeground(final JSONObject pushPayload) {
         Display.getInstance().callSerially(new Runnable() {
 
             public void run() {
-                Dialog.show("Push received", 
+                Dialog.show("Push received; app in foreground", 
                 (pushPayload == null ? "<Null payload>" : pushPayload.toString()), 
                 "OK", 
                 null);
             }
             
         });
+        return true;
+    }
+
+    public boolean onPushReceivedBackground(JSONObject pushPayload) {
+        Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, pushPayload.toString());
         return true;
     }
 }
