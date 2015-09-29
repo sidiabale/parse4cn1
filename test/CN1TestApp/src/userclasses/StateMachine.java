@@ -38,6 +38,8 @@ import com.parse4cn1.TestApp.Main;
 public class StateMachine extends StateMachineBase implements IPushCallback {
     
     public final static String KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD = "parse4cn1TestApp_AppInBackgroundPush";
+    private boolean handleForegroundPush;
+    private boolean handleBackgroundPush;
     
     public StateMachine(String resFile) {
         super(resFile);
@@ -92,6 +94,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         pushNotes.setText("Note:"
                 + "\n- Message will be delivered to all subscribers of the \"test\" channel (which includes this device)."
                 + "\n- (Part of) the installation ID of the sender will automatically be included in the push message.");
+        handleForegroundPush = findCheckBoxHandleForegroundPush(f).isSelected();
+        handleBackgroundPush = findCheckBoxHandleBackgroundPush(f).isSelected();
     }
 
     @Override
@@ -177,21 +181,55 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     }
 
     public boolean onPushReceivedForeground(final JSONObject pushPayload) {
-        Display.getInstance().callSerially(new Runnable() {
+        if (handleForegroundPush) {
+            Display.getInstance().callSerially(new Runnable() {
 
-            public void run() {
-                Dialog.show("Push received; app in foreground", 
-                (pushPayload == null ? "<Null payload>" : pushPayload.toString()), 
-                "OK", 
-                null);
-            }
-            
-        });
-        return true;
+                public void run() {
+                    Dialog.show("Push received (foreground)",
+                            (pushPayload == null ? "<Null payload>" : pushPayload.toString()),
+                            "OK",
+                            null);
+                }
+
+            });
+        } else {
+            Display.getInstance().callSerially(new Runnable() {
+
+                public void run() {
+                    Dialog.show("Ignoring push (foreground)",
+                            "Ignoring push received while app in foreground. It should show up in the notification bar",
+                            "OK",
+                            null);
+                }
+
+            });
+        }
+        return handleForegroundPush;
     }
 
     public boolean onPushReceivedBackground(JSONObject pushPayload) {
-        Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, pushPayload.toString());
-        return true;
+        if (handleBackgroundPush) {
+            Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, pushPayload.toString());
+        }
+        return handleBackgroundPush;
+    }
+
+    @Override
+    protected void onMain_CheckBoxHandleForegroundPushAction(Component c, ActionEvent event) {
+        handleForegroundPush = ((CheckBox) c).isSelected();
+    }
+
+    @Override
+    protected void onMain_CheckBoxHandleBackgroundPushAction(Component c, ActionEvent event) {
+        handleBackgroundPush = ((CheckBox) c).isSelected();
+       
+        if (!handleBackgroundPush) {
+            Dialog.show("Info",
+                    "Disabling handling of background push means that any push messages "
+                            + "received while the app is not in the foreground "
+                            + "will automatically go to the notification bar.",
+                    "OK",
+                    null);
+        }
     }
 }

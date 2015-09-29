@@ -43,7 +43,7 @@ public class ParseInstallationTest extends BaseParseTest {
     @Override
     public void prepare() {
         super.prepare();
-        Preferences.set(ParseInstallation.PARSE_INSTALLATION_ID_SETTING_KEY, installationId);
+        Preferences.set(ParseInstallation.KEY_PARSE4CN1_INSTALLATION_ID, installationId);
         try {
             currentInstallation = ParseInstallation.getCurrentInstallation();
         } catch (ParseException ex) {

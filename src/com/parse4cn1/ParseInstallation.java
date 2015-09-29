@@ -43,12 +43,12 @@ import java.util.List;
  * access via the CN1 native interface mechanism. However, since the Windows 
  * Phone port does not support native interfaces, creation is the responsibility
  * of the user who should make the corresponding installation id available via 
- * {@link com.codename1.io.Preferences} under the key {@value #PARSE_INSTALLATION_ID_SETTING_KEY}.
+ * {@link com.codename1.io.Preferences} under the key {@value #KEY_PARSE4CN1_INSTALLATION_ID}.
  * 
  */
 public class ParseInstallation extends ParseObject {
 
-    public static final String PARSE_INSTALLATION_ID_SETTING_KEY = "parse4cn1_installationId";
+    public static final String KEY_PARSE4CN1_INSTALLATION_ID = "parse4cn1_installationId";
     private static final String KEY_INSTALLATION_ID = "installationId";
     private static final String KEY_CHANNELS = "channels";
     private static boolean parseSdkInitialized = false;
@@ -60,7 +60,7 @@ public class ParseInstallation extends ParseObject {
      * is created, persisted to the Parse backend and returned, if one is not present.
      * On Windows Phone and any other platform, the installation is retrieved from the backend if its
      * installationId is specified in the {@link com.codename1.io.Preferences} 
-     * under the key {@value #PARSE_INSTALLATION_ID_SETTING_KEY}.
+     * under the key {@value #KEY_PARSE4CN1_INSTALLATION_ID}.
      * <p>
      * <em>Note</em>Windows Phone is a special case because native interfaces are not (yet) 
      * supported so creating the installation via the .net native Parse SDK is not feasible.
@@ -370,7 +370,7 @@ public class ParseInstallation extends ParseObject {
                         "Failed to retrieve installation ID");
             }
         } else {
-            installationId = Preferences.get(PARSE_INSTALLATION_ID_SETTING_KEY, null);
+            installationId = Preferences.get(KEY_PARSE4CN1_INSTALLATION_ID, null);
         }
         
         return installationId;

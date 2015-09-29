@@ -66,6 +66,7 @@ public class CN1AndroidApplication extends Application {
     @Override
     public void onTerminate() {
         AndroidNativeUtil.removeLifecycleListener(lifecycleListener);
+        super.onTerminate();
     }
              
     private static void initializeLifecycleListener() {

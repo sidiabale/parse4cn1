@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.Date;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.io.Preferences;
-import com.codename1.ui.Dialog;
-import static com.parse4cn1.ParseInstallation.PARSE_INSTALLATION_ID_SETTING_KEY;
 import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
@@ -52,17 +50,16 @@ public class ParsePush {
         public boolean onPushReceivedBackground(final JSONObject pushPayload);
     }
 
-    public static final String KEY_PARSE_PUSH_APP_OPEN_PAYLOAD = "parse4cn1_appOpenPushPayload";
-    public static final String KEY_PARSE_PUSH_APP_NOT_RUNNING_PAYLOAD = "parse4cn1_appNotRunningPushPayload";
+    private static String appOpenPushPayload;
+    private static String unprocessedPushPayload;
     private static IPushCallback pushCallback;
     
-    private Set<String> channels = null;
-    // private ParseQuery<ParseInstallation> query = null;
-    private Date expirationTime = null;
-    private Date pushTime = null;
-    private Long expirationTimeInterval = null;
+    private Set<String> channels;
+    private Date expirationTime;
+    private Date pushTime;
+    private Long expirationTimeInterval;
     private JSONObject pushData = new JSONObject();
-    private ParseQuery<ParseInstallation> query = null;
+    private ParseQuery<ParseInstallation> query;
     private final static String BROADCAST_CHANNEL = "";
     
     /**
@@ -81,49 +78,49 @@ public class ParsePush {
     }
     
     public static boolean isAppOpenedViaPushNotification() {
-        return (getPushDataUsedToOpenApp() != null);
+        return (appOpenPushPayload != null);
     }
     
-    public static boolean isPushReceivedWhileAppNotRunning() {
-        return (getAppNotRunningPushData() != null);
+    public static boolean isUnprocessedPushDataAvailable() {
+        return (unprocessedPushPayload != null);
     }
     
-    public static JSONObject getPushDataUsedToOpenApp() {
+    public static JSONObject getPushDataUsedToOpenApp() throws ParseException {
         JSONObject json = null;
-        String jsonStr = null;
         try {
-            jsonStr = Preferences.get(KEY_PARSE_PUSH_APP_OPEN_PAYLOAD, null);
-            if (jsonStr != null) {
-                json = new JSONObject(jsonStr);
+            if (appOpenPushPayload != null) {
+                json = new JSONObject(appOpenPushPayload);
             }
         } catch (JSONException ex) {
-            Logger.getInstance().error("Unable to parse push message payload '" 
-                    + jsonStr + "' to JSON. Error: " + ex);
+            final String error = "Unable to parse push message payload";
+            Logger.getInstance().error(error + " '"  + appOpenPushPayload 
+                    + "' to JSON. Error: " + ex);
+            throw new ParseException(error, ex);
         }
         return json;
     }
     
     public static void resetPushDataUsedToOpenApp() {
-        Preferences.set(KEY_PARSE_PUSH_APP_OPEN_PAYLOAD, null);
+        appOpenPushPayload = null;
     }
     
-    public static JSONArray getAppNotRunningPushData() {
+    public static JSONArray getUnprocessedPushData() throws ParseException {
         JSONArray json = null;
-        String jsonStr = null;
         try {
-            jsonStr = Preferences.get(KEY_PARSE_PUSH_APP_NOT_RUNNING_PAYLOAD, null);
-            if (jsonStr != null) {
-                json = new JSONArray(jsonStr);
+            if (unprocessedPushPayload != null) {
+                json = new JSONArray(unprocessedPushPayload);
             }
         } catch (JSONException ex) {
-            Logger.getInstance().error("Unable to parse push message payload '" 
-                    + jsonStr + "' to JSON. Error: " + ex);
+            final String error = "Unable to parse push message payload";
+            Logger.getInstance().error(error + " '"  + unprocessedPushPayload 
+                    + "' to JSON. Error: " + ex);
+            throw new ParseException(error, ex);
         }
         return json;
     }
     
-    public static void resetAppNotRunningPushData() {
-        Preferences.set(KEY_PARSE_PUSH_APP_NOT_RUNNING_PAYLOAD, null);
+    public static void resetUnprocessedPushData() {
+        unprocessedPushPayload = null;
     }
     
     public static void setPushCallback(final IPushCallback callback) {        
@@ -138,15 +135,27 @@ public class ParsePush {
         return handlePushReceivedRunning(jsonPushPayload, false);
     }
     
-    public static boolean handlePushReceivedNotRunning(final String jsonPushPayload) {
+    public static boolean handleUnprocessedPushReceived(final String jsonPushPayload) {
+        Logger.getInstance().debug("Unprocessed (hidden?) push received while app is not running. "
+                + "Will store until is restarted. Payload: " 
+                + jsonPushPayload);
+        
         JSONObject received;
         try {
             received = new JSONObject(jsonPushPayload);
-            JSONArray existing = getAppNotRunningPushData();
+            JSONArray existing = null;
+            try {
+                existing = getUnprocessedPushData();
+            } catch (ParseException ex) {
+                Logger.getInstance().error("Failed to retrieve existing unprocessed push(es). "
+                        + "Will create a new array. Error: " + ex);
+            }
+            
             if (existing == null) {
                 existing = new JSONArray();
             }
-            existing.put(0, received);
+            existing.put(received);
+            setUnprocessedPushPayload(existing);
         } catch (JSONException ex) {
             Logger.getInstance().error("Unable to parse push message payload '" 
                     + jsonPushPayload + "' to JSON. Error: " + ex);
@@ -154,7 +163,17 @@ public class ParsePush {
         return false;
     }
     
+    public static void handlePushOpen(final String jsonPushPayload) {
+        Logger.getInstance().debug("App about to open via push message. Payload: "
+                + jsonPushPayload);
+        
+        appOpenPushPayload = jsonPushPayload;
+    }
+    
     private static boolean handlePushReceivedRunning(final String jsonPushPayload, boolean isForeground) {
+        Logger.getInstance().debug("Push received while app is running in " 
+                + (isForeground ? "foreground" : "background") + ". Payload: " + jsonPushPayload);
+        
         JSONObject json;
         try {
             json = new JSONObject(jsonPushPayload);
@@ -170,6 +189,14 @@ public class ParsePush {
                     + jsonPushPayload + "' to JSON. Error: " + ex);
         }
         return false;
+    }
+    
+    private static void setUnprocessedPushPayload(final JSONArray pushPayload) {
+        if (pushPayload == null) {
+            unprocessedPushPayload = null;
+        } else {
+            unprocessedPushPayload = pushPayload.toString();
+        }
     }
 
     /**
