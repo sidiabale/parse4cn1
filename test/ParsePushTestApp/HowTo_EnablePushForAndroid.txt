@@ -54,11 +54,6 @@ android.xpermissions =
     android:name="com.parse4cn1.TestApp.permission.C2D_MESSAGE" />
 <uses-permission android:name="com.parse4cn1.TestApp.permission.C2D_MESSAGE" />
 
-
-Add activity attribute
-
-android.xactivity=android:alwaysRetainTaskState="true"
-
 So that activity is opened in existing task when push message is opened.
 
 2. Invoke <TODO: Method name> to enable push support
