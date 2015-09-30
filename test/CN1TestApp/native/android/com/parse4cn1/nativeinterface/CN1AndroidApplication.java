@@ -15,12 +15,14 @@
  */
 
 package com.parse4cn1.nativeinterface; // TODO: Remember to update if changed!
+                                       // location must also match i.e. /native/android/com/parse4cn1/nativeinterface/
+                                       // is the corresponding location for this package name.
 
 import android.app.Application;
 import android.os.Bundle;
 import com.codename1.impl.android.LifecycleListener;
 import com.codename1.impl.android.AndroidNativeUtil;
-import com.parse.Parse;
+import com.parse.Parse; // com.parse.* includes are already available from the Parse SDK already integrated in parse4cn1.cn1lib
 import com.parse.ParseInstallation;
 
 /**
@@ -29,6 +31,9 @@ import com.parse.ParseInstallation;
  */
 public class CN1AndroidApplication extends Application {
     
+    /*
+      An enumeration of relevant application states.
+    */
     public enum EAppState {
         STATE_FOREGROUND,
         STATE_BACKGROUND,
@@ -54,13 +59,23 @@ public class CN1AndroidApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        // Parse native SDK should be initialized in the application class and not in the activity
+        // Parse native SDK should be initialized in the application class 
+        // and not in the activity otherwise push notifications will only be received 
+        // when the application is running (which is generally undesirable).
+        //
         // See: http://stackoverflow.com/questions/26637730/where-to-place-the-parse-initialize
         // and https://parse.com/questions/cannot-send-push-to-android-after-app-is-closed-until-screen-unlock
         Parse.initialize(this, 
                 "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", /* TODO: Replace with your Application ID */
                 "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB" /* TODO: Replace with your Client Key */);
+        
+        // Creates a unique installation representing the given device
+        // and persists it to the Parse backend. 
+        // Without an installation, a device cannot be targeted for push notifications.
         ParseInstallation.getCurrentInstallation().saveInBackground();
+        
+        // Tracks the application state so that pushes can be handled according to the 
+        // state.
         initializeLifecycleListener();
         AndroidNativeUtil.addLifecycleListener(lifecycleListener);
     }

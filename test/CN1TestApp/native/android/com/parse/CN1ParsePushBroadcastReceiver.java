@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.parse; // Keep inside the parse package to access package internal classes
+package com.parse; // Keep inside the parse package to access com.parse package internal classes
 
 import android.app.Activity;
 import android.content.Context;
@@ -34,6 +34,9 @@ import com.parse4cn1.nativeinterface.CN1AndroidApplication; // TODO: Remember to
  * <p>
  * It handles forwards pushes received to {@link ParsePush} based on the app's 
  * state as specified in the reference push behavior.
+ * <p>
+ * This implementation complies to the reference push implementation described 
+ * on the parse4cn1 <a href="https://github.com/sidiabale/parse4cn1/wiki/Push-Notifications-Reference-Implementation">wiki</a>.
  */
 public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
     private static final String TAG = "CN1ParsePushBroadcastReceiver";
