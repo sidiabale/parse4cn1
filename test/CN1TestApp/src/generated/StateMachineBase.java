@@ -402,6 +402,18 @@ public abstract class StateMachineBase extends UIBuilder {
         return cmp;
     }
 
+    public com.codename1.ui.Container findContainer11(Component root) {
+        return (com.codename1.ui.Container)findByName("Container11", root);
+    }
+
+    public com.codename1.ui.Container findContainer11() {
+        com.codename1.ui.Container cmp = (com.codename1.ui.Container)findByName("Container11", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.Container)findByName("Container11", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
     public com.codename1.ui.Label findLabel5(Component root) {
         return (com.codename1.ui.Label)findByName("Label5", root);
     }
@@ -708,10 +720,6 @@ public abstract class StateMachineBase extends UIBuilder {
         }
         if(rootContainerName == null) return;
         if(rootContainerName.equals("Main")) {
-            if("CheckBoxRawJson".equals(c.getName())) {
-                onMain_CheckBoxRawJsonAction(c, event);
-                return;
-            }
             if("CheckBoxHandleForegroundPush".equals(c.getName())) {
                 onMain_CheckBoxHandleForegroundPushAction(c, event);
                 return;
@@ -722,6 +730,10 @@ public abstract class StateMachineBase extends UIBuilder {
             }
             if("TextAreaPush".equals(c.getName())) {
                 onMain_TextAreaPushAction(c, event);
+                return;
+            }
+            if("CheckBoxRawJson".equals(c.getName())) {
+                onMain_CheckBoxRawJsonAction(c, event);
                 return;
             }
             if("ButtonSendPush".equals(c.getName())) {
@@ -755,9 +767,6 @@ public abstract class StateMachineBase extends UIBuilder {
         }
     }
 
-      protected void onMain_CheckBoxRawJsonAction(Component c, ActionEvent event) {
-      }
-
       protected void onMain_CheckBoxHandleForegroundPushAction(Component c, ActionEvent event) {
       }
 
@@ -765,6 +774,9 @@ public abstract class StateMachineBase extends UIBuilder {
       }
 
       protected void onMain_TextAreaPushAction(Component c, ActionEvent event) {
+      }
+
+      protected void onMain_CheckBoxRawJsonAction(Component c, ActionEvent event) {
       }
 
       protected void onMain_ButtonSendPushAction(Component c, ActionEvent event) {

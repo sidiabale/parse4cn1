@@ -47,15 +47,29 @@ public class Main {
     }
 
     public void start() {
+        // Handle any pending push messages...
+        // This is a good place because this method is called each time the
+        // app comes to the foreground.
+        final String pushReceivedInBackgroundError = 
+                Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
         
-        final String pushReceivedInBackground = 
-                Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
-        
-        if (pushReceivedInBackground != null) {
-            Dialog.show("Push received (background)", 
-                    "The following push messages were received while the app was in background:\n\n"
-                            + pushReceivedInBackground, "OK", null);
-            Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+        if (pushReceivedInBackgroundError != null) {
+            Dialog.show("Error", 
+                    "Apparently an error occurred while processing a push message "
+                            + "received while the app was in background:\n\n" 
+                            + pushReceivedInBackgroundError, 
+                    Dialog.TYPE_ERROR, null, "OK", null);
+            Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
+        } else {
+            final String pushReceivedInBackground = 
+                    Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+
+            if (pushReceivedInBackground != null) {
+                Dialog.show("Push received (background)", 
+                        "The following push messages were received while the app was in background:\n\n"
+                                + pushReceivedInBackground, "OK", null);
+                Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+            }
         }
         
         if (ParsePush.isAppOpenedViaPushNotification()) {

@@ -14,16 +14,18 @@
  * limitations under the License.
  */
 
-package com.parse;
+package com.parse4cn1.nativeinterface; // TODO: Remember to update if changed!
 
 import android.app.Application;
 import android.os.Bundle;
 import com.codename1.impl.android.LifecycleListener;
 import com.codename1.impl.android.AndroidNativeUtil;
+import com.parse.Parse;
+import com.parse.ParseInstallation;
 
 /**
  * An Android application class that enables correct initialization of the Parse
- * Android native SDK.
+ * Android native SDK. It also tracks application state.
  */
 public class CN1AndroidApplication extends Application {
     
@@ -56,8 +58,8 @@ public class CN1AndroidApplication extends Application {
         // See: http://stackoverflow.com/questions/26637730/where-to-place-the-parse-initialize
         // and https://parse.com/questions/cannot-send-push-to-android-after-app-is-closed-until-screen-unlock
         Parse.initialize(this, 
-                "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", /* Application ID */
-                "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB" /* Client Key */);
+                "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", /* TODO: Replace with your Application ID */
+                "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB" /* TODO: Replace with your Client Key */);
         ParseInstallation.getCurrentInstallation().saveInBackground();
         initializeLifecycleListener();
         AndroidNativeUtil.addLifecycleListener(lifecycleListener);

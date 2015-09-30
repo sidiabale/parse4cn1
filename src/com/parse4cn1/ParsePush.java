@@ -45,9 +45,69 @@ import java.util.Set;
  */
 public class ParsePush {
     
+    /**
+     * An interface for receiving push notification callbacks.
+     * <p>
+     * <b>Note that since these are synchronous calls, it is important that they 
+     * are handled fast to avoid making the app unresponsive. Intensive operations 
+     * should be offloaded to a worker thread. Moreoever, any UI-related 
+     * operations performed in the callbacks <u>must be asynchronously executed</u> on the 
+     * EDT thread as follows to avoid creating a deadlock:</b>
+     * <pre>
+     * {@code
+     * Display.getInstance().callSerially(new Runnable() {
+        public void run() {
+            Dialog.show("Push received (foreground)",
+                (pushPayload == null ? "<Null payload>" : pushPayload.toString()),
+                       "OK",
+                        null);
+        }
+
+       });}
+     * </pre>
+     */
     public interface IPushCallback {
+        /**
+         * Called when a push notification is received and the CN1 app is currently 
+         * running and in the foreground.
+         * 
+         * @param pushPayload The push data.
+         * 
+         * @return {@code true} if the notification has been handled/consumed 
+         * and further action such as scheduling a status bar notification is 
+         * not needed. Returns {@code false} otherwise. Notice that the exact response
+         * to the return value is dependent on the underlying native implementation 
+         * which may change from app to app based on the requirements and 
+         * implementation choices of the app developer.
+         */
         public boolean onPushReceivedForeground(final JSONObject pushPayload);
+        
+        /**
+         * Called when a push notification is received and the CN1 app is currently 
+         * running but <em>not</em> in the foreground.
+         * 
+         * @param pushPayload The push data.
+         * 
+         * @return {@code true} if the notification has been handled/consumed 
+         * and further action such as scheduling a status bar notification is 
+         * not needed. Returns {@code false} otherwise. Notice that the exact response
+         * to the return value is dependent on the underlying native implementation 
+         * which may change from app to app based on the requirements and 
+         * implementation choices of the app developer.
+         */
         public boolean onPushReceivedBackground(final JSONObject pushPayload);
+        
+        /**
+         * Called when a 'status bar' push notification opened and the CN1 app is 
+         * currently running in the foreground. 
+         * <p>See related methods {@link ParsePush#isAppOpenedViaPushNotification()}
+         * and {@link ParsePush#getPushDataUsedToOpenApp()} for the case where 
+         * the app was not previously running but is being opened via a push notification.
+         * 
+         * @param pushPayload The push data.
+         * @see ParsePush#isAppOpenedViaPushNotification()
+         * @see ParsePush#getPushDataUsedToOpenApp() 
+         */
         public void onPushOpened(final JSONObject pushPayload);
     }
 
@@ -62,6 +122,11 @@ public class ParsePush {
     private JSONObject pushData = new JSONObject();
     private ParseQuery<ParseInstallation> query;
     private final static String BROADCAST_CHANNEL = "";
+    
+    ////////////////////////////////////////////////////
+    // Functionality related to receiving and         //
+    // processing push messages                       //
+    ////////////////////////////////////////////////////
     
     /**
      * Creates a new push notification.
@@ -78,14 +143,59 @@ public class ParsePush {
         return new ParsePush();
     }
     
+    /**
+     * Checks whether the app is being opened via a push notification, e.g., by 
+     * clicking the notification in the 'status bar'.
+     * <p>
+     * <b>Note that the result returned by this method is
+     * guaranteed to be correct if the app is correctly managing the data,
+     * i.e., checking every time the app is opened (typically in the start() method 
+     * of the app's main class) and resetting the data after processing.</b>
+     * 
+     * @return {@code true} if app open push data is found; otherwise returns {@code false}.
+     */
     public static boolean isAppOpenedViaPushNotification() {
         return (appOpenPushPayload != null);
     }
     
+    /**
+     * Checks whether there is pending unprocessed push data.
+     * <p>
+     * Generally, this is data from push notifications that the app did not handle but could 
+     * not be scheduled as status bar notifications. A good example is a hidden 
+     * push message which has no 'alert' or 'title' data and is thus never shown
+     * scheduled as a status bar notification. However, like everything else with 
+     * native Push, the actual semantics are dependent on the native implementation 
+     * which may vary from app to app.
+     * <p>
+     * <b>Note that the result returned by this method is
+     * guaranteed to be correct <u>if and only if</u> the app is correctly managing the data,
+     * i.e., checking every time the app is opened (typically in the start() method 
+     * of the app's main class) and resetting the data after processing.</b>
+     * 
+     * @return {@code true} if unprocessed push data is found; otherwise returns {@code false}.
+     */
     public static boolean isUnprocessedPushDataAvailable() {
         return (unprocessedPushPayload != null);
     }
     
+    /**
+     * Retrieves app open push data, if present.
+     * <p>
+     * This data must be set by the native push implementations via 
+     * {@link ParsePush#handlePushOpen(java.lang.String, boolean)}.
+     * <p>
+     * <b>Note that the result returned by this method is
+     * guaranteed to be correct <u>if and only if</u> the app is correctly managing the data,
+     * i.e., checking every time the app is opened (typically in the start() method 
+     * of the app's main class) and resetting the data after processing.</b>
+     * 
+     * @return The app open push data or null if none is found
+     * 
+     * @throws ParseException If anything goes wrong with parsing the JSON data.
+     * 
+     * @see #resetPushDataUsedToOpenApp() 
+     */
     public static JSONObject getPushDataUsedToOpenApp() throws ParseException {
         JSONObject json = null;
         try {
@@ -101,10 +211,31 @@ public class ParsePush {
         return json;
     }
     
+    /**
+     * Clears the app open push data.
+     */
     public static void resetPushDataUsedToOpenApp() {
         appOpenPushPayload = null;
     }
     
+    /**
+     * Retrieves unprocessed push data, if present.
+     * <p>
+     * This data must be set by the native push implementations via 
+     * {@link ParsePush#handleUnprocessedPushReceived(java.lang.String)}.
+     * <p>
+     * <b>Note that the result returned by this method is
+     * guaranteed to be correct <u>if and only if</u> the app is correctly managing the data,
+     * i.e., checking every time the app is opened (typically in the start() method 
+     * of the app's main class) and resetting the data after processing.</b>
+     * 
+     * @return The pending push data in the same order as they were received
+     * or null if none is found.
+     * 
+     * @throws ParseException If anything goes wrong with parsing the JSON data.
+     * 
+     * @see #resetUnprocessedPushData() 
+     */
     public static JSONArray getUnprocessedPushData() throws ParseException {
         JSONArray json = null;
         try {
@@ -120,23 +251,68 @@ public class ParsePush {
         return json;
     }
     
+    /**
+     * Clears all unprocessed push data.
+     */
     public static void resetUnprocessedPushData() {
         unprocessedPushPayload = null;
     }
     
+    /**
+     * Sets the push callback.
+     * <p>This call removes any previously set callback since 
+     * there can be at most one callback per app.
+     * @param callback The Push callback to be set or null to remove the current callback.
+     */
     public static void setPushCallback(final IPushCallback callback) {        
         pushCallback = callback;
     }
     
+    /**
+     * This method should be called by the native push implementation when a push 
+     * message is received and the app is judged to be in the foreground (as must be 
+     * determined in native code).
+     * <p>
+     * The provided data is forward to the {@link IPushCallback push callback} if any 
+     * by calling {@link IPushCallback#onPushReceivedForeground(ca.weblite.codename1.json.JSONObject)}.
+     * @param jsonPushPayload The push data.
+     * @return {@code true} if the app has processed the push message and no further 
+     * scheduling is needed; otherwise returns {@code false}.
+     */
     public static boolean handlePushReceivedForeground(final String jsonPushPayload) {
         return handlePushReceivedRunning(jsonPushPayload, true);
     }
     
+    /**
+     * This method should be called by the native push implementation when a push 
+     * message is received and the app is judged to be running but not in the foreground 
+     * (as must be determined in native code).
+     * <p>
+     * The provided data is forward to the {@link IPushCallback push callback} if any 
+     * by calling {@link IPushCallback#onPushReceivedBackground(ca.weblite.codename1.json.JSONObject)}.
+     * 
+     * @param jsonPushPayload The push data.
+     * 
+     * @return {@code true} if the app has processed the push message and no further 
+     * scheduling is needed; otherwise returns {@code false}.
+     */
     public static boolean handlePushReceivedBackground(final String jsonPushPayload) {
         return handlePushReceivedRunning(jsonPushPayload, false);
     }
     
-    public static boolean handleUnprocessedPushReceived(final String jsonPushPayload) {
+    /**
+     * This method should be called by the native push implementation whenever there 
+     * is an unhandled push message that could not be scheduled for 'status bar' notification, 
+     * e.g. so-called 'hidden' push message. It is up to the native implementation 
+     * to decide what is hidden.
+     * <p>
+     * The provided data is added in FIFO order to the collection of unprocessed push messages.
+     * The app can retrieve this data by calling {@link ParsePush#getUnprocessedPushData()} 
+     * after optionally establishing availability via {@link ParsePush#isUnprocessedPushDataAvailable()}.
+     * 
+     * @param jsonPushPayload The push data.
+     */
+    public static void handleUnprocessedPushReceived(final String jsonPushPayload) {
         Logger.getInstance().debug("Unprocessed (hidden?) push received while app is not running. "
                 + "Will store until is restarted. Payload: " 
                 + jsonPushPayload);
@@ -161,9 +337,25 @@ public class ParsePush {
             Logger.getInstance().error("Unable to parse push message payload '" 
                     + jsonPushPayload + "' to JSON. Error: " + ex);
         }
-        return false;
     }
     
+    /**
+     * This method should be called by the native push implementation whenever the 
+     * app is about to be opened as a result of clicking a 'status bar' notification.
+     * <p>
+     * If the app is already running and in the foreground, i.e., {@code isAppInForeground=true}, 
+     * the push data will directly be deliver to the app via 
+     * {@link IPushCallback#onPushOpened(ca.weblite.codename1.json.JSONObject)} or 
+     * simply ignored if there's no callback set. Conversely, if the app is not 
+     * yet running , i.e., {@code isAppInForeground=false}, the data will be 
+     * stored until the app requests for it via {@link ParsePush#getPushDataUsedToOpenApp()} 
+     * possibly after first checking 
+     * for availability via {@link ParsePush#isAppOpenedViaPushNotification()}.
+     * 
+     * @param jsonPushPayload The push data.
+     * @param isAppInForeground The foreground status of the app that determines 
+     * when and how {@code jsonPushPayload} is made available to the app.
+     */
     public static void handlePushOpen(final String jsonPushPayload, boolean isAppInForeground) {
         Logger.getInstance().debug("App about to open via push message. "
                 + "App in foreground? " + (isAppInForeground ? "Yes" : "No") + ". "
@@ -185,6 +377,15 @@ public class ParsePush {
         }
     }
     
+    /**
+     * Processes push data received when app is running in foreground or background.
+     * <p>
+     * Forwards the data the push callback if any
+     * @param jsonPushPayload The push data.
+     * @param isForeground Flag indicating whether app is running in foreground {@code = true} 
+     * or background {@code = false}.
+     * @return The response of the push callback if one is available or {@code false} otherwise.
+     */
     private static boolean handlePushReceivedRunning(final String jsonPushPayload, boolean isForeground) {
         Logger.getInstance().debug("Push received while app is running in " 
                 + (isForeground ? "foreground" : "background") + ". Payload: " + jsonPushPayload);
@@ -206,6 +407,10 @@ public class ParsePush {
         return false;
     }
     
+    /**
+     * Persists the unprocessed push data for later use.
+     * @param pushPayload The push data to be saved.
+     */
     private static void setUnprocessedPushPayload(final JSONArray pushPayload) {
         if (pushPayload == null) {
             unprocessedPushPayload = null;
@@ -214,6 +419,10 @@ public class ParsePush {
         }
     }
 
+    ////////////////////////////////////////////////////
+    // Functionality related to sending push messages //
+    ////////////////////////////////////////////////////
+    
     /**
      * Sets the channel on which this push notification will be sent.
      * <p>

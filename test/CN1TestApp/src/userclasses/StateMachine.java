@@ -16,6 +16,7 @@
 
 package userclasses;
 
+import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.components.SpanLabel;
@@ -29,7 +30,7 @@ import com.parse4cn1.ParseException;
 import com.parse4cn1.ParseInstallation;
 import com.parse4cn1.ParsePush;
 import com.parse4cn1.ParsePush.IPushCallback;
-import com.parse4cn1.TestApp.Main;
+import com.parse4cn1.util.Logger;
 
 /**
  *
@@ -38,6 +39,7 @@ import com.parse4cn1.TestApp.Main;
 public class StateMachine extends StateMachineBase implements IPushCallback {
     
     public final static String KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD = "parse4cn1TestApp_AppInBackgroundPush";
+    public final static String KEY_APP_IN_BACKGROUND_PUSH_ERROR = "parse4cn1TestApp_AppInBackgroundPushError";
     private boolean handleForegroundPush;
     private boolean handleBackgroundPush;
     
@@ -79,12 +81,12 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                 installationIdText = "An exception occurred: " + ex.getMessage();
             }
             
-            installationLabel.setText(installationIdText);
+            installationLabel.setText(installationIdText + "\n");
             if (failed) {
                 installationLabel.setTextUIID("WarningLabel");
             }
             initPushButton(f, !failed, 
-                    (failed ? "Sending push is disabled since installion id could not be retrieved" : ""));
+                    (failed ? "Sending push is disabled since installation id could not be retrieved" : ""));
         }
     }
 
@@ -92,8 +94,9 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     protected void beforeMain(Form f) {
         final SpanLabel pushNotes = findSpanLabelPushNotes(f);
         pushNotes.setText("Note:"
-                + "\n- Message will be delivered to all subscribers of the \"test\" channel (which includes this device)."
-                + "\n- (Part of) the installation ID of the sender will automatically be included in the push message.");
+                + "\n- Messages will be delivered to ALL subscribers of the \"test\" channel (which includes this device)."
+                + "\n- (Part of) the installation ID of the sender will automatically be included in the push message so that you can distinguish your messages :)"
+                + "\n- The Parse backend for this app is a free Parse App so free quota limits apply. Use sparingly or the limit might be hit and your messages will fail.");
         handleForegroundPush = findCheckBoxHandleForegroundPush(f).isSelected();
         handleBackgroundPush = findCheckBoxHandleBackgroundPush(f).isSelected();
     }
@@ -211,7 +214,25 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     @Override
     public boolean onPushReceivedBackground(JSONObject pushPayload) {
         if (handleBackgroundPush) {
-            Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, pushPayload.toString());
+            try {
+                final String jsonStr = Preferences.get(KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+                JSONArray existing;
+
+                if (jsonStr == null) {
+                    existing = new JSONArray();
+                } else {
+                    existing = new JSONArray(jsonStr);
+                }
+                existing.put(pushPayload);
+                
+                Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
+                Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, existing.toString());
+            } catch (JSONException ex) {
+                Preferences.set(KEY_APP_IN_BACKGROUND_PUSH_ERROR, 
+                        "An error occurred while trying to parse "
+                        + "and cache push message '" + pushPayload 
+                        + "' received in background. Error: " + ex.getMessage());
+            }
         }
         return handleBackgroundPush;
     }
