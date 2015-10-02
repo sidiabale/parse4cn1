@@ -43,15 +43,15 @@ import java.util.List;
  * access via the CN1 native interface mechanism. However, since the Windows 
  * Phone port does not support native interfaces, creation is the responsibility
  * of the user who should make the corresponding installation id available via 
- * {@link com.codename1.io.Preferences} under the key {@value #KEY_PARSE4CN1_INSTALLATION_ID}.
+ * {@link ParseInstallation#setInstallationId(java.lang.String)}.
  * 
  */
 public class ParseInstallation extends ParseObject {
 
-    public static final String KEY_PARSE4CN1_INSTALLATION_ID = "parse4cn1_installationId";
     private static final String KEY_INSTALLATION_ID = "installationId";
     private static final String KEY_CHANNELS = "channels";
     private static boolean parseSdkInitialized = false;
+    private static String installationId;
 
     private static ParseInstallation currentInstallation;
     
@@ -59,8 +59,7 @@ public class ParseInstallation extends ParseObject {
      * Retrieves the current installation. On Android and iOS, a new installation 
      * is created, persisted to the Parse backend and returned, if one is not present.
      * On Windows Phone and any other platform, the installation is retrieved from the backend if its
-     * installationId is specified in the {@link com.codename1.io.Preferences} 
-     * under the key {@value #KEY_PARSE4CN1_INSTALLATION_ID}.
+     * installationId has been specified via {@link #setInstallationId(java.lang.String)}.
      * <p>
      * <em>Note</em>Windows Phone is a special case because native interfaces are not (yet) 
      * supported so creating the installation via the .net native Parse SDK is not feasible.
@@ -74,12 +73,12 @@ public class ParseInstallation extends ParseObject {
     public static ParseInstallation getCurrentInstallation() throws ParseException {
         
         if (currentInstallation == null) {
-            final String installationId;
-            installationId = retrieveInstallationId();
-            if (installationId != null) {
+            final String id;
+            id = retrieveInstallationId();
+            if (id != null) {
               
                 try {
-                    currentInstallation = fetchInstallation(installationId);
+                    currentInstallation = fetchInstallation(id);
                 } catch (ParseException ex) {
                     if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND) {
                         // No result (yet?)... It could be that saveInBackground call in native code 
@@ -88,14 +87,14 @@ public class ParseInstallation extends ParseObject {
                         // for example, we may end up here.
                         final long delayInMilliSeconds = 1500;
                         Logger.getInstance().warn("First attempt to retrieve current installation "
-                                + "with installation ID '" + installationId 
+                                + "with installation ID '" + id 
                                 + "' failed. Will retry in " + delayInMilliSeconds + " milliseconds.");
                         try {
                             Thread.sleep(delayInMilliSeconds);
-                            currentInstallation = fetchInstallation(installationId);
+                            currentInstallation = fetchInstallation(id);
                         } catch (InterruptedException e) {
                             throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND,
-                                    "Found no installation with ID (after retry) " + installationId);
+                                    "Found no installation with ID (after retry) " + id);
                         }
                     } else {
                         throw ex;
@@ -108,6 +107,10 @@ public class ParseInstallation extends ParseObject {
         }
 
         return currentInstallation;
+    }
+    
+    public static void setInstallationId(final String installationId) {
+        ParseInstallation.installationId = installationId;
     }
     
     /**
@@ -332,7 +335,7 @@ public class ParseInstallation extends ParseObject {
      * @throws ParseException if anything goes wrong
      */
     private static String retrieveInstallationId() throws ParseException {
-        String installationId = null;
+        String id = null;
         if (Parse.getPlatform() == Parse.EPlatform.ANDROID
                 || Parse.getPlatform() == Parse.EPlatform.IOS) {
             final ParseInstallationNative nativeInstallation = 
@@ -358,8 +361,8 @@ public class ParseInstallation extends ParseObject {
                         }
                     }
                     
-                    installationId = nativeInstallation.getInstallationId();
-                    parseSdkInitialized = (installationId != null && installationId.length() > 0);
+                    id = nativeInstallation.getInstallationId();
+                    parseSdkInitialized = (id != null && id.length() > 0);
                 } catch (Exception ex) {
                    throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
                            "Failed to retrieve installation ID." +
@@ -370,9 +373,9 @@ public class ParseInstallation extends ParseObject {
                         "Failed to retrieve installation ID");
             }
         } else {
-            installationId = Preferences.get(KEY_PARSE4CN1_INSTALLATION_ID, null);
+            id = installationId;
         }
         
-        return installationId;
+        return id;
     }
 }

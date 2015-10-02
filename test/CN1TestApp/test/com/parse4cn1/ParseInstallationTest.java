@@ -15,8 +15,6 @@
  */
 package com.parse4cn1;
 
-import com.codename1.io.Log;
-import com.codename1.io.Preferences;
 import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +41,7 @@ public class ParseInstallationTest extends BaseParseTest {
     @Override
     public void prepare() {
         super.prepare();
-        Preferences.set(ParseInstallation.KEY_PARSE4CN1_INSTALLATION_ID, installationId);
+        ParseInstallation.setInstallationId(installationId);
         try {
             currentInstallation = ParseInstallation.getCurrentInstallation();
         } catch (ParseException ex) {

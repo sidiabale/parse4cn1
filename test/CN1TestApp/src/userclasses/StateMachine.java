@@ -201,7 +201,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
 
                 public void run() {
                     Dialog.show("Ignoring push (foreground)",
-                            "Ignoring push received while app in foreground. It should show up in the notification bar",
+                            "Ignoring push received while app in foreground. Will be handled as native implementation deems fit "
+                                    + "(e.g. status bar notification on Android or message box on Windows Phone)",
                             "OK",
                             null);
                 }
