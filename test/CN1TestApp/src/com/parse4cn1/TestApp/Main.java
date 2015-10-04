@@ -19,12 +19,14 @@ package com.parse4cn1.TestApp;
 
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Log;
 import com.codename1.io.Preferences;
 import com.codename1.ui.Dialog;
 import com.codename1.ui.Display;
 import com.codename1.ui.Form;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.ParsePush;
+import com.parse4cn1.util.Logger;
 import userclasses.StateMachine;
 
 public class Main {

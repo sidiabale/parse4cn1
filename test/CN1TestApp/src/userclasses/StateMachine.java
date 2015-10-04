@@ -20,6 +20,7 @@ import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.components.SpanLabel;
+import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Preferences;
 import generated.StateMachineBase;
 import com.codename1.ui.*; 
@@ -79,6 +80,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                 }
             } catch (ParseException ex) {
                 installationIdText = "An exception occurred: " + ex.getMessage();
+                int code = ex.getCode();
+                installationIdText += " Error code = " + code + ((code < 0) ? " (local)" : "(from Parse)");
             }
             
             installationLabel.setText(installationIdText + "\n");
@@ -96,7 +99,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         pushNotes.setText("Note:"
                 + "\n- Messages will be delivered to ALL subscribers of the \"test\" channel (which includes this device)."
                 + "\n- (Part of) the installation ID of the sender will automatically be included in the push message so that you can distinguish your messages :)"
-                + "\n- The Parse backend for this app is a free Parse App so free quota limits apply. Use sparingly or the limit might be hit and your messages will fail.");
+                + "\n- The Parse backend for this app is a free Parse App so free quota limits apply. Use sparingly or the limit might be hit and your messages will fail."
+                + "\n- To aid debugging, you can use the 'Show app logging' in the 'Demo' tab (though it may fail on some platforms e.g. simulator due to dependency on the filesystem API).");
         handleForegroundPush = findCheckBoxHandleForegroundPush(f).isSelected();
         handleBackgroundPush = findCheckBoxHandleBackgroundPush(f).isSelected();
     }
@@ -267,6 +271,17 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                             + "will automatically go to the notification bar.",
                     "OK",
                     null);
+        }
+    }
+
+    @Override
+    protected void onMain_ButtonAction(Component c, ActionEvent event) {
+        try {
+            Logger.getInstance().showLog();
+        } catch (ParseException ex) {
+            Dialog.show("Error", 
+                    "Showing log failed:\n\n" + ex.getMessage(), 
+                    Dialog.TYPE_ERROR, null, "OK", null);
         }
     }
 }
