@@ -127,7 +127,8 @@ public class Logger {
             }
             r.close();
         } catch (Exception ex) {
-            throw new ParseException("Retrieving log file contents failed", ex);
+            throw new ParseException("Retrieving log file contents failed:" 
+                    + ex.getMessage(), ex);
         }
         return text;
     }
@@ -162,7 +163,7 @@ public class Logger {
                     try {
                         area.setText(getLogContent());
                     } catch (ParseException ex) {
-                        error("Unable to show log contents. Error: " + ex);
+                        error("Unable to show log contents: " + ex);
                    }
                 }
             });
@@ -174,7 +175,8 @@ public class Logger {
             f.addComponent(BorderLayout.NORTH, refreshButton);
             f.show();
         } catch (Exception ex) {
-            throw new ParseException("Unable to show log contents", ex);
+            throw new ParseException("Unable to show log contents: " 
+                    + ex.getMessage(), ex);
         }
     }
 }

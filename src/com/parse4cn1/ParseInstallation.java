@@ -15,7 +15,6 @@
  */
 package com.parse4cn1;
 
-import com.codename1.io.Preferences;
 import com.codename1.system.NativeLookup;
 import com.parse4cn1.nativeinterface.ParseInstallationNative;
 import com.parse4cn1.nativeinterface.ParsePushNative;
@@ -49,9 +48,10 @@ import java.util.List;
 public class ParseInstallation extends ParseObject {
 
     private static final String KEY_INSTALLATION_ID = "installationId";
+    private static final String KEY_DEVICE_TYPE = "deviceType";
     private static final String KEY_CHANNELS = "channels";
     private static boolean parseSdkInitialized = false;
-    private static String installationId;
+    private static String installationId = null;
 
     private static ParseInstallation currentInstallation;
     
@@ -200,7 +200,7 @@ public class ParseInstallation extends ParseObject {
     }
 
     /**
-     * Subscribes this device to the specified {@code channels} excluding duplicates.
+     * Subscribes this device to the specified {@code channels}.
      * 
      * @param channels The channels this device is to be subscribed to.
      * @throws com.parse4cn1.ParseException if subscription fails.
@@ -212,28 +212,25 @@ public class ParseInstallation extends ParseObject {
         
         final List<String> existingChannels = getSubscribedChannels();
         List<String> finalChannels;
-        boolean changed = false;
         
         if (existingChannels == null) {
             finalChannels = channels;
-            changed = true;
         } else {
             finalChannels = new ArrayList<String>(existingChannels);
             
             for (String channel : channels) {
                 if (!finalChannels.contains(channel)) {
-                    changed = true;
                     finalChannels.add(channel);
                 } else {
-                    Logger.getInstance().warn("Ignoring duplicate subscription request for channel: " + channel);
+                    // Although a channel is in the local list, subscription may
+                    // have failed resulting in a mismatch between server and device.
+                    // So we'll send the request anyway.
+                    Logger.getInstance().warn("May already be subscribed to channel: " + channel);
                 }
             }
         }
         
-        if (changed) {
-            put(KEY_CHANNELS, finalChannels);
-            save();
-        }
+        saveChannels(finalChannels);
     }
 
     /**
@@ -263,30 +260,38 @@ public class ParseInstallation extends ParseObject {
         }
         
         List<String> finalChannels;
-        boolean changed = false;
         
         if (channels.equals(existingChannels)) { // Remove all
             finalChannels = new ArrayList<String>();
-            changed = true;
         } else {
             finalChannels = new ArrayList<String>(existingChannels);
             
             for (String channel : channels) {
                 if (finalChannels.contains(channel)) {
                     finalChannels.remove(channel);
-                    changed = true;
                 } else {
-                    Logger.getInstance().warn("Ignoring unsubscription request for non-existent channel: " + channel);
+                    // Although a channel is not in the local list, unsubscription may
+                    // have failed resulting in a mismatch between server and device.
+                    // So we'll send the request anyway.
+                    Logger.getInstance().warn("May already be unsubscribed from channel: " + channel);
                 }
             }
         }
         
-        if (changed) {
-            put(KEY_CHANNELS, finalChannels);
-            save();
-        }
+        saveChannels(finalChannels);
     }
 
+    private void saveChannels(final List<String> channels) throws ParseException {
+       put(KEY_CHANNELS, channels);
+       // For some strange reason, an error 135 (missing fields) occurs on some platforms (e.g. win phone)
+       // if the following fields (which ironically are already in the Parse installation 
+       // retrieved from the server) are not included in the request.
+       // Seems to be a Parse issue (see https://goo.gl/cwwZdz) but this approach works around it.
+       put(KEY_INSTALLATION_ID, installationId);
+       put(KEY_DEVICE_TYPE, getString(KEY_DEVICE_TYPE));
+       save(); 
+    }
+    
     /**
      * Unsubscribes this device from all previously subscribed channels.
      * 

@@ -39,9 +39,17 @@ import java.util.Set;
  * The typical workflow for sending a push notification from the client is to construct a new ParsePush, 
  * use the setter functions to fill it with data, and then use ParsePush.send() to send it.
  * <p>
- * Note: In order to use send push notifications, Client Push should be enabled in the
+ * <b>Notes:</b>
+ * <br/> 
+ * 1. In order to use send push notifications, Client Push should be enabled in the
  * Parse App settings. Bear in mind, however, that it is recommended not to enable 
  * client push in production apps.
+ * <br/>
+ * 2. Unlike the corresponding
+ * <a href="https://parse.com/docs/android/api/com/parse/ParsePush.html">ParsePush</a> 
+ * class from the Parse Android SDK, methods for channel subscription and 
+ * unsubscription are available in this library via the 
+ * {@link ParseInstallation} where they arguably more naturally belong.
  */
 public class ParsePush {
     
