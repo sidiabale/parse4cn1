@@ -54,9 +54,16 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
   [application registerUserNotificationSettings:settings];
   [application registerForRemoteNotifications];
   
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Wait" message:@"Are you sure you want to delete this.  This action cannot be undone" delegate:nil cancelButtonTitle:@"Delete" otherButtonTitles:@"Cancel", nil];
- [alert show];
- [alert autorelease];
+	NSString *msg;
+	NSDictionary *notificationPayload = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+	if (notificationPayload) {
+		msg = @"App opened via remote notification";
+    } else{
+		msg = @"app opened normally";
+    }
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"App opened" message:msg delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+    [alert show]; 
+    [alert autorelease];
 
 // ios.glAppDelegateBody
 // Following three methods should be added without line breaks:
@@ -165,10 +172,10 @@ Receiving push in different app states
 
 Latest confusion on callbacks and app state:
 ++ http://stackoverflow.com/questions/22085234/didreceiveremotenotification-fetchcompletionhandler-open-from-icon-vs-push-not/22085855#22085855
-http://stackoverflow.com/questions/26578038/check-if-application-was-opened-by-tapping-a-notification
-http://stackoverflow.com/questions/32061897/ios-push-notification-how-to-detect-if-the-user-tapped-on-notification-when-the/32079458#32079458
-http://stackoverflow.com/questions/16393673/detect-if-the-app-was-launched-opened-from-a-push-notification
-http://stackoverflow.com/questions/10722391/app-was-opened-from-icon-or-notification
+++ http://stackoverflow.com/questions/26578038/check-if-application-was-opened-by-tapping-a-notification
++/- http://stackoverflow.com/questions/32061897/ios-push-notification-how-to-detect-if-the-user-tapped-on-notification-when-the/32079458#32079458
++/- http://stackoverflow.com/questions/16393673/detect-if-the-app-was-launched-opened-from-a-push-notification
+-/+ http://stackoverflow.com/questions/10722391/app-was-opened-from-icon-or-notification
 
 
 TODO: Check capabilities of cn1 app without push build hint set to true

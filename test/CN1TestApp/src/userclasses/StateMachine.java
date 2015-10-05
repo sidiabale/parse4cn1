@@ -20,11 +20,11 @@ import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
 import com.codename1.components.SpanLabel;
-import com.codename1.io.FileSystemStorage;
 import com.codename1.io.Preferences;
 import generated.StateMachineBase;
 import com.codename1.ui.*; 
 import com.codename1.ui.events.ActionEvent;
+import com.codename1.ui.plaf.UIManager;
 import com.codename1.ui.util.Resources;
 import com.parse4cn1.Parse;
 import com.parse4cn1.ParseException;
@@ -32,6 +32,7 @@ import com.parse4cn1.ParseInstallation;
 import com.parse4cn1.ParsePush;
 import com.parse4cn1.ParsePush.IPushCallback;
 import com.parse4cn1.util.Logger;
+import java.util.Hashtable;
 
 /**
  *
@@ -62,11 +63,29 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     
     @Override
     protected void postMain(Form f) {
+        if (Parse.getPlatform() == Parse.EPlatform.WINDOWS_PHONE) {
+            // Background push (i.e., intercepting an incoming push message when app is in 
+            // background and possibly preventing it from being added to the notification bar)
+            // is not supported on windows phone
+            findContainer9(f).removeComponent(findCheckBoxHandleBackgroundPush(f));
+        } else {
+            findContainer4(f).removeComponent(findRetryInstallation(f));
+        }
+        getInstallationId(f);
+    }
+    
+    @Override
+    protected void onMain_RetryInstallationAction(Component c, ActionEvent event) {
+        getInstallationId(Display.getInstance().getCurrent());
+    }
+
+    private void getInstallationId(Form f) {
+        
         SpanLabel installationLabel = findLabelInstallation(f);
         
         if (installationLabel != null) {
             boolean failed = true;
-            String installationIdText = "Unspecified error";
+            String installationIdText = null;
   
             try {
                 ParseInstallation installation = ParseInstallation.getCurrentInstallation();
@@ -79,20 +98,32 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                     installationIdText = "Could not retrieve current installation!";
                 }
             } catch (ParseException ex) {
-                installationIdText = "An exception occurred: " + ex.getMessage();
+                if (installationIdText == null) {
+                    installationIdText = "Failed to retrieve installation. ";
+                } else {
+                    installationIdText += "\nFailed to subscribe to test channel. ";
+                }
+                installationIdText += "Error: " + ex.getMessage();
                 int code = ex.getCode();
-                installationIdText += " Error code = " + code + ((code < 0) ? " (local)" : "(from Parse)");
+                installationIdText += " Error code = " + code + ((code < 0) ? " (local)" : " (from Parse)");
             }
-            
-            installationLabel.setText(installationIdText + "\n");
+
+            installationLabel.setText(installationIdText + "\n"); // crude layouting
             if (failed) {
                 installationLabel.setTextUIID("WarningLabel");
+            } else {
+                installationLabel.setTextUIID("Label");
+                Button button = findRetryInstallation(f);
+                if (button != null) {
+                    findContainer4(f).removeComponent(button);
+                }
             }
+            
             initPushButton(f, !failed, 
                     (failed ? "Sending push is disabled since installation id could not be retrieved" : ""));
         }
     }
-
+    
     @Override
     protected void beforeMain(Form f) {
         final SpanLabel pushNotes = findSpanLabelPushNotes(f);
@@ -103,6 +134,28 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                 + "\n- To aid debugging, you can use the 'Show app logging' in the 'Demo' tab (though it may fail on some platforms e.g. simulator due to dependency on the filesystem API).");
         handleForegroundPush = findCheckBoxHandleForegroundPush(f).isSelected();
         handleBackgroundPush = findCheckBoxHandleBackgroundPush(f).isSelected();
+        
+            
+        // A trick copied from the Kitchen Sink demo which is particularly
+        // useful on Windows phone where the title is shown in small font by default
+        // It's sufficient to do this only on the first form as it changes the theme
+        // which in turn propagates to the other forms
+        setTitleFont(f);
+    }
+
+    private void setTitleFont(Form parent) {
+        Font largeFont = Font.createSystemFont(Font.FACE_SYSTEM, Font.SIZE_LARGE, Font.STYLE_BOLD);
+        Hashtable themeAddition = new Hashtable();
+        themeAddition.put("Title.font", largeFont);
+
+        UIManager.getInstance().addThemeProps(themeAddition);
+        final Form c = Display.getInstance().getCurrent();
+        if (c != null) {
+            c.refreshTheme();
+        }
+        
+        parent.refreshTheme();
+        parent.revalidate();
     }
 
     @Override

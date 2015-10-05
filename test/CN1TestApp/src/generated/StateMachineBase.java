@@ -36,8 +36,8 @@ public abstract class StateMachineBase extends UIBuilder {
         UIBuilder.registerCustomComponent("Container", com.codename1.ui.Container.class);
         UIBuilder.registerCustomComponent("ComponentGroup", com.codename1.ui.ComponentGroup.class);
         UIBuilder.registerCustomComponent("Form", com.codename1.ui.Form.class);
-        UIBuilder.registerCustomComponent("TextArea", com.codename1.ui.TextArea.class);
         UIBuilder.registerCustomComponent("Button", com.codename1.ui.Button.class);
+        UIBuilder.registerCustomComponent("TextArea", com.codename1.ui.TextArea.class);
         UIBuilder.registerCustomComponent("CheckBox", com.codename1.ui.CheckBox.class);
         UIBuilder.registerCustomComponent("Label", com.codename1.ui.Label.class);
         UIBuilder.registerCustomComponent("MapComponent", com.codename1.maps.MapComponent.class);
@@ -81,8 +81,8 @@ public abstract class StateMachineBase extends UIBuilder {
         UIBuilder.registerCustomComponent("Container", com.codename1.ui.Container.class);
         UIBuilder.registerCustomComponent("ComponentGroup", com.codename1.ui.ComponentGroup.class);
         UIBuilder.registerCustomComponent("Form", com.codename1.ui.Form.class);
-        UIBuilder.registerCustomComponent("TextArea", com.codename1.ui.TextArea.class);
         UIBuilder.registerCustomComponent("Button", com.codename1.ui.Button.class);
+        UIBuilder.registerCustomComponent("TextArea", com.codename1.ui.TextArea.class);
         UIBuilder.registerCustomComponent("CheckBox", com.codename1.ui.CheckBox.class);
         UIBuilder.registerCustomComponent("Label", com.codename1.ui.Label.class);
         UIBuilder.registerCustomComponent("MapComponent", com.codename1.maps.MapComponent.class);
@@ -570,6 +570,18 @@ public abstract class StateMachineBase extends UIBuilder {
         return cmp;
     }
 
+    public com.codename1.ui.Button findRetryInstallation(Component root) {
+        return (com.codename1.ui.Button)findByName("RetryInstallation", root);
+    }
+
+    public com.codename1.ui.Button findRetryInstallation() {
+        com.codename1.ui.Button cmp = (com.codename1.ui.Button)findByName("RetryInstallation", Display.getInstance().getCurrent());
+        if(cmp == null && aboutToShowThisContainer != null) {
+            cmp = (com.codename1.ui.Button)findByName("RetryInstallation", aboutToShowThisContainer);
+        }
+        return cmp;
+    }
+
     public com.codename1.ui.CheckBox findCheckBoxRawJson(Component root) {
         return (com.codename1.ui.CheckBox)findByName("CheckBoxRawJson", root);
     }
@@ -720,6 +732,10 @@ public abstract class StateMachineBase extends UIBuilder {
         }
         if(rootContainerName == null) return;
         if(rootContainerName.equals("Main")) {
+            if("RetryInstallation".equals(c.getName())) {
+                onMain_RetryInstallationAction(c, event);
+                return;
+            }
             if("CheckBoxHandleForegroundPush".equals(c.getName())) {
                 onMain_CheckBoxHandleForegroundPushAction(c, event);
                 return;
@@ -766,6 +782,9 @@ public abstract class StateMachineBase extends UIBuilder {
             }
         }
     }
+
+      protected void onMain_RetryInstallationAction(Component c, ActionEvent event) {
+      }
 
       protected void onMain_CheckBoxHandleForegroundPushAction(Component c, ActionEvent event) {
       }

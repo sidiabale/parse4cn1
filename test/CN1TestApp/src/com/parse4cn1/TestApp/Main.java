@@ -46,6 +46,7 @@ public class Main {
                 Log.sendLog();
             }
         });*/
+        Logger.getInstance().setLogLevel(Log.DEBUG);
     }
 
     public void start() {
