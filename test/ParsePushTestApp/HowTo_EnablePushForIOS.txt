@@ -41,6 +41,7 @@ Accounts.framework;Social.framework
 
 // ios.glAppDelegateHeader
 #import "Parse.h" // <Parse/Parse.h> --> "Parse.h" since included libraries are flattened
+#import "com_parse4cn1_nativeinterface_Utils.h" //parse4cn1 utils
 
 
 // ios.afterFinishLaunching
@@ -57,13 +58,15 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
 	NSString *msg;
 	NSDictionary *notificationPayload = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
 	if (notificationPayload) {
-		msg = @"App opened via remote notification";
-    } else{
+		msg = @"App opened via remote notification. Payload=";
+    NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:notificationPayload];
+    msg = [msg stringByAppendingString:json];
+  } else{
 		msg = @"app opened normally";
-    }
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"App opened" message:msg delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
-    [alert show]; 
-    [alert autorelease];
+  }
+    
+  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg]
+
 
 // ios.glAppDelegateBody
 // Following three methods should be added without line breaks:
@@ -100,32 +103,22 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken { PFInstallation *currentInstallation = [PFInstallation currentInstallation];  [currentInstallation setDeviceTokenFromData:deviceToken]; currentInstallation.channels = @[@"global"]; [currentInstallation saveInBackground]; UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation" message:@"Installation saved in background" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease]; } - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease];    if (error.code == 3010) {        NSLog(@"Push notifications are not supported in the iOS Simulator.");    } else {        NSLog(@"application:didFailToRegisterForRemoteNotificationsWithError: %@", error);    }} - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notification" message:@"Received push while app was running" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease];    [PFPush handlePush:userInfo];}
 
 // With debugging
+// ios.glAppDelegateBody
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken { 
   PFInstallation *currentInstallation = [PFInstallation currentInstallation];  
-  currentInstallation.deviceToken = @""; // Tip from stackoverflow!!!
+  currentInstallation.deviceToken = @"";
   [currentInstallation setDeviceTokenFromData:deviceToken]; 
-  currentInstallation.channels = @[@"global"]; 
-  
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Device token" message:currentInstallation.deviceToken delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
-  [alert show]; 
-  [alert autorelease]; 
-  
+
   [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
     if (succeeded) {
-
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation saved" message:@"Installation saved in background" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
-  [alert show]; 
-  [alert autorelease];
-
+      [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"Installation saved in background"];
     }
 
     if (error) {
-
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
-  [alert show]; 
-  [alert autorelease];
-
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+        [alert show]; 
+        [alert autorelease];
     }
 }];
 } 
@@ -137,15 +130,21 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
 } 
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notification" message:@"Received push while app was running" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; 
-  [alert autorelease];    
-  [PFPush handlePush:userInfo];
+    NSString *msg = @"didReceiveRemoteNotification() userInfo=";
+    NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:userInfo];
+    msg = [msg stringByAppendingString:json];
+    [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+    [PFPush handlePush:userInfo];
 }
 
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSString *msg = @"didReceiveRemoteNotification_fetchCompletionHandler() userInfo=";
+    NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:userInfo];
+    msg = [msg stringByAppendingString:json];
+   [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+   completionHandler(UIBackgroundModeNoData);
+}
 
-// Compressed
-
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken { PFInstallation *currentInstallation = [PFInstallation currentInstallation];  currentInstallation.deviceToken = @""; [currentInstallation setDeviceTokenFromData:deviceToken]; currentInstallation.channels = @[@"global"]; UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Device token" message:currentInstallation.deviceToken delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease]; [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {   if (succeeded) { UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation saved" message:@"Installation saved in background" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease];  }  if (error) { UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease]; }}];} - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];  [alert show];  [alert autorelease]; } - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notification" message:@"Received push while app was running" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease]; [PFPush handlePush:userInfo]; }
 
 
 Utils
