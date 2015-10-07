@@ -89,7 +89,7 @@ public class Logger {
      * @param data The data to be logged.
      */
     public void info(String data) {
-        log.p(PREFIX + data, Log.DEBUG);
+        log.p(PREFIX + data, Log.INFO);
     }
     
     /**
@@ -97,7 +97,7 @@ public class Logger {
      * @param data The data to be logged.
      */
     public void warn(String data) {
-        log.p(PREFIX + data, Log.DEBUG);
+        log.p(PREFIX + data, Log.WARNING);
     }
     
     /**
