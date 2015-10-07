@@ -282,14 +282,19 @@ public class ParseInstallation extends ParseObject {
     }
 
     private void saveChannels(final List<String> channels) throws ParseException {
-       put(KEY_CHANNELS, channels);
+        put(KEY_CHANNELS, channels);
        // For some strange reason, an error 135 (missing fields) occurs on some platforms (e.g. win phone)
-       // if the following fields (which ironically are already in the Parse installation 
-       // retrieved from the server) are not included in the request.
-       // Seems to be a Parse issue (see https://goo.gl/cwwZdz) but this approach works around it.
-       put(KEY_INSTALLATION_ID, installationId);
-       put(KEY_DEVICE_TYPE, getString(KEY_DEVICE_TYPE));
-       save(); 
+        // if the following fields (which ironically are already in the Parse installation 
+        // retrieved from the server) are not included in the request.
+        // Seems to be a Parse issue (see https://goo.gl/cwwZdz) but this approach works around it.
+        if (installationId != null) {
+            put(KEY_INSTALLATION_ID, installationId);
+        }
+        
+        if (getString(KEY_DEVICE_TYPE) != null) {
+            put(KEY_DEVICE_TYPE, getString(KEY_DEVICE_TYPE));
+        }
+        save();
     }
     
     /**
@@ -340,7 +345,6 @@ public class ParseInstallation extends ParseObject {
      * @throws ParseException if anything goes wrong
      */
     private static String retrieveInstallationId() throws ParseException {
-        String id = null;
         if (Parse.getPlatform() == Parse.EPlatform.ANDROID
                 || Parse.getPlatform() == Parse.EPlatform.IOS) {
             final ParseInstallationNative nativeInstallation = 
@@ -366,8 +370,8 @@ public class ParseInstallation extends ParseObject {
                         }
                     }
                     
-                    id = nativeInstallation.getInstallationId();
-                    parseSdkInitialized = (id != null && id.length() > 0);
+                    installationId = nativeInstallation.getInstallationId();
+                    parseSdkInitialized = (installationId != null && installationId.length() > 0);
                 } catch (Exception ex) {
                    throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
                            "Failed to retrieve installation ID." +
@@ -377,10 +381,8 @@ public class ParseInstallation extends ParseObject {
                 throw new ParseException(ParseException.PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED, 
                         "Failed to retrieve installation ID");
             }
-        } else {
-            id = installationId;
         }
         
-        return id;
+        return installationId;
     }
 }
