@@ -4,7 +4,7 @@
 
 @implementation com_parse4cn1_nativeinterface_Utils
 
--(void)logDebugPlusStateInfo:(NSString *)message {
++(void)logDebugPlusStateInfo:(NSString *)message {
   UIApplicationState state = [UIApplication sharedApplication].applicationState;
   NSString* stateStr = @"Unknown";
   
@@ -24,7 +24,7 @@
 }
 
 // Credit: http://stackoverflow.com/questions/27054352/issue-in-converting-nsdictionary-to-json-string-replacing-with
--(NSString *)dictToJson:(NSDictionary *)dict {
++(NSString *)dictToJson:(NSDictionary *)dict {
    NSError *error;
    NSData *jsonData = [NSJSONSerialization dataWithJSONObject: dict
                                            options:(NSJSONWritingOptions) 0 // Pass NSJSONWritingPrettyPrinted for pretty printing; 0 otherwise

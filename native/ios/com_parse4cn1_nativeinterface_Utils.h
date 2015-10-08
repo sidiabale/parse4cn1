@@ -3,7 +3,7 @@
 @interface com_parse4cn1_nativeinterface_Utils : NSObject {
 }
 
--(void)logDebugPlusStateInfo:(NSString *)message;
++(void)logDebugPlusStateInfo:(NSString *)message;
 
--(NSString *)dictToJson:(NSDictionary *)dict;
++(NSString *)dictToJson:(NSDictionary *)dict;
 @end

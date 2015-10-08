@@ -65,7 +65,7 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
 		msg = @"app opened normally";
   }
     
-  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg]
+  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
 
 
 // ios.glAppDelegateBody
@@ -142,7 +142,7 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
     NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:userInfo];
     msg = [msg stringByAppendingString:json];
    [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
-   completionHandler(UIBackgroundModeNoData);
+   completionHandler(UIBackgroundFetchResultNoData);
 }
 
 
@@ -175,6 +175,7 @@ Latest confusion on callbacks and app state:
 +/- http://stackoverflow.com/questions/32061897/ios-push-notification-how-to-detect-if-the-user-tapped-on-notification-when-the/32079458#32079458
 +/- http://stackoverflow.com/questions/16393673/detect-if-the-app-was-launched-opened-from-a-push-notification
 -/+ http://stackoverflow.com/questions/10722391/app-was-opened-from-icon-or-notification
+http://stackoverflow.com/questions/5099483/how-to-respond-to-push-notification-view-if-app-is-already-running-in-the-backgr
 
 
 TODO: Check capabilities of cn1 app without push build hint set to true
@@ -183,3 +184,65 @@ TODO: Check capabilities of cn1 app without push build hint set to true
 
 Documentation on notification handling in general
 https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/IPhoneOSClientImp.html#//apple_ref/doc/uid/TP40008194-CH103-SW1
+
+
+// only didReceiveRemoteNotification
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {   PFInstallation *currentInstallation = [PFInstallation currentInstallation];    currentInstallation.deviceToken = @"";   [currentInstallation setDeviceTokenFromData:deviceToken];     [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {     if (error) {           UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];   [alert show];   [alert autorelease];      } }]; } - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];   [alert show];   [alert autorelease];    } - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {     [PFPush handlePush:userInfo]; }
+
+
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken { 
+  PFInstallation *currentInstallation = [PFInstallation currentInstallation];  
+  currentInstallation.deviceToken = @"";
+  [currentInstallation setDeviceTokenFromData:deviceToken]; 
+  
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Device token" message:currentInstallation.deviceToken delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+  [alert show]; 
+  [alert autorelease]; 
+  
+  [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
+    if (succeeded) {
+
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation saved" message:@"Installation saved in background" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+  [alert show]; 
+  [alert autorelease];
+
+    }
+
+    if (error) {
+
+         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+  [alert show]; 
+  [alert autorelease];
+
+    }
+}];
+} 
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {   
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+  [alert show]; 
+  [alert autorelease];    
+} 
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
+    NSString *state;
+    if(application.applicationState == UIApplicationStateInactive) {
+        state = @"Inactive";
+    } else if (application.applicationState == UIApplicationStateBackground) {
+		state = @"Background";
+    } else {
+		state = @"Active";
+    }
+	
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Received push" message:state delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+    [alert show]; 
+    [alert autorelease];
+	[PFPush handlePush:userInfo];
+	
+	completionHandler(UIBackgroundFetchResultNoData);
+}
+
+- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
+    [PFPush handlePush:userInfo];
+}
