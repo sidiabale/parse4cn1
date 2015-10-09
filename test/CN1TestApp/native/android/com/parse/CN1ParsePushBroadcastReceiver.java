@@ -107,12 +107,15 @@ public class CN1ParsePushBroadcastReceiver extends ParsePushBroadcastReceiver {
     protected void onPushOpen(Context context, Intent intent) {
         /*
          Adapted from ParsePushBroadcastReceiver. Main changes:
-         1. Remove analytics call to log app open; CN1 app should decide if and where to do that
-         2. Adapted code for starting app activity since it caused problems (see 
+         1. Adapted code for starting app activity since it caused problems (see 
             comments towards the end of the method starting from line 'Original code'
-         3. Implemented necessary ParsePush callback to set push data in advance
+         2. Implemented necessary ParsePush callback to set push data in advance
             so that it will be available when the app activity is started/resumed
          */
+        // Send a Parse Analytics "push opened" event
+        ParseAnalytics.trackAppOpenedInBackground(intent);
+        
+        
         JSONObject pushData = null;
         String uriString = null;
         try {
