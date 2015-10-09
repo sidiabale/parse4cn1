@@ -45,9 +45,9 @@ Accounts.framework;Social.framework
 
 
 // ios.afterFinishLaunching
-[Parse setApplicationId:@"j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8" clientKey:@"V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB"];
+  [Parse setApplicationId:@"j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8" clientKey:@"V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB"];
 
-UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
+  UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
                                                   UIUserNotificationTypeBadge |
                                                   UIUserNotificationTypeSound);
   UIUserNotificationSettings *settings = [UIUserNotificationSettings settingsForTypes:userNotificationTypes
@@ -55,54 +55,39 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
   [application registerUserNotificationSettings:settings];
   [application registerForRemoteNotifications];
   
-	NSString *msg;
-	NSDictionary *notificationPayload = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
-	if (notificationPayload) {
-		msg = @"App opened via remote notification. Payload=";
-    NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:notificationPayload];
-    msg = [msg stringByAppendingString:json];
-  } else{
-		msg = @"app opened normally";
-  }
-    
-  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
-
-
-// ios.glAppDelegateBody
-// Following three methods should be added without line breaks:
-
-
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {PFInstallation *currentInstallation = [PFInstallation currentInstallation]; [currentInstallation setDeviceTokenFromData:deviceToken]; currentInstallation.channels = @[@"global"];[currentInstallation saveInBackground];} - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error { if (error.code == 3010) { NSLog(@"Push notifications are not supported in the iOS Simulator.");} else { NSLog(@"application:didFailToRegisterForRemoteNotificationsWithError: %@", error);}} - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {[PFPush handlePush:userInfo];}
-
-// With line breaks for readability of tutorial
-
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
-    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
-	currentInstallation.deviceToken = @""; // Tip from stackoverflow!!!
-    [currentInstallation setDeviceTokenFromData:deviceToken];
-    currentInstallation.channels = @[@"global"];
-    [currentInstallation saveInBackground];
-}
-
-- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
-    if (error.code == 3010) {
-        NSLog(@"Push notifications are not supported in the iOS Simulator.");
-    } else {
-        // show some alert or otherwise handle the failure to register.
-        NSLog(@"application:didFailToRegisterForRemoteNotificationsWithError: %@", error);
+  // Track app open as described Parse iOS guide
+  if (application.applicationState != UIApplicationStateBackground) {
+    // Track an app open here if we launch with a push, unless
+    // "content_available" was used to trigger a background push (introduced
+    // in iOS 7). In that case, we skip tracking here to avoid double
+    // counting the app-open.
+    BOOL preBackgroundPush = ![application respondsToSelector:@selector(backgroundRefreshStatus)];
+    BOOL oldPushHandlerOnly = ![self respondsToSelector:@selector(application:didReceiveRemoteNotification:fetchCompletionHandler:)];
+    BOOL noPushPayload = ![launchOptions objectForKey:UIApplicationLaunchOptionsRemoteNotificationKey];
+    if (preBackgroundPush || oldPushHandlerOnly || noPushPayload) {
+      [PFAnalytics trackAppOpenedWithLaunchOptions:launchOptions];
     }
-}
+  
+    // Check if app is opened via push and respond accordingly
+    NSString *msg;
+    NSDictionary *notificationPayload = launchOptions[UIApplicationLaunchOptionsRemoteNotificationKey];
+    if (notificationPayload && preBackgroundPush && oldPushHandlerOnly) {
+      // Not completely sure if the above checks are completely correct. The intention is that:
+      // In the iOS 7+ situations, we don't handle app open via push here because it will be handled in 
+      // application:didReceiveRemoteNotification:fetchCompletionHandler. Otherwise, 
+      msg = @"didFinishLaunchingWithOptions(): App opened via remote notification. Payload=";
+      NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:notificationPayload];
+      msg = [msg stringByAppendingString:json];
+      [com_parse4cn1_nativeinterface_Utils handleAppOpenedViaPush:notificationPayload];
+    } else{
+      msg = @"didFinishLaunchingWithOptions(): App opened normally";
+    }
+      
+    [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+  }
 
-- (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    [PFPush handlePush:userInfo];
-}
 
-// With popups
-
-
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken { PFInstallation *currentInstallation = [PFInstallation currentInstallation];  [currentInstallation setDeviceTokenFromData:deviceToken]; currentInstallation.channels = @[@"global"]; [currentInstallation saveInBackground]; UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation" message:@"Installation saved in background" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease]; } - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {   UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease];    if (error.code == 3010) {        NSLog(@"Push notifications are not supported in the iOS Simulator.");    } else {        NSLog(@"application:didFailToRegisterForRemoteNotificationsWithError: %@", error);    }} - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Notification" message:@"Received push while app was running" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; [alert show]; [alert autorelease];    [PFPush handlePush:userInfo];}
-
-// With debugging
+// Following methods should be added without line breaks:
 // ios.glAppDelegateBody
 
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken { 
@@ -112,39 +97,61 @@ UIUserNotificationType userNotificationTypes = (UIUserNotificationTypeAlert |
 
   [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
     if (succeeded) {
-      [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"Installation saved in background"];
+      [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"didRegisterForRemoteNotificationsWithDeviceToken(): Installation saved in background"];
     }
 
     if (error) {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil]; 
         [alert show]; 
         [alert autorelease];
     }
-}];
+  }];
 } 
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {   
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Push Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil]; 
   [alert show]; 
   [alert autorelease];    
 } 
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    NSString *msg = @"didReceiveRemoteNotification() userInfo=";
+    // Track app open as described Parse iOS guide
+    if (application.applicationState == UIApplicationStateInactive) {
+      // The application was just brought from the background to the foreground,
+      // so we consider the app as having been "opened by a push notification."
+      [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
+    }
+    
+    // Handle incoming push notification
+    NSString *msg = @"didReceiveRemoteNotification(): userInfo=";
     NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:userInfo];
     msg = [msg stringByAppendingString:json];
     [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
-    [PFPush handlePush:userInfo];
+    
+    if (![com_parse4cn1_nativeinterface_Utils handlePushReceived:userInfo]) {
+      [PFPush handlePush:userInfo]; // Safe as a popup will only be shown if app is in the foreground.
+    }
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo fetchCompletionHandler:(void (^)(UIBackgroundFetchResult))completionHandler {
-    NSString *msg = @"didReceiveRemoteNotification_fetchCompletionHandler() userInfo=";
-    NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:userInfo];
-    msg = [msg stringByAppendingString:json];
-   [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+  // Track app open as described Parse iOS guide
+  if (application.applicationState == UIApplicationStateInactive) {
+    [PFAnalytics trackAppOpenedWithRemoteNotificationPayload:userInfo];
+  }
+
+  // Handle incoming push notification
+  NSString *msg = @"didReceiveRemoteNotification_fetchCompletionHandler(): userInfo=";
+  NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:userInfo];
+  msg = [msg stringByAppendingString:json];
+  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+   
+  if (![com_parse4cn1_nativeinterface_Utils handlePushReceived:userInfo]) {
+    [PFPush handlePush:userInfo]; // Safe as a popup will only be shown if app is in the foreground.
+  }
+   
+   // By default, we assume no data is fetched. Depending on the use case, this should be replaced with a more elaborate implementation
    completionHandler(UIBackgroundFetchResultNoData);
 }
-
 
 
 Utils
@@ -153,6 +160,9 @@ http://stackoverflow.com/questions/6368867/generate-json-string-from-nsdictionar
 
 - Detecting app state
 http://stackoverflow.com/questions/8291192/ios-how-to-judge-application-is-running-foreground-or-background
+
+- App states (official doc)
+https://developer.apple.com/library/ios/documentation/iPhone/Conceptual/iPhoneOSProgrammingGuide/TheAppLifeCycle/TheAppLifeCycle.html
 
 Background push as of iOS 7
 https://developer.apple.com/library/ios/releasenotes/General/WhatsNewIniOS/Articles/iOS7.html#//apple_ref/doc/uid/TP40013162-SW10
@@ -178,6 +188,14 @@ Latest confusion on callbacks and app state:
 http://stackoverflow.com/questions/5099483/how-to-respond-to-push-notification-view-if-app-is-already-running-in-the-backgr
 
 
+Enabling background notifications (ios 7+)
+http://hayageek.com/ios-silent-push-notifications/
+
+<key>UIBackgroundModes</key>
+<array>
+    <string>remote-notification</string>
+</array>
+
 TODO: Check capabilities of cn1 app without push build hint set to true
 
 
@@ -186,24 +204,19 @@ Documentation on notification handling in general
 https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/IPhoneOSClientImp.html#//apple_ref/doc/uid/TP40008194-CH103-SW1
 
 
-// only didReceiveRemoteNotification
-- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {   PFInstallation *currentInstallation = [PFInstallation currentInstallation];    currentInstallation.deviceToken = @"";   [currentInstallation setDeviceTokenFromData:deviceToken];     [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {     if (error) {           UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];   [alert show];   [alert autorelease];      } }]; } - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil];   [alert show];   [alert autorelease];    } - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {     [PFPush handlePush:userInfo]; }
-
-
-
 - (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken { 
   PFInstallation *currentInstallation = [PFInstallation currentInstallation];  
   currentInstallation.deviceToken = @"";
   [currentInstallation setDeviceTokenFromData:deviceToken]; 
   
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Device token" message:currentInstallation.deviceToken delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Device token" message:currentInstallation.deviceToken delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil]; 
   [alert show]; 
   [alert autorelease]; 
   
   [currentInstallation saveInBackgroundWithBlock:^(BOOL succeeded, NSError *error) {
     if (succeeded) {
 
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation saved" message:@"Installation saved in background" delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation saved" message:@"Installation saved in background" delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil]; 
   [alert show]; 
   [alert autorelease];
 
@@ -211,7 +224,7 @@ https://developer.apple.com/library/ios/documentation/NetworkingInternet/Concept
 
     if (error) {
 
-         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Installation not saved" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil]; 
   [alert show]; 
   [alert autorelease];
 
@@ -220,7 +233,7 @@ https://developer.apple.com/library/ios/documentation/NetworkingInternet/Concept
 } 
 
 - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {   
-  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Registration Error" message:error.localizedDescription delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil]; 
   [alert show]; 
   [alert autorelease];    
 } 
@@ -235,7 +248,7 @@ https://developer.apple.com/library/ios/documentation/NetworkingInternet/Concept
 		state = @"Active";
     }
 	
-	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Received push" message:state delegate:nil cancelButtonTitle:@"Cancel" otherButtonTitles:@"Ok", nil]; 
+	UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Received push" message:state delegate:nil cancelButtonTitle:@"Ok" otherButtonTitles:nil, nil]; 
     [alert show]; 
     [alert autorelease];
 	[PFPush handlePush:userInfo];
@@ -245,4 +258,27 @@ https://developer.apple.com/library/ios/documentation/NetworkingInternet/Concept
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
     [PFPush handlePush:userInfo];
+}
+
+
+// Alternatives
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {PFInstallation *currentInstallation = [PFInstallation currentInstallation]; [currentInstallation setDeviceTokenFromData:deviceToken]; currentInstallation.channels = @[@"global"];[currentInstallation saveInBackground];} - (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error { if (error.code == 3010) { NSLog(@"Push notifications are not supported in the iOS Simulator.");} else { NSLog(@"application:didFailToRegisterForRemoteNotificationsWithError: %@", error);}} - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {[PFPush handlePush:userInfo];}
+
+// With line breaks for readability of tutorial
+
+- (void)application:(UIApplication *)application didRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
+    PFInstallation *currentInstallation = [PFInstallation currentInstallation];
+    currentInstallation.deviceToken = @""; // Tip from stackoverflow!!!
+    [currentInstallation setDeviceTokenFromData:deviceToken];
+    currentInstallation.channels = @[@"global"];
+    [currentInstallation saveInBackground];
+}
+
+- (void)application:(UIApplication *)application didFailToRegisterForRemoteNotificationsWithError:(NSError *)error {
+    if (error.code == 3010) {
+        NSLog(@"Push notifications are not supported in the iOS Simulator.");
+    } else {
+        // show some alert or otherwise handle the failure to register.
+        NSLog(@"application:didFailToRegisterForRemoteNotificationsWithError: %@", error);
+    }
 }

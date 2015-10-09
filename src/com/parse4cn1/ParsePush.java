@@ -24,7 +24,6 @@ import ca.weblite.codename1.json.JSONException;
 import java.util.Collection;
 import java.util.Date;
 import ca.weblite.codename1.json.JSONObject;
-import com.codename1.io.Preferences;
 import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
@@ -310,7 +309,7 @@ public class ParsePush {
     
     /**
      * This method should be called by the native push implementation whenever there 
-     * is an unhandled push message that could not be scheduled for 'status bar' notification, 
+     * is a push message that was not scheduled for 'status bar' notification, 
      * e.g. so-called 'hidden' push message. It is up to the native implementation 
      * to decide what is hidden.
      * <p>
