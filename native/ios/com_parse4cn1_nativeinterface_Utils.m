@@ -36,7 +36,8 @@
       // Check whether message is 'silent' (iOS 7+)
       BOOL silent = NO;
       NSNumber *contentAvailable = aps[@"content-available"];
-      if (contentAvailable) {
+      id alert = aps[@"alert"];
+      if (!alert && contentAvailable) { // If there's an alert we want to properly detect app open via push hence the extra check
           if ([contentAvailable integerValue] == 1) {
             silent = YES;
             result = YES;

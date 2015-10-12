@@ -208,6 +208,6 @@ public class Logger {
      * @param data The data to be logged (at debug level).
      */
     public static void logBuffered(final String data) {
-        bufferedLog += "[" + timeStampFormat.format(new Date()) + "]" + data + "\n";
+        bufferedLog += "[" + timeStampFormat.format(new Date()) + "]" + PREFIX + data + "\n";
     }
 }

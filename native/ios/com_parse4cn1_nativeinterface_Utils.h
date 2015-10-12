@@ -9,7 +9,9 @@
 // Decide which method to call depending on app state 
 // If in background, the decision between handlePushReceivedBackground and handleUnprocessedPushReceived (<-- content-available=1)
 // is made based on the presence/value of the 'content-available' key in the payload
-// Note: The return value defaults to YES for handleUnprocessedPushReceived
+// Note: 
+// (1) If both 'content-available'=1 and 'alert' are present, the alert overrules
+// (2) The return value defaults to YES for handleUnprocessedPushReceived
 +(BOOL)handlePushReceived:(NSDictionary *)userInfo;
 
 +(NSString *)dictToJson:(NSDictionary *)dict;

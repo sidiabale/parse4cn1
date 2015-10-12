@@ -63,8 +63,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     
     @Override
     protected void postMain(Form f) {
-        checkForPushMessages();
         getInstallationId(f);
+        checkForPushMessages();
     }
     
     private void checkForPushMessages() {
@@ -79,12 +79,18 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                     "Apparently an error occurred while processing a push message "
                             + "received while the app was in background:\n\n" 
                             + pushReceivedInBackgroundError);
-            Dialog.show("Error", 
-                    "Apparently an error occurred while processing a push message "
-                            + "received while the app was in background:\n\n" 
-                            + pushReceivedInBackgroundError, 
-                    Dialog.TYPE_ERROR, null, "OK", null);
-            Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
+            
+            Display.getInstance().callSerially(new Runnable() {
+
+                public void run() {
+                    Dialog.show("Error",
+                            "Apparently an error occurred while processing a push message "
+                            + "received while the app was in background:\n\n"
+                            + pushReceivedInBackgroundError,
+                            Dialog.TYPE_ERROR, null, "OK", null);
+                    Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
+                }
+            });
         } else {
             final String pushReceivedInBackground = 
                     Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
@@ -93,43 +99,74 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                 Logger.getInstance().info("The following push messages were "
                         + "received while the app was in background:\n\n"
                                 + pushReceivedInBackground);
-                Dialog.show("Push received (background)", 
-                        "The following push messages were received while the app was in background:\n\n"
+                Display.getInstance().callSerially(new Runnable() {
+
+                    public void run() {
+                        Dialog.show("Push received (background)",
+                                "The following push messages were received while the app was in background:\n\n"
                                 + pushReceivedInBackground, "OK", null);
-                Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+                        Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+                    }
+                });
             }
         }
-        
+
         if (ParsePush.isAppOpenedViaPushNotification()) {
+            Logger.getInstance().info("App opened via push notification");
             try {
                 final JSONObject pushPayload = ParsePush.getPushDataUsedToOpenApp();
-                Dialog.show("App opened via push",
-                        "The app was opened via clicking a push notification with payload:\n\n"
+                Display.getInstance().callSerially(new Runnable() {
+
+                    public void run() {
+                        Dialog.show("App opened via push",
+                                "The app was opened via clicking a push notification with payload:\n\n"
                                 + pushPayload.toString(), "OK", null);
-                ParsePush.resetPushDataUsedToOpenApp();
-            } catch (ParseException ex) {
-                Dialog.show("Error", "An error occured while trying to retrieve "
-                        + "push payload used to open app.\n\n"
-                        + "Error: " + ex.getMessage(),
-                        Dialog.TYPE_ERROR, null, "OK", null);
+                        ParsePush.resetPushDataUsedToOpenApp();
+                    }
+                });
+
+            } catch (final ParseException ex) {
+                Display.getInstance().callSerially(new Runnable() {
+
+                    public void run() {
+                        Dialog.show("Error", "An error occured while trying to retrieve "
+                                + "push payload used to open app.\n\n"
+                                + "Error: " + ex.getMessage(),
+                                Dialog.TYPE_ERROR, null, "OK", null);
+                    }
+                });
             }
         } else {
             Logger.getInstance().info("App opened normally");
         }
         
         if (ParsePush.isUnprocessedPushDataAvailable()) {
+            Logger.getInstance().info("Unprocessed push data available");
             try {
                 final JSONArray pushPayload = ParsePush.getUnprocessedPushData();
-                Dialog.show("Unprocessed push data",
-                        "The following unprocessed push message(s) were "
+                
+                Display.getInstance().callSerially(new Runnable() {
+
+                    public void run() {
+                        Dialog.show("Unprocessed push data",
+                                "The following unprocessed push message(s) were "
                                 + "possibly received while the app was not running:\n\n"
                                 + pushPayload.toString(), "OK", null);
-                ParsePush.resetUnprocessedPushData();
-            } catch (ParseException ex) {
-                Dialog.show("Error", "An error occured while trying to retrieve "
-                        + "unprocessed push payload.\n\n"
-                        + "Error: " + ex.getMessage(),
-                        Dialog.TYPE_ERROR, null, "OK", null);
+                        ParsePush.resetUnprocessedPushData();
+                    }
+                });
+                
+            } catch (final ParseException ex) {
+                
+                Display.getInstance().callSerially(new Runnable() {
+
+                    public void run() {
+                        Dialog.show("Error", "An error occured while trying to retrieve "
+                                + "unprocessed push payload.\n\n"
+                                + "Error: " + ex.getMessage(),
+                                Dialog.TYPE_ERROR, null, "OK", null);
+                    }
+                });
             }
         } else {
             Logger.getInstance().info("No unprocessed push data found");
