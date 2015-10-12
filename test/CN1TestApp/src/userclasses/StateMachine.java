@@ -63,15 +63,77 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     
     @Override
     protected void postMain(Form f) {
-        if (Parse.getPlatform() == Parse.EPlatform.WINDOWS_PHONE) {
-            // Background push (i.e., intercepting an incoming push message when app is in 
-            // background and possibly preventing it from being added to the notification bar)
-            // is not supported on windows phone
-            findContainer9(f).removeComponent(findCheckBoxHandleBackgroundPush(f));
-        } else {
-            findContainer4(f).removeComponent(findRetryInstallation(f));
-        }
+        checkForPushMessages();
         getInstallationId(f);
+    }
+    
+    private void checkForPushMessages() {
+        // Handle any pending push messages...
+        // This is a good place because this method is called each time the
+        // app comes to the foreground.
+        final String pushReceivedInBackgroundError = 
+                Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
+        
+        if (pushReceivedInBackgroundError != null) {
+            Logger.getInstance().error(
+                    "Apparently an error occurred while processing a push message "
+                            + "received while the app was in background:\n\n" 
+                            + pushReceivedInBackgroundError);
+            Dialog.show("Error", 
+                    "Apparently an error occurred while processing a push message "
+                            + "received while the app was in background:\n\n" 
+                            + pushReceivedInBackgroundError, 
+                    Dialog.TYPE_ERROR, null, "OK", null);
+            Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
+        } else {
+            final String pushReceivedInBackground = 
+                    Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+
+            if (pushReceivedInBackground != null) {
+                Logger.getInstance().info("The following push messages were "
+                        + "received while the app was in background:\n\n"
+                                + pushReceivedInBackground);
+                Dialog.show("Push received (background)", 
+                        "The following push messages were received while the app was in background:\n\n"
+                                + pushReceivedInBackground, "OK", null);
+                Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
+            }
+        }
+        
+        if (ParsePush.isAppOpenedViaPushNotification()) {
+            try {
+                final JSONObject pushPayload = ParsePush.getPushDataUsedToOpenApp();
+                Dialog.show("App opened via push",
+                        "The app was opened via clicking a push notification with payload:\n\n"
+                                + pushPayload.toString(), "OK", null);
+                ParsePush.resetPushDataUsedToOpenApp();
+            } catch (ParseException ex) {
+                Dialog.show("Error", "An error occured while trying to retrieve "
+                        + "push payload used to open app.\n\n"
+                        + "Error: " + ex.getMessage(),
+                        Dialog.TYPE_ERROR, null, "OK", null);
+            }
+        } else {
+            Logger.getInstance().info("App opened normally");
+        }
+        
+        if (ParsePush.isUnprocessedPushDataAvailable()) {
+            try {
+                final JSONArray pushPayload = ParsePush.getUnprocessedPushData();
+                Dialog.show("Unprocessed push data",
+                        "The following unprocessed push message(s) were "
+                                + "possibly received while the app was not running:\n\n"
+                                + pushPayload.toString(), "OK", null);
+                ParsePush.resetUnprocessedPushData();
+            } catch (ParseException ex) {
+                Dialog.show("Error", "An error occured while trying to retrieve "
+                        + "unprocessed push payload.\n\n"
+                        + "Error: " + ex.getMessage(),
+                        Dialog.TYPE_ERROR, null, "OK", null);
+            }
+        } else {
+            Logger.getInstance().info("No unprocessed push data found");
+        }
     }
     
     @Override
@@ -126,6 +188,15 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     
     @Override
     protected void beforeMain(Form f) {
+        if (Parse.getPlatform() != Parse.EPlatform.WINDOWS_PHONE) {
+//            // Background push (i.e., intercepting an incoming push message when app is in 
+//            // background and possibly preventing it from being added to the notification bar)
+//            // is not supported on windows phone
+//            findContainer9(f).removeComponent(findCheckBoxHandleBackgroundPush(f));
+//        } else {
+            findContainer4(f).removeComponent(findRetryInstallation(f));
+        }
+        
         final SpanLabel pushNotes = findSpanLabelPushNotes(f);
         pushNotes.setText("Note:"
                 + "\n- Messages will be delivered to ALL subscribers of the \"test\" channel (which includes this device)."
@@ -239,6 +310,65 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
             findTextAreaPush().setText("");
         }
     }
+    
+    
+    @Override
+    protected void onMain_CheckBoxHandleForegroundPushAction(Component c, ActionEvent event) {
+        handleForegroundPush = ((CheckBox) c).isSelected();
+    }
+
+    @Override
+    protected void onMain_CheckBoxHandleBackgroundPushAction(Component c, ActionEvent event) {
+        if (Parse.getPlatform() != Parse.EPlatform.ANDROID) {
+            Dialog.show("Info",
+                    "Handling background messages (i.e. intercepting them and preventing them from "
+                            + "showing up in the 'notification bar' "
+                            + "only works on Android). For iOS consider hidden messages "
+                            + "using the 'content-available' field",
+                    "OK",
+                    null);
+            ((CheckBox) c).setSelected(false);
+            return;
+        }
+        
+        handleBackgroundPush = ((CheckBox) c).isSelected();
+       
+        if (!handleBackgroundPush) {
+            Dialog.show("Info",
+                    "Disabling handling of background push means that any push messages "
+                            + "received while the app is not in the foreground "
+                            + "will automatically go to the notification bar.",
+                    "OK",
+                    null);
+        }
+    }
+
+    @Override
+    protected void onMain_ButtonAction(Component c, ActionEvent event) {
+        try {
+            Logger.getInstance().showLog();
+        } catch (ParseException ex) {
+            Dialog.show("Error", 
+                    "Showing log failed:\n\n" + ex.getMessage(), 
+                    Dialog.TYPE_ERROR, null, "OK", null);
+        }
+    }
+
+    @Override
+    protected void onMain_ButtonClearBadgeAction(Component c, ActionEvent event) {
+        if (Parse.getPlatform() != Parse.EPlatform.IOS) {
+            Dialog.show("Info", "Badging is only supported on iOS", "OK", null);
+        } else {
+            try {
+                ParseInstallation.getCurrentInstallation().setBadge(0);
+            } catch (ParseException ex) {
+                Dialog.show("Error", 
+                    "Clearing badge failed:\n\n" + ex.getMessage(), 
+                    Dialog.TYPE_ERROR, null, "OK", null);
+            }
+        }
+    
+    }
 
     @Override
     public boolean onPushReceivedForeground(final JSONObject pushPayload) {
@@ -306,35 +436,5 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
             }
 
         });
-    }
-
-    @Override
-    protected void onMain_CheckBoxHandleForegroundPushAction(Component c, ActionEvent event) {
-        handleForegroundPush = ((CheckBox) c).isSelected();
-    }
-
-    @Override
-    protected void onMain_CheckBoxHandleBackgroundPushAction(Component c, ActionEvent event) {
-        handleBackgroundPush = ((CheckBox) c).isSelected();
-       
-        if (!handleBackgroundPush) {
-            Dialog.show("Info",
-                    "Disabling handling of background push means that any push messages "
-                            + "received while the app is not in the foreground "
-                            + "will automatically go to the notification bar.",
-                    "OK",
-                    null);
-        }
-    }
-
-    @Override
-    protected void onMain_ButtonAction(Component c, ActionEvent event) {
-        try {
-            Logger.getInstance().showLog();
-        } catch (ParseException ex) {
-            Dialog.show("Error", 
-                    "Showing log failed:\n\n" + ex.getMessage(), 
-                    Dialog.TYPE_ERROR, null, "OK", null);
-        }
     }
 }

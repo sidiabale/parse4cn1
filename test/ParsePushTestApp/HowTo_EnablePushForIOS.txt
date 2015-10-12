@@ -282,3 +282,14 @@ https://developer.apple.com/library/ios/documentation/NetworkingInternet/Concept
         NSLog(@"application:didFailToRegisterForRemoteNotificationsWithError: %@", error);
     }
 }
+
+
+Test notes
+- UIBackgroundModes ON
+  - content_available + alert: Notification shown. Sometimes twice???
+  - content_available - alert: No notification. Even  if app was not running message is delivered when next app is opened
+  
+- UIBackgroundModes OFF
+  - content_available + alert: TODO
+  - content_available - alert: TODO
+  

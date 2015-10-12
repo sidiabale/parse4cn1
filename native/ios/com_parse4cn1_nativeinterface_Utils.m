@@ -65,10 +65,10 @@
   
   if (aps) {
     // Add extra data if available
-    NSMutableDictionary *output = [NSMutableDictionary aps];
+    NSMutableDictionary *output = [aps mutableCopy];
     for(NSString* key in dict) {
       //NSLog(@"key=%@ value=%@", key, [dict objectForKey:key]);
-      if (key != @"aps") {
+      if (![key isEqualToString:@"aps"]) {
         [output setValue:[dict objectForKey:key] forKey:key]; 
       }
     }

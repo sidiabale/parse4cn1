@@ -320,9 +320,8 @@ public class ParsePush {
      * @param jsonPushPayload The push data.
      */
     public static void handleUnprocessedPushReceived(final String jsonPushPayload) {
-        Logger.getInstance().debug("Unprocessed (hidden?) push received while app is not running. "
-                + "Will store until is restarted. Payload: " 
-                + jsonPushPayload);
+        Logger.getInstance().debug("Unprocessed (hidden?) push received. "
+                + "Payload: " + jsonPushPayload);
         
         JSONObject received;
         try {

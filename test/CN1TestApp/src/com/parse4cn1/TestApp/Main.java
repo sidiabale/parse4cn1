@@ -50,66 +50,11 @@ public class Main {
     }
 
     public void start() {
-        // Handle any pending push messages...
-        // This is a good place because this method is called each time the
-        // app comes to the foreground.
-        final String pushReceivedInBackgroundError = 
-                Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
-        
-        if (pushReceivedInBackgroundError != null) {
-            Dialog.show("Error", 
-                    "Apparently an error occurred while processing a push message "
-                            + "received while the app was in background:\n\n" 
-                            + pushReceivedInBackgroundError, 
-                    Dialog.TYPE_ERROR, null, "OK", null);
-            Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
-        } else {
-            final String pushReceivedInBackground = 
-                    Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
-
-            if (pushReceivedInBackground != null) {
-                Dialog.show("Push received (background)", 
-                        "The following push messages were received while the app was in background:\n\n"
-                                + pushReceivedInBackground, "OK", null);
-                Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
-            }
-        }
-        
-        if (ParsePush.isAppOpenedViaPushNotification()) {
-            try {
-                final JSONObject pushPayload = ParsePush.getPushDataUsedToOpenApp();
-                Dialog.show("App opened via push",
-                        "The app was opened via clicking a push notification with payload:\n\n"
-                                + pushPayload.toString(), "OK", null);
-                ParsePush.resetPushDataUsedToOpenApp();
-            } catch (ParseException ex) {
-                Dialog.show("Error", "An error occured while trying to retrieve "
-                        + "push payload used to open app.\n\n"
-                        + "Error: " + ex.getMessage(),
-                        Dialog.TYPE_ERROR, null, "OK", null);
-            }
-        }
-        
-        if (ParsePush.isUnprocessedPushDataAvailable()) {
-            try {
-                final JSONArray pushPayload = ParsePush.getUnprocessedPushData();
-                Dialog.show("Unprocessed push data",
-                        "The following unprocessed push message(s) wer possibly received while the app was not running:\n\n"
-                                + pushPayload.toString(), "OK", null);
-                ParsePush.resetUnprocessedPushData();
-            } catch (ParseException ex) {
-                Dialog.show("Error", "An error occured while trying to retrieve "
-                        + "unprocessed push payload.\n\n"
-                        + "Error: " + ex.getMessage(),
-                        Dialog.TYPE_ERROR, null, "OK", null);
-            }
-        }
-        
         if(current != null){
             current.show();
-            return;
+        } else {
+            new StateMachine("/theme"); 
         }
-        new StateMachine("/theme"); 
     }
 
     public void stop() {
