@@ -64,10 +64,9 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     @Override
     protected void postMain(Form f) {
         getInstallationId(f);
-        checkForPushMessages();
     }
     
-    private void checkForPushMessages() {
+    public static void checkForPushMessages() {
         // Handle any pending push messages...
         // This is a good place because this method is called each time the
         // app comes to the foreground.

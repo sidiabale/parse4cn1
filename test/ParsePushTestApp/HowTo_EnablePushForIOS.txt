@@ -187,6 +187,15 @@ Latest confusion on callbacks and app state:
 -/+ http://stackoverflow.com/questions/10722391/app-was-opened-from-icon-or-notification
 http://stackoverflow.com/questions/5099483/how-to-respond-to-push-notification-view-if-app-is-already-running-in-the-backgr
 
+Singleton:
+http://stackoverflow.com/questions/9301887/can-i-register-a-class-for-nsnotifications-can-i-use-class-methods-with-nsnotif
+http://www.galloway.me.uk/tutorials/singleton-classes/
+
+Subscription to notification center
+http://stackoverflow.com/questions/21107166/how-to-use-uiapplicationdidbecomeactivenotification
+http://www.hpique.com/2013/12/nsnotificationcenter-part-1/
+http://stackoverflow.com/questions/2191594/send-and-receive-messages-through-nsnotificationcenter-in-objective-c
+
 
 Enabling background notifications (ios 7+)
 http://hayageek.com/ios-silent-push-notifications/

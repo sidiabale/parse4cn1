@@ -5,29 +5,94 @@
 
 @implementation com_parse4cn1_nativeinterface_Utils
 
++ (id)getInstance
+{
+    static dispatch_once_t once;
+    static com_parse4cn1_nativeinterface_Utils *instance = nil;
+
+    dispatch_once(&once, ^{ 
+        instance = [[self alloc] init]; 
+    });
+
+    return instance;
+}
+
+- (id)init {
+
+    if (self = [super init]) {
+        appOpenPushPayload = nil;
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                              selector:@selector(applicationDidBecomeActive:)
+                                              name:UIApplicationDidBecomeActiveNotification object:nil];
+    }
+    [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"com_parse4cn1_nativeinterface_Utils_init(): Successfully created singleton and registered for UIApplicationDidBecomeActiveNotification"];
+    return self;
+}
+ 
+- (void)dealloc {
+    [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"com_parse4cn1_nativeinterface_Utils_dealloc(): Called"];
+    // If not removed, the Notification Center will continue to try 
+    // sending notifications to the deallocated object.
+    [[NSNotificationCenter defaultCenter] removeObserver:self 
+                                          name:UIApplicationDidBecomeActiveNotification object:nil];
+    [super dealloc];
+}
+
+- (void)applicationDidBecomeActive:(NSNotification*)notification {
+  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"com_parse4cn1_nativeinterface_Utils_applicationDidBecomeActive(): Called"];
+   
+  if (appOpenPushPayload) {
+    NSString *msg = [@"com_parse4cn1_nativeinterface_Utils_applicationDidBecomeActive(): Delivering pending app open payload=" stringByAppendingString:appOpenPushPayload];
+    [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+    
+    JAVA_OBJECT javaPayload = fromNSString(CN1_THREAD_GET_STATE_PASS_ARG appOpenPushPayload);
+    com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_TRUE);
+  }
+}
+
+- (void)deliverAppOpenedViaPushInActiveState:(NSString*)payload {
+  NSString *msg = [@"com_parse4cn1_nativeinterface_Utils_deliverAppOpenedViaPushInActiveState(): Called with payload=" stringByAppendingString:payload];
+  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+  
+  if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
+    [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"com_parse4cn1_nativeinterface_Utils_deliverAppOpenedViaPushInActiveState(): Sending message right away since app is already active"];
+    
+    JAVA_OBJECT javaPayload = fromNSString(CN1_THREAD_GET_STATE_PASS_ARG payload);
+    com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_TRUE);
+  } else {
+    appOpenPushPayload = payload;
+  }
+}
+
 +(void)handleAppOpenedViaPush:(NSDictionary *)remoteNotificationLaunchOptions {
+  NSString* payload = [com_parse4cn1_nativeinterface_Utils flattenPushPayload:remoteNotificationLaunchOptions];
+  NSString *msg = [@"com_parse4cn1_nativeinterface_Utils_handleAppOpenedViaPush(): Called with payload=" stringByAppendingString:payload];
+  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+  
   NSDictionary *aps = remoteNotificationLaunchOptions[@"aps"];
   
   if (aps) {
     UIApplicationState state = [UIApplication sharedApplication].applicationState;
-    NSString* payload = [com_parse4cn1_nativeinterface_Utils flattenPushPayload:remoteNotificationLaunchOptions];
     JAVA_OBJECT javaPayload = fromNSString(CN1_THREAD_GET_STATE_PASS_ARG payload);
     
     if (state == UIApplicationStateActive) {
       com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_TRUE);
     } else { 
-      com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_FALSE);
+      [[com_parse4cn1_nativeinterface_Utils getInstance] deliverAppOpenedViaPushInActiveState:payload];
     }
   }
 }
 
 +(BOOL)handlePushReceived:(NSDictionary *)userInfo {
+  NSString* payload = [com_parse4cn1_nativeinterface_Utils flattenPushPayload:userInfo];
+  NSString *msg = [@"com_parse4cn1_nativeinterface_Utils_handlePushReceived(): Called with payload=" stringByAppendingString:payload];
+  [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
+  
   BOOL result = NO;
   NSDictionary *aps = userInfo[@"aps"];
   
   if (aps) {
     UIApplicationState state = [UIApplication sharedApplication].applicationState;
-    NSString* payload = [com_parse4cn1_nativeinterface_Utils flattenPushPayload:userInfo];
     JAVA_OBJECT javaPayload = fromNSString(CN1_THREAD_GET_STATE_PASS_ARG payload);
     
     if (state == UIApplicationStateActive) {
@@ -49,7 +114,7 @@
         if (state == UIApplicationStateInactive) {
           // Assume app is going to foreground (same as suggested by Parse e.g. in the context of tracking app opens: 
           // https://parse.com/docs/ios/guide#push-notifications-tracking-pushes-and-app-opens)
-          com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_FALSE);
+          [[com_parse4cn1_nativeinterface_Utils getInstance] deliverAppOpenedViaPushInActiveState:payload];
           result = YES;
         } else {
           result = com_parse4cn1_ParsePush_handlePushReceivedBackground___java_lang_String_R_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload);

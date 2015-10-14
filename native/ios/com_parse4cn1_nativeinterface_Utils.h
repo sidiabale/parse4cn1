@@ -1,7 +1,16 @@
 #import <Foundation/Foundation.h>
 
 @interface com_parse4cn1_nativeinterface_Utils : NSObject {
+  NSString *appOpenPushPayload;
 }
+
++(id)getInstance;
+
+-(id)init;
+-(void)dealloc;
+
+-(void)applicationDidBecomeActive:(NSNotification*)notification;
+-(void)deliverAppOpenedViaPushInActiveState:(NSString*)payload;
 
 // Calls the handlePushOpen with the correct app state
 +(void)handleAppOpenedViaPush:(NSDictionary *)remoteNotificationLaunchOptions;

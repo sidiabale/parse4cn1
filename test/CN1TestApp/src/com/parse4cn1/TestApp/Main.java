@@ -28,6 +28,7 @@ import com.parse4cn1.ParseException;
 import com.parse4cn1.ParsePush;
 import com.parse4cn1.util.Logger;
 import userclasses.StateMachine;
+import static userclasses.StateMachine.checkForPushMessages;
 
 public class Main {
    
@@ -55,6 +56,7 @@ public class Main {
         } else {
             new StateMachine("/theme"); 
         }
+        checkForPushMessages();
     }
 
     public void stop() {
