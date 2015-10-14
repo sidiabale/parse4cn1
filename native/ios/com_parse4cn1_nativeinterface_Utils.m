@@ -5,7 +5,7 @@
 
 @implementation com_parse4cn1_nativeinterface_Utils
 
-+ (id)getInstance
++(id)getInstance
 {
     static dispatch_once_t once;
     static com_parse4cn1_nativeinterface_Utils *instance = nil;
@@ -17,7 +17,7 @@
     return instance;
 }
 
-- (id)init {
+-(id)init {
 
     if (self = [super init]) {
         appOpenPushPayload = nil;
@@ -29,7 +29,7 @@
     return self;
 }
  
-- (void)dealloc {
+-(void)dealloc {
     [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"com_parse4cn1_nativeinterface_Utils_dealloc(): Called"];
     // If not removed, the Notification Center will continue to try 
     // sending notifications to the deallocated object.
@@ -38,7 +38,7 @@
     [super dealloc];
 }
 
-- (void)applicationDidBecomeActive:(NSNotification*)notification {
+-(void)applicationDidBecomeActive:(NSNotification*)notification {
   [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:@"com_parse4cn1_nativeinterface_Utils_applicationDidBecomeActive(): Called"];
    
   if (appOpenPushPayload) {
@@ -47,10 +47,11 @@
     
     JAVA_OBJECT javaPayload = fromNSString(CN1_THREAD_GET_STATE_PASS_ARG appOpenPushPayload);
     com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_TRUE);
+	appOpenPushPayload = nil;
   }
 }
 
-- (void)deliverAppOpenedViaPushInActiveState:(NSString*)payload {
+-(void)deliverAppOpenedViaPushInActiveState:(NSString*)payload {
   NSString *msg = [@"com_parse4cn1_nativeinterface_Utils_deliverAppOpenedViaPushInActiveState(): Called with payload=" stringByAppendingString:payload];
   [com_parse4cn1_nativeinterface_Utils logDebugPlusStateInfo:msg];
   
@@ -60,6 +61,8 @@
     JAVA_OBJECT javaPayload = fromNSString(CN1_THREAD_GET_STATE_PASS_ARG payload);
     com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_TRUE);
   } else {
+    // From tests, if the handlePushOpen() callback is invoked while the app is still transiting to the foreground (state= UIApplicationStateInactive)
+	// the message might be missed. To avoid that, we keep the message and send it only after we're sure that the app is in the foreground.
     appOpenPushPayload = payload;
   }
 }
@@ -133,7 +136,6 @@
     // Add extra data if available
     NSMutableDictionary *output = [aps mutableCopy];
     for(NSString* key in dict) {
-      //NSLog(@"key=%@ value=%@", key, [dict objectForKey:key]);
       if (![key isEqualToString:@"aps"]) {
         [output setValue:[dict objectForKey:key] forKey:key]; 
       }

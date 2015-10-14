@@ -66,112 +66,6 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         getInstallationId(f);
     }
     
-    public static void checkForPushMessages() {
-        // Handle any pending push messages...
-        // This is a good place because this method is called each time the
-        // app comes to the foreground.
-        final String pushReceivedInBackgroundError = 
-                Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
-        
-        if (pushReceivedInBackgroundError != null) {
-            Logger.getInstance().error(
-                    "Apparently an error occurred while processing a push message "
-                            + "received while the app was in background:\n\n" 
-                            + pushReceivedInBackgroundError);
-            
-            Display.getInstance().callSerially(new Runnable() {
-
-                public void run() {
-                    Dialog.show("Error",
-                            "Apparently an error occurred while processing a push message "
-                            + "received while the app was in background:\n\n"
-                            + pushReceivedInBackgroundError,
-                            Dialog.TYPE_ERROR, null, "OK", null);
-                    Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
-                }
-            });
-        } else {
-            final String pushReceivedInBackground = 
-                    Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
-
-            if (pushReceivedInBackground != null) {
-                Logger.getInstance().info("The following push messages were "
-                        + "received while the app was in background:\n\n"
-                                + pushReceivedInBackground);
-                Display.getInstance().callSerially(new Runnable() {
-
-                    public void run() {
-                        Dialog.show("Push received (background)",
-                                "The following push messages were received while the app was in background:\n\n"
-                                + pushReceivedInBackground, "OK", null);
-                        Preferences.set(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_PAYLOAD, null);
-                    }
-                });
-            }
-        }
-
-        if (ParsePush.isAppOpenedViaPushNotification()) {
-            Logger.getInstance().info("App opened via push notification");
-            try {
-                final JSONObject pushPayload = ParsePush.getPushDataUsedToOpenApp();
-                Display.getInstance().callSerially(new Runnable() {
-
-                    public void run() {
-                        Dialog.show("App opened via push",
-                                "The app was opened via clicking a push notification with payload:\n\n"
-                                + pushPayload.toString(), "OK", null);
-                        ParsePush.resetPushDataUsedToOpenApp();
-                    }
-                });
-
-            } catch (final ParseException ex) {
-                Display.getInstance().callSerially(new Runnable() {
-
-                    public void run() {
-                        Dialog.show("Error", "An error occured while trying to retrieve "
-                                + "push payload used to open app.\n\n"
-                                + "Error: " + ex.getMessage(),
-                                Dialog.TYPE_ERROR, null, "OK", null);
-                    }
-                });
-            }
-        } else {
-            Logger.getInstance().info("App opened normally");
-        }
-        
-        if (ParsePush.isUnprocessedPushDataAvailable()) {
-            Logger.getInstance().info("Unprocessed push data available");
-            try {
-                final JSONArray pushPayload = ParsePush.getUnprocessedPushData();
-                
-                Display.getInstance().callSerially(new Runnable() {
-
-                    public void run() {
-                        Dialog.show("Unprocessed push data",
-                                "The following unprocessed push message(s) were "
-                                + "possibly received while the app was not running:\n\n"
-                                + pushPayload.toString(), "OK", null);
-                        ParsePush.resetUnprocessedPushData();
-                    }
-                });
-                
-            } catch (final ParseException ex) {
-                
-                Display.getInstance().callSerially(new Runnable() {
-
-                    public void run() {
-                        Dialog.show("Error", "An error occured while trying to retrieve "
-                                + "unprocessed push payload.\n\n"
-                                + "Error: " + ex.getMessage(),
-                                Dialog.TYPE_ERROR, null, "OK", null);
-                    }
-                });
-            }
-        } else {
-            Logger.getInstance().info("No unprocessed push data found");
-        }
-    }
-    
     @Override
     protected void onMain_RetryInstallationAction(Component c, ActionEvent event) {
         getInstallationId(Display.getInstance().getCurrent());
@@ -206,7 +100,7 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                 installationIdText += " Error code = " + code + ((code < 0) ? " (local)" : " (from Parse)");
             }
 
-            installationLabel.setText(installationIdText + "\n"); // crude layouting
+            installationLabel.setText(installationIdText + "\n"); // crude layouting :)
             if (failed) {
                 installationLabel.setTextUIID("WarningLabel");
             } else {
@@ -225,11 +119,6 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     @Override
     protected void beforeMain(Form f) {
         if (Parse.getPlatform() != Parse.EPlatform.WINDOWS_PHONE) {
-//            // Background push (i.e., intercepting an incoming push message when app is in 
-//            // background and possibly preventing it from being added to the notification bar)
-//            // is not supported on windows phone
-//            findContainer9(f).removeComponent(findCheckBoxHandleBackgroundPush(f));
-//        } else {
             findContainer4(f).removeComponent(findRetryInstallation(f));
         }
         
@@ -403,7 +292,6 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                     Dialog.TYPE_ERROR, null, "OK", null);
             }
         }
-    
     }
 
     @Override

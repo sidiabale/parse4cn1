@@ -9,7 +9,11 @@
 -(id)init;
 -(void)dealloc;
 
+// Responds to app entering foreground by sending any buffered push payload
 -(void)applicationDidBecomeActive:(NSNotification*)notification;
+
+// If app is not in foreground, the message is kept until the
+// app enters foreground. If called multiple times, only the last message is kept.
 -(void)deliverAppOpenedViaPushInActiveState:(NSString*)payload;
 
 // Calls the handlePushOpen with the correct app state
