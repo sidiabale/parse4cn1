@@ -31,6 +31,7 @@ public class ParseInstallationTest extends BaseParseTest {
     
     @Override
     public boolean runTest() throws Exception {
+        testRestApiExample();
         testUserDefinedFields();
         testSubscriptionToChannels();
         testSerialization();
@@ -41,13 +42,22 @@ public class ParseInstallationTest extends BaseParseTest {
     @Override
     public void prepare() {
         super.prepare();
+        testRetrieveUnsetInstallation(); // Must be run before initialization of installation ID
         ParseInstallation.setInstallationId(installationId);
         try {
             currentInstallation = ParseInstallation.getCurrentInstallation();
         } catch (ParseException ex) {
             Logger.getInstance().error("Retrieving current installation failed! Error: " +  ex);
+            fail("Retrieving current installation failed! Error: " + ex.getMessage());
         }
         assertNotNull(currentInstallation, "Current installation is null");
+        
+        try {
+            assertEqual(installationId, currentInstallation.getInstallationId());
+        } catch (ParseException ex) {
+            Logger.getInstance().error("Retrieving installation ID failed! Error: " +  ex);
+            fail("Retrieving installation ID failed! Error: " + ex.getMessage());
+        }
     }
     
     @Override
@@ -61,6 +71,60 @@ public class ParseInstallationTest extends BaseParseTest {
             fail("An unexpected error occurred: " + ex);
         } finally {
             super.cleanup();
+        }
+    }
+    
+    private void testRestApiExample() throws ParseException {
+        System.out.println("============== testRestApiExample()");
+        
+        System.out.println("-------------- Updating installations");
+        List<String> channels = Arrays.asList("", "foo");
+        currentInstallation.subscribeToChannels(channels);
+        currentInstallation.save();
+        
+        ParseInstallation retrieved = retrieveInstallation();
+        assertTrue(retrieved.getSubscribedChannels().contains(""), 
+                "Subscription to channel '' should succeed");
+        assertTrue(retrieved.getSubscribedChannels().contains("foo"),
+                "Subscription to channel 'foo' should succeed");
+        
+        currentInstallation.unsubscribeFromChannels(channels);
+        currentInstallation.save();
+        
+        retrieved = retrieveInstallation();
+        assertFalse(retrieved.getSubscribedChannels().contains(""),
+                "Unsubscription from channel '' should succeed");
+        assertFalse(retrieved.getSubscribedChannels().contains("foo"),
+                "Unsubscription from channel 'foo' should succeed");
+        
+        System.out.println("-------------- Updating installations (custom fields)");
+        try {
+            assertNull(currentInstallation.getBoolean("scores"));
+            assertNull(currentInstallation.getBoolean("gameResults"));
+            assertNull(currentInstallation.getBoolean("injuryReports"));
+
+            currentInstallation.put("scores", true);
+            currentInstallation.put("gameResults", true);
+            currentInstallation.put("injuryReports", true);
+            currentInstallation.save();
+
+            retrieved = retrieveInstallation();
+            assertTrue(retrieved.getBoolean("scores"));
+            assertTrue(retrieved.getBoolean("gameResults"));
+            assertTrue(retrieved.getBoolean("injuryReports"));
+        } finally {
+            // Since we use a fixed installation object for these tests
+            // we make sure that it's state is well defined to avoid false positives
+            // from previous test runs.
+            currentInstallation.remove("scores");
+            currentInstallation.remove("gameResults");
+            currentInstallation.remove("injuryReports");
+            currentInstallation.save();
+
+            retrieved = retrieveInstallation();
+            assertNull(retrieved.getBoolean("scores"));
+            assertNull(retrieved.getBoolean("gameResults"));
+            assertNull(retrieved.getBoolean("injuryReports"));
         }
     }
     
@@ -149,6 +213,25 @@ public class ParseInstallationTest extends BaseParseTest {
         }
         
         assertTrue(passed, "Badging is supported only on iOS platform");
+    }
+    
+    private void testRetrieveUnsetInstallation() {
+        System.out.println("============== testRetrieveUnsetInstallation()");
+        
+        boolean passed = false;
+        try {
+            ParseInstallation.setInstallationId(null);
+            ParseInstallation.getCurrentInstallation();
+            
+        } catch (ParseException ex) {
+            if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK) {
+                passed = true;
+            }
+        } finally  {
+            ParseInstallation.setInstallationId(installationId);
+        }
+        
+        assertTrue(passed, "Retrieval of installation ID should fail when installation ID is not yet initialized");
     }
     
     private void checkSubscriptions(final List<String> expected, final List<String> actual) {
