@@ -56,6 +56,7 @@ Accounts.framework;Social.framework
   [application registerForRemoteNotifications];
   
   // Track app open as described Parse iOS guide
+  // https://parse.com/docs/ios/guide#push-notifications-tracking-pushes-and-app-opens
   if (application.applicationState != UIApplicationStateBackground) {
     // Track an app open here if we launch with a push, unless
     // "content_available" was used to trigger a background push (introduced
@@ -74,7 +75,7 @@ Accounts.framework;Social.framework
     if (notificationPayload && preBackgroundPush && oldPushHandlerOnly) {
       // Not completely sure if the above checks are completely correct. The intention is that:
       // In the iOS 7+ situations, we don't handle app open via push here because it will be handled in 
-      // application:didReceiveRemoteNotification:fetchCompletionHandler. Otherwise, 
+      // application:didReceiveRemoteNotification:fetchCompletionHandler. 
       msg = @"didFinishLaunchingWithOptions(): App opened via remote notification. Payload=";
       NSString *json = [com_parse4cn1_nativeinterface_Utils dictToJson:notificationPayload];
       msg = [msg stringByAppendingString:json];
