@@ -350,7 +350,7 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     }
     
     @Override
-    public void onPushOpened(final JSONObject pushPayload) {
+    public void onAppOpenedViaPush(final JSONObject pushPayload) {
         Display.getInstance().callSerially(new Runnable() {
 
             public void run() {

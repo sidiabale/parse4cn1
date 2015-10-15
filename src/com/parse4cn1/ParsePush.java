@@ -115,7 +115,7 @@ public class ParsePush {
          * @see ParsePush#isAppOpenedViaPushNotification()
          * @see ParsePush#getPushDataUsedToOpenApp() 
          */
-        public void onPushOpened(final JSONObject pushPayload);
+        public void onAppOpenedViaPush(final JSONObject pushPayload);
     }
 
     private static String appOpenPushPayload;
@@ -160,6 +160,9 @@ public class ParsePush {
      * of the app's main class) and resetting the data after processing.</b>
      * 
      * @return {@code true} if app open push data is found; otherwise returns {@code false}.
+     * Note that this call will return {@code false} if the app was in the foreground 
+     * when it received the app opened push payload because in that case, the payload
+     * would be consumed directly by invoking {@link IPushCallback#onAppOpenedViaPush(ca.weblite.codename1.json.JSONObject)}.
      */
     public static boolean isAppOpenedViaPushNotification() {
         return (appOpenPushPayload != null);
@@ -351,7 +354,7 @@ public class ParsePush {
      * <p>
      * If the app is already running and in the foreground, i.e., {@code isAppInForeground=true}, 
      * the push data will directly be deliver to the app via 
-     * {@link IPushCallback#onPushOpened(ca.weblite.codename1.json.JSONObject)} or 
+     * {@link IPushCallback#onAppOpenedViaPush(ca.weblite.codename1.json.JSONObject)} or 
      * simply ignored if there's no callback set. Conversely, if the app is not 
      * yet running , i.e., {@code isAppInForeground=false}, the data will be 
      * stored until the app requests for it via {@link ParsePush#getPushDataUsedToOpenApp()} 
@@ -372,7 +375,7 @@ public class ParsePush {
             try {
                 json = new JSONObject(jsonPushPayload);
                 if (pushCallback != null) {
-                    pushCallback.onPushOpened(json);
+                    pushCallback.onAppOpenedViaPush(json);
                 }
             } catch (JSONException ex) {
                 Logger.getInstance().error("Unable to parse push message payload '" 
@@ -436,7 +439,7 @@ public class ParsePush {
      * <p>
      * Note that only devices subscribed to this channel will receive the push
      * notification. Subscription to channels is handled via the {@link ParseInstallation} class.
-     * @param channel The channel to be set.
+     * @param channel The channel to be set. Replaces any previously set channel(s).
      */
     public void setChannel(final String channel) {
         setChannels(Arrays.asList(channel));
@@ -449,14 +452,15 @@ public class ParsePush {
      * <p>
      * Note that only devices subscribed to at least one of these channel will receive the push
      * notification. Subscription to channels is handled via the {@link ParseInstallation} class.
-     * @param channels The channels to be set.
+     * @param channels The channels to be set (possibly null). Replace any previously set channels. 
      */
     public void setChannels(final Collection<String> channels) {
-        if (channels == null) {
-            throw new NullPointerException("Channels to be set may not be null");
+        if (channels != null) {
+            this.channels = new HashSet<String>();
+            this.channels.addAll(channels);
+        } else {
+            this.channels = null;
         }
-        this.channels = new HashSet<String>();
-        this.channels.addAll(channels);
         query = null;
     }
 
