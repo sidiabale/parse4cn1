@@ -31,7 +31,7 @@ import java.util.List;
  * ParseInstallation objects are simply ParseObjects extended with specific 
  * installation data as required by the different platforms. 
  * Some of these fields are readonly as explained in 
- * <a href="">the REST API documentation</a>.
+ * <a href="https://parse.com/docs/rest/guide#push-notifications-installations">the REST API documentation</a>.
  * <p>
  * Creation of ParseInstallation objects is not exposed via this library as it 
  * requires specific fields and logic already present in the official Parse SDKs
@@ -115,7 +115,7 @@ public class ParseInstallation extends ParseObject {
     
     /**
      * Constructs a query for {@code ParseInstallation}.
-     * <p/>
+     * <p>
      * <strong>Note:</strong> Parse only allows the following types of queries
      * for installations:
      * <pre>
@@ -123,7 +123,7 @@ public class ParseInstallation extends ParseObject {
      * query.whereEqualTo("installationId", value)
      * query.whereMatchesKeyInQuery("installationId", keyInQuery, query)
      * </pre>
-     * <p/>
+     * <p>
      * You can add additional query clauses, but one of the above must appear as
      * a top-level {@code AND} clause in the query.
      *

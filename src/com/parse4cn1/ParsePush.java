@@ -39,11 +39,11 @@ import java.util.Set;
  * use the setter functions to fill it with data, and then use ParsePush.send() to send it.
  * <p>
  * <b>Notes:</b>
- * <br/> 
+ * <br> 
  * 1. In order to use send push notifications, Client Push should be enabled in the
  * Parse App settings. Bear in mind, however, that it is recommended not to enable 
  * client push in production apps.
- * <br/>
+ * <br>
  * 2. Unlike the corresponding
  * <a href="https://parse.com/docs/android/api/com/parse/ParsePush.html">ParsePush</a> 
  * class from the Parse Android SDK, methods for channel subscription and 
