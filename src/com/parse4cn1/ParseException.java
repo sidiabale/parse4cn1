@@ -35,7 +35,6 @@ public class ParseException extends Exception {
     public static final int PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK = -101;
     public static final int PARSE4CN1_MULTIPLE_INSTALLATIONS_FOUND = -102;
     public static final int PARSE4CN1_INSTALLATION_NOT_FOUND = -103;
-    public static final int PARSE4CN1_SETTING_BADGE_NOT_SUPPORTED = -104;
     
     // Parse-defined error codes
     public static final int INTERNAL_SERVER_ERROR = 1;

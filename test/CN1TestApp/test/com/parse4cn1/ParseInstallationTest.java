@@ -200,19 +200,16 @@ public class ParseInstallationTest extends BaseParseTest {
         compareParseObjects(currentInstallation, retrieved, null);
     }
 
-    private void testBadging() {
+    private void testBadging() throws ParseException {
         System.out.println("============== testBadging()");
 
-        boolean passed = false;
-        try  {
-            currentInstallation.setBadge(0);
-        } catch (ParseException ex) {
-            if (ex.getCode() == ParseException.PARSE4CN1_SETTING_BADGE_NOT_SUPPORTED) {
-                passed = true;
-            }
-        }
+        currentInstallation.setBadge(0);
+        assertEqual(0, (int)currentInstallation.getBadge(), 
+                "It should be possible to retrieve the badge field on all platforms");
         
-        assertTrue(passed, "Badging is supported only on iOS platform");
+        currentInstallation.setBadge(5);
+        assertEqual(5, (int)currentInstallation.getBadge(), 
+                "It should be possible to retrieve the badge field on all platforms");
     }
     
     private void testRetrieveUnsetInstallation() {

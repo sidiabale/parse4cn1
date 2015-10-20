@@ -50,6 +50,7 @@ public class ParseInstallation extends ParseObject {
     private static final String KEY_INSTALLATION_ID = "installationId";
     private static final String KEY_DEVICE_TYPE = "deviceType";
     private static final String KEY_CHANNELS = "channels";
+    private static final String KEY_BADGE = "badge";
     private static boolean parseSdkInitialized = false;
     private static String installationId = null;
 
@@ -91,7 +92,11 @@ public class ParseInstallation extends ParseObject {
                                 + "' failed. Will retry in " + delayInMilliSeconds + " milliseconds.");
                         try {
                             Thread.sleep(delayInMilliSeconds);
+                            Logger.getInstance().info("Trying again to retrieve current installation "
+                                + "with installation ID '" + id + "' after timeout");
                             currentInstallation = fetchInstallation(id);
+                            Logger.getInstance().info("Second attempt to retrieve current installation "
+                                + "with installation ID '" + id + "' succeeded");
                         } catch (InterruptedException e) {
                             throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND,
                                     "Found no installation with ID (after retry) " + id);
@@ -149,6 +154,8 @@ public class ParseInstallation extends ParseObject {
     /**
      * (iOS only) Sets the app batch that is shown on the app icon to the specified
      * count for this installation.
+     * <p>If invoked on other platforms, the badge will still be set via the REST API
+     * but will not have the desired effect of badging the app icon.
      * @param count The badge count to be set
      * @throws ParseException if anything goes wrong.
      */
@@ -165,10 +172,19 @@ public class ParseInstallation extends ParseObject {
                 }
             }
         } else {
-            throw new ParseException(ParseException.PARSE4CN1_SETTING_BADGE_NOT_SUPPORTED,
-                    "Setting badge of current installation is not "
-                    + "supported for this platform.");
+            Logger.getInstance().warn("App icon badging is an iOS-only feature. On this platform, "
+                    + "the badge will simply be set via the REST API");
+            put(KEY_BADGE, count);
+            save();
         }
+    }
+    
+    /**
+     * Retrieves the current application badge count.
+     * @return The app badge count if any or null.
+     */
+    public Integer getBadge() {
+       return getInt(KEY_BADGE);
     }
 
     /**
