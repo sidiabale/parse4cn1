@@ -114,6 +114,15 @@ public class ParseInstallation extends ParseObject {
         return currentInstallation;
     }
     
+    /**
+     * Sets the ID of the current installation.
+     * <p>This method is intended for use on platforms where parse4cn1 cannot 
+     * retrieve the installation ID e.g. because native interfaces are not supported.
+     * It can also be used in unit tests for initializing the installation ID
+     * <p><em>Note:</em> It is assumed that at the time this method is invoked,
+     * the corresponding ParseInstallation already exists in the Parse backend.
+     * @param installationId The current installation's ID to be set. 
+     */
     public static void setInstallationId(final String installationId) {
         ParseInstallation.installationId = installationId;
     }
