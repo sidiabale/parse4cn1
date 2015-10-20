@@ -168,8 +168,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         try {
             statusLabel.setTextUIID("Label");
             statusLabel.setText("Preparing message for sending...");
-            final String senderInfo = "[Triggered from " + Parse.getPlatform().name() 
-                    + " device with installationId ending in '" + getInstallationIdPrefix() + "']";
+            final String senderInfo = "[Sent from " + Parse.getPlatform().name() 
+                    + " device with installationId *'" + getInstallationIdPrefix() + "']";
             
             ParsePush parsePush = ParsePush.create();
             parsePush.setChannel("test");
@@ -203,7 +203,7 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     
     private String getInstallationIdPrefix() throws ParseException {
         String prefix = ParseInstallation.getCurrentInstallation().getInstallationId();
-        prefix = prefix.substring(prefix.lastIndexOf('-'));
+        prefix = prefix.substring(prefix.lastIndexOf('-') + 1);
         return prefix;
     }
     
@@ -282,7 +282,7 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
     @Override
     protected void onMain_ButtonClearBadgeAction(Component c, ActionEvent event) {
         if (Parse.getPlatform() != Parse.EPlatform.IOS) {
-            Dialog.show("Info", "Badging is only supported on iOS", "OK", null);
+            Dialog.show("Info", "Badging the app icon is only supported on iOS", "OK", null);
         } else {
             try {
                 ParseInstallation.getCurrentInstallation().setBadge(0);
@@ -294,6 +294,11 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         }
     }
 
+    ///////////////////////////////////////////////
+    // Callbacks for handling push notifications //
+    // received when the app is running          //
+    ///////////////////////////////////////////////
+    
     @Override
     public boolean onPushReceivedForeground(final JSONObject pushPayload) {
         if (handleForegroundPush) {

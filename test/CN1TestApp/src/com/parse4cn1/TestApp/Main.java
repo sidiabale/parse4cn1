@@ -55,6 +55,9 @@ public class Main {
         } else {
             new StateMachine("/theme"); 
         }
+        // Handle any pending push messages...
+        // This is a good place because this method is called each time the
+        // app comes to the foreground.
         checkForPushMessages();
     }
 
@@ -67,9 +70,6 @@ public class Main {
     }
     
     private void checkForPushMessages() {
-        // Handle any pending push messages...
-        // This is a good place because this method is called each time the
-        // app comes to the foreground.
         final String pushReceivedInBackgroundError = 
                 Preferences.get(StateMachine.KEY_APP_IN_BACKGROUND_PUSH_ERROR, null);
         

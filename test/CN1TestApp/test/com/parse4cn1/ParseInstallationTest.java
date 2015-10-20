@@ -26,6 +26,8 @@ import java.util.List;
 public class ParseInstallationTest extends BaseParseTest {
     
     // Use a valid, predefined installation for testing since creation from client is not supported by parse4cn1
+    // The installation object with this ID is guaranteed not to be deleted in the backend
+    // (protected via the cloud code beforeDelete hook)
     private static final String installationId = "09a198b7-b6e0-4bd3-8eb0-f2b712f957c2";
     private static ParseInstallation currentInstallation;
     
