@@ -108,6 +108,7 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
                 Button button = findRetryInstallation(f);
                 if (button != null) {
                     findContainer4(f).removeComponent(button);
+                    f.revalidate();
                 }
             }
             
@@ -359,8 +360,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
         Display.getInstance().callSerially(new Runnable() {
 
             public void run() {
-                Dialog.show("Push opened (foreground)",
-                        "Push notification opened while app is in foreground. Payload:\n\n"
+                Dialog.show("App opened via push",
+                        "App opened via push (foreground). Payload:\n\n"
                         + pushPayload.toString(), "OK", null);
             }
 

@@ -377,8 +377,6 @@ public class ParseInstallation extends ParseObject {
      */
     private static String retrieveInstallationId() throws ParseException {
         if (installationId != null) {
-            Logger.logBuffered("retrieveInstallationId(): "
-                    + "Returning explicitly set installationId:  " + installationId);
             return installationId;
         }
         
