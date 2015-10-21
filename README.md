@@ -9,16 +9,16 @@ Build Status (develop): [![Build Status (develop)](https://travis-ci.org/sidiaba
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [Parse4CN1 - Codename One Library for [Parse](https://parse.com)](#parse4cn1---codename-one-library-for-parsehttpsparsecom)
-  - [Synopsis](#synopsis)
-  - [License](#license)
-  - [Requirements](#requirements)
-  - [Installation](#installation)
-  - [Coverage](#coverage)
-    - [Release Planning](#release-planning)
-  - [Usage Examples](#usage-examples)
-  - [Contributing](#contributing)
-  - [Credits](#credits)
+
+- [Synopsis](#synopsis)
+- [License](#license)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Coverage](#coverage)
+  - [Release Planning](#release-planning)
+- [Usage Examples](#usage-examples)
+- [Contributing](#contributing)
+- [Credits](#credits)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 

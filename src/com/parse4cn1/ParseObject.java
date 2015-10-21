@@ -616,7 +616,7 @@ public class ParseObject implements IPersistable {
 
         if (value == null) {
             LOGGER.error("value may not be null.");
-            throw new IllegalArgumentException("value may not be null.");
+            throw new IllegalArgumentException("value for key '" + key + "' may not be null.");
         }
 
         if (value instanceof IPersistable && ((IPersistable) value).isDirty()) {

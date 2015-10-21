@@ -5,6 +5,17 @@ Parse.Cloud.define("hello", function(request, response) {
   response.success("Hello world!");
 });
 
+// Prevent deletion of the installation reserved for testing
+Parse.Cloud.beforeDelete(Parse.Installation, function(request, response) {
+  var installationId = request.object.get("installationId");
+  console.log("installationId: " + installationId);
+  if (installationId == "09a198b7-b6e0-4bd3-8eb0-f2b712f957c2") {
+	response.error("This installation is reserved for testing and cannot be deleted");
+  } else  {
+	response.success("Deletion permitted");
+  }
+});
+
 // Unconditionally deletes the file with the provided filename
 // This method should be used with care!!!
 Parse.Cloud.define("deleteFile", function(request, response) {

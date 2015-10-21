@@ -26,6 +26,20 @@ public class ParseException extends Exception {
     private static final long serialVersionUID = 1L;
 
     public static final int OTHER_CAUSE = -1;
+    
+    // Internal error codes: General
+    public static final int PARSE4CN1_NOT_INITIALIZED = -2;
+    public static final int PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED = -3;
+    
+    // Internal error codes: Push- and installation-related
+    public static final int PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK = -101;
+    public static final int PARSE4CN1_MULTIPLE_INSTALLATIONS_FOUND = -102;
+    public static final int PARSE4CN1_INSTALLATION_NOT_FOUND = -103;
+    public static final int PARSE4CN1_PUSH_REGISTRATION_FAILED = -104;
+    public static final int PARSE4CN1_PUSH_REGISTRATION_FAILED_MISSING_PARAMS = -105;
+    public static final int PARSE4CN1_PUSH_REGISTRATION_FAILED_INSTALLATION_UPDATE_ERROR = -106;
+    
+    // Parse-defined error codes
     public static final int INTERNAL_SERVER_ERROR = 1;
     public static final int CONNECTION_FAILED = 100;
     public static final int OBJECT_NOT_FOUND = 101;
@@ -48,6 +62,7 @@ public class ParseException extends Exception {
     public static final int INVALID_ACL = 123;
     public static final int TIMEOUT = 124;
     public static final int INVALID_EMAIL_ADDRESS = 125;
+    public static final int MISSING_MANDATORY_FIELD = 135;
     public static final int DUPLICATE_VALUE = 137;
     public static final int INVALID_ROLE_NAME = 139;
     public static final int EXCEEDED_QUOTA = 140;

@@ -2,5 +2,6 @@ com.parse4cn1
 com.parse4cn1.callback
 com.parse4cn1.command
 com.parse4cn1.encode
+com.parse4cn1.nativeinterface
 com.parse4cn1.operation
 com.parse4cn1.util
