@@ -69,6 +69,7 @@ Unscheduled
 * Linking users
 * Background operations (e.g. saving, fetching)
 * Pinning items (offline mode)
+* Expose [cloud modules](https://parse.com/docs/cloudcode/guide#cloud-code-modules) like Twilio and Mailgun via cloud code
 
 ## Usage Examples ##
 See [Usage examples](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples)
