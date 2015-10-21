@@ -15,8 +15,7 @@
  */
 package com.parse4cn1;
 
-import com.codename1.io.Log;
-import com.codename1.io.Preferences;
+import com.codename1.ui.Display;
 import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,27 +27,40 @@ import java.util.List;
 public class ParseInstallationTest extends BaseParseTest {
     
     // Use a valid, predefined installation for testing since creation from client is not supported by parse4cn1
-    private static final String installationId = "9306c879-6096-4a43-9259-71af6da5169f";
+    // The installation object with this ID is guaranteed not to be deleted in the backend
+    // (protected via the cloud code beforeDelete hook)
+    private static final String installationId = "09a198b7-b6e0-4bd3-8eb0-f2b712f957c2";
     private static ParseInstallation currentInstallation;
     
     @Override
     public boolean runTest() throws Exception {
+        testRestApiExample();
         testUserDefinedFields();
         testSubscriptionToChannels();
         testSerialization();
+        testBadging();
         return true;
     }
     
     @Override
     public void prepare() {
         super.prepare();
-        Preferences.set(ParseInstallation.PARSE_INSTALLATION_ID_SETTING_KEY, installationId);
+        testRetrieveUnsetInstallation(); // Must be run before initialization of installation ID
+        ParseInstallation.setInstallationId(installationId);
         try {
             currentInstallation = ParseInstallation.getCurrentInstallation();
         } catch (ParseException ex) {
             Logger.getInstance().error("Retrieving current installation failed! Error: " +  ex);
+            fail("Retrieving current installation failed! Error: " + ex.getMessage());
         }
         assertNotNull(currentInstallation, "Current installation is null");
+        
+        try {
+            assertEqual(installationId, currentInstallation.getInstallationId());
+        } catch (ParseException ex) {
+            Logger.getInstance().error("Retrieving installation ID failed! Error: " +  ex);
+            fail("Retrieving installation ID failed! Error: " + ex.getMessage());
+        }
     }
     
     @Override
@@ -62,6 +74,60 @@ public class ParseInstallationTest extends BaseParseTest {
             fail("An unexpected error occurred: " + ex);
         } finally {
             super.cleanup();
+        }
+    }
+    
+    private void testRestApiExample() throws ParseException {
+        System.out.println("============== testRestApiExample()");
+        
+        System.out.println("-------------- Updating installations");
+        List<String> channels = Arrays.asList("", "foo");
+        currentInstallation.subscribeToChannels(channels);
+        currentInstallation.save();
+        
+        ParseInstallation retrieved = retrieveInstallation();
+        assertTrue(retrieved.getSubscribedChannels().contains(""), 
+                "Subscription to channel '' should succeed");
+        assertTrue(retrieved.getSubscribedChannels().contains("foo"),
+                "Subscription to channel 'foo' should succeed");
+        
+        currentInstallation.unsubscribeFromChannels(channels);
+        currentInstallation.save();
+        
+        retrieved = retrieveInstallation();
+        assertFalse(retrieved.getSubscribedChannels().contains(""),
+                "Unsubscription from channel '' should succeed");
+        assertFalse(retrieved.getSubscribedChannels().contains("foo"),
+                "Unsubscription from channel 'foo' should succeed");
+        
+        System.out.println("-------------- Updating installations (custom fields)");
+        try {
+            assertNull(currentInstallation.getBoolean("scores"));
+            assertNull(currentInstallation.getBoolean("gameResults"));
+            assertNull(currentInstallation.getBoolean("injuryReports"));
+
+            currentInstallation.put("scores", true);
+            currentInstallation.put("gameResults", true);
+            currentInstallation.put("injuryReports", true);
+            currentInstallation.save();
+
+            retrieved = retrieveInstallation();
+            assertTrue(retrieved.getBoolean("scores"));
+            assertTrue(retrieved.getBoolean("gameResults"));
+            assertTrue(retrieved.getBoolean("injuryReports"));
+        } finally {
+            // Since we use a fixed installation object for these tests
+            // we make sure that it's state is well defined to avoid false positives
+            // from previous test runs.
+            currentInstallation.remove("scores");
+            currentInstallation.remove("gameResults");
+            currentInstallation.remove("injuryReports");
+            currentInstallation.save();
+
+            retrieved = retrieveInstallation();
+            assertNull(retrieved.getBoolean("scores"));
+            assertNull(retrieved.getBoolean("gameResults"));
+            assertNull(retrieved.getBoolean("injuryReports"));
         }
     }
     
@@ -129,12 +195,55 @@ public class ParseInstallationTest extends BaseParseTest {
         retrieved = retrieveInstallation();
         checkSubscriptions(channels, retrieved.getSubscribedChannels());
     }
-
+    
     private void testSerialization() {
         System.out.println("============== testSerialization()");
 
         ParseInstallation retrieved = (ParseInstallation) serializeAndRetrieveParseObject(currentInstallation);
         compareParseObjects(currentInstallation, retrieved, null);
+    }
+
+    private void testBadging() throws ParseException {
+        System.out.println("============== testBadging()");
+
+        if (Parse.getPlatform() == Parse.EPlatform.IOS) {
+            System.out.println("Skipping this test since badging on iOS requires "
+                    + "native calls which will fail when running in simulator");
+            return;
+        }
+        
+        currentInstallation.setBadge(0);
+        assertEqual(0, (int)currentInstallation.getBadge(), 
+                "It should be possible to retrieve the badge field on all platforms");
+        
+        currentInstallation.setBadge(5);
+        assertEqual(5, (int)currentInstallation.getBadge(), 
+                "It should be possible to retrieve the badge field on all platforms");
+    }
+    
+    private void testRetrieveUnsetInstallation() {
+        System.out.println("============== testRetrieveUnsetInstallation()");
+        
+//        if (ParseInstallation.getCurrentInstallation() != null) {
+//            System.out.println("Skipping test since installation is already initialized");
+//            // This is expected when the test is run via the CN1 test project
+//            // where the test app automatically tries to retrieve the 
+//            // installation ID but should not occur in the Java test project
+//            // Unfortunately, there's no easy way to distinguish the two...
+//        }
+        
+        boolean passed = false;
+        try {
+            ParseInstallation.setInstallationId(null);
+            ParseInstallation.getCurrentInstallation();
+        } catch (ParseException ex) {
+            if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK /* Occurs in java test project */
+                    || ex.getCode() == ParseException.PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED /* Occurs in CN1 test app */) {
+                passed = true;
+            }
+        }
+        
+        assertTrue(passed, "Retrieval of installation ID should fail when installation ID is not yet initialized");
     }
     
     private void checkSubscriptions(final List<String> expected, final List<String> actual) {

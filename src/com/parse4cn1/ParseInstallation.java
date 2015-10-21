@@ -15,7 +15,6 @@
  */
 package com.parse4cn1;
 
-import com.codename1.io.Preferences;
 import com.codename1.system.NativeLookup;
 import com.parse4cn1.nativeinterface.ParseInstallationNative;
 import com.parse4cn1.nativeinterface.ParsePushNative;
@@ -32,7 +31,7 @@ import java.util.List;
  * ParseInstallation objects are simply ParseObjects extended with specific 
  * installation data as required by the different platforms. 
  * Some of these fields are readonly as explained in 
- * <a href="">the REST API documentation</a>.
+ * <a href="https://parse.com/docs/rest/guide#push-notifications-installations">the REST API documentation</a>.
  * <p>
  * Creation of ParseInstallation objects is not exposed via this library as it 
  * requires specific fields and logic already present in the official Parse SDKs
@@ -43,15 +42,17 @@ import java.util.List;
  * access via the CN1 native interface mechanism. However, since the Windows 
  * Phone port does not support native interfaces, creation is the responsibility
  * of the user who should make the corresponding installation id available via 
- * {@link com.codename1.io.Preferences} under the key {@value #PARSE_INSTALLATION_ID_SETTING_KEY}.
+ * {@link ParseInstallation#setInstallationId(java.lang.String)}.
  * 
  */
 public class ParseInstallation extends ParseObject {
 
-    public static final String PARSE_INSTALLATION_ID_SETTING_KEY = "parse4cn1_installationId";
     private static final String KEY_INSTALLATION_ID = "installationId";
+    private static final String KEY_DEVICE_TYPE = "deviceType";
     private static final String KEY_CHANNELS = "channels";
+    private static final String KEY_BADGE = "badge";
     private static boolean parseSdkInitialized = false;
+    private static String installationId = null;
 
     private static ParseInstallation currentInstallation;
     
@@ -59,8 +60,7 @@ public class ParseInstallation extends ParseObject {
      * Retrieves the current installation. On Android and iOS, a new installation 
      * is created, persisted to the Parse backend and returned, if one is not present.
      * On Windows Phone and any other platform, the installation is retrieved from the backend if its
-     * installationId is specified in the {@link com.codename1.io.Preferences} 
-     * under the key {@value #PARSE_INSTALLATION_ID_SETTING_KEY}.
+     * installationId has been specified via {@link #setInstallationId(java.lang.String)}.
      * <p>
      * <em>Note</em>Windows Phone is a special case because native interfaces are not (yet) 
      * supported so creating the installation via the .net native Parse SDK is not feasible.
@@ -74,12 +74,12 @@ public class ParseInstallation extends ParseObject {
     public static ParseInstallation getCurrentInstallation() throws ParseException {
         
         if (currentInstallation == null) {
-            final String installationId;
-            installationId = retrieveInstallationId();
-            if (installationId != null) {
+            final String id;
+            id = retrieveInstallationId();
+            if (id != null) {
               
                 try {
-                    currentInstallation = fetchInstallation(installationId);
+                    currentInstallation = fetchInstallation(id);
                 } catch (ParseException ex) {
                     if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND) {
                         // No result (yet?)... It could be that saveInBackground call in native code 
@@ -88,14 +88,18 @@ public class ParseInstallation extends ParseObject {
                         // for example, we may end up here.
                         final long delayInMilliSeconds = 1500;
                         Logger.getInstance().warn("First attempt to retrieve current installation "
-                                + "with installation ID '" + installationId 
+                                + "with installation ID '" + id 
                                 + "' failed. Will retry in " + delayInMilliSeconds + " milliseconds.");
                         try {
                             Thread.sleep(delayInMilliSeconds);
-                            currentInstallation = fetchInstallation(installationId);
+                            Logger.getInstance().info("Trying again to retrieve current installation "
+                                + "with installation ID '" + id + "' after timeout");
+                            currentInstallation = fetchInstallation(id);
+                            Logger.getInstance().info("Second attempt to retrieve current installation "
+                                + "with installation ID '" + id + "' succeeded");
                         } catch (InterruptedException e) {
                             throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND,
-                                    "Found no installation with ID (after retry) " + installationId);
+                                    "Found no installation with ID (after retry) " + id);
                         }
                     } else {
                         throw ex;
@@ -105,29 +109,29 @@ public class ParseInstallation extends ParseObject {
                 throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
                         "Failed to retrieve installation ID");
             }
-            
-            // Testing badge code
-            // TODO: Move to ParsePush class when it is created.
-            if (Parse.getPlatform() == Parse.EPlatform.IOS) {
-                final ParsePushNative nativePush
-                        = (ParsePushNative) NativeLookup.create(ParsePushNative.class);
-                if (nativePush != null && nativePush.isSupported()) {
-                    try {
-                        nativePush.setBadge(0);
-                    } catch (Exception ex) {
-                        throw new ParseException("Resetting badge failed."
-                                + (ex != null ? " Error: " + ex.getMessage() : ""), ex);
-                    }
-                }
-            }
         }
 
         return currentInstallation;
     }
     
     /**
+     * Sets the ID of the current installation.
+     * <p>This method is intended for use on platforms where parse4cn1 cannot 
+     * retrieve the installation ID e.g. because native interfaces are not supported.
+     * It can also be used in unit tests for initializing the installation ID
+     * <p><em>Note:</em> It is assumed that at the time this method is invoked,
+     * the corresponding ParseInstallation already exists in the Parse backend.
+     * @param installationId The current installation's ID to be set. 
+     */
+    public static void setInstallationId(final String installationId) {
+        Logger.logBuffered("setInstallationId(): Installation ID explicitly set to " 
+                + installationId);
+        ParseInstallation.installationId = installationId;
+    }
+    
+    /**
      * Constructs a query for {@code ParseInstallation}.
-     * <p/>
+     * <p>
      * <strong>Note:</strong> Parse only allows the following types of queries
      * for installations:
      * <pre>
@@ -135,7 +139,7 @@ public class ParseInstallation extends ParseObject {
      * query.whereEqualTo("installationId", value)
      * query.whereMatchesKeyInQuery("installationId", keyInQuery, query)
      * </pre>
-     * <p/>
+     * <p>
      * You can add additional query clauses, but one of the above must appear as
      * a top-level {@code AND} clause in the query.
      *
@@ -156,6 +160,42 @@ public class ParseInstallation extends ParseObject {
      */
     public String getInstallationId() throws ParseException {
         return retrieveInstallationId();
+    }
+    
+    /**
+     * (iOS only) Sets the app batch that is shown on the app icon to the specified
+     * count for this installation.
+     * <p>If invoked on other platforms, the badge will still be set via the REST API
+     * but will not have the desired effect of badging the app icon.
+     * @param count The badge count to be set
+     * @throws ParseException if anything goes wrong.
+     */
+    public void setBadge(final int count) throws ParseException {
+        if (Parse.getPlatform() == Parse.EPlatform.IOS) {
+            final ParsePushNative nativePush
+                    = (ParsePushNative) NativeLookup.create(ParsePushNative.class);
+            if (nativePush != null && nativePush.isSupported()) {
+                try {
+                    nativePush.setBadge(count);
+                } catch (Exception ex) {
+                    throw new ParseException("Resetting badge failed."
+                            + (ex != null ? " Error: " + ex.getMessage() : ""), ex);
+                }
+            }
+        } else {
+            Logger.getInstance().warn("App icon badging is an iOS-only feature. On this platform, "
+                    + "the badge will simply be set via the REST API");
+            put(KEY_BADGE, count);
+            save();
+        }
+    }
+    
+    /**
+     * Retrieves the current application badge count.
+     * @return The app badge count if any or null.
+     */
+    public Integer getBadge() {
+       return getInt(KEY_BADGE);
     }
 
     /**
@@ -187,7 +227,7 @@ public class ParseInstallation extends ParseObject {
     }
 
     /**
-     * Subscribes this device to the specified {@code channels} excluding duplicates.
+     * Subscribes this device to the specified {@code channels}.
      * 
      * @param channels The channels this device is to be subscribed to.
      * @throws com.parse4cn1.ParseException if subscription fails.
@@ -199,28 +239,25 @@ public class ParseInstallation extends ParseObject {
         
         final List<String> existingChannels = getSubscribedChannels();
         List<String> finalChannels;
-        boolean changed = false;
         
         if (existingChannels == null) {
             finalChannels = channels;
-            changed = true;
         } else {
             finalChannels = new ArrayList<String>(existingChannels);
             
             for (String channel : channels) {
                 if (!finalChannels.contains(channel)) {
-                    changed = true;
                     finalChannels.add(channel);
                 } else {
-                    Logger.getInstance().warn("Ignoring duplicate subscription request for channel: " + channel);
+                    // Although a channel is in the local list, subscription may
+                    // have failed resulting in a mismatch between server and device.
+                    // So we'll send the request anyway.
+                    Logger.getInstance().warn("May already be subscribed to channel: " + channel);
                 }
             }
         }
         
-        if (changed) {
-            put(KEY_CHANNELS, finalChannels);
-            save();
-        }
+        saveChannels(finalChannels);
     }
 
     /**
@@ -250,30 +287,43 @@ public class ParseInstallation extends ParseObject {
         }
         
         List<String> finalChannels;
-        boolean changed = false;
         
         if (channels.equals(existingChannels)) { // Remove all
             finalChannels = new ArrayList<String>();
-            changed = true;
         } else {
             finalChannels = new ArrayList<String>(existingChannels);
             
             for (String channel : channels) {
                 if (finalChannels.contains(channel)) {
                     finalChannels.remove(channel);
-                    changed = true;
                 } else {
-                    Logger.getInstance().warn("Ignoring unsubscription request for non-existent channel: " + channel);
+                    // Although a channel is not in the local list, unsubscription may
+                    // have failed resulting in a mismatch between server and device.
+                    // So we'll send the request anyway.
+                    Logger.getInstance().warn("May already be unsubscribed from channel: " + channel);
                 }
             }
         }
         
-        if (changed) {
-            put(KEY_CHANNELS, finalChannels);
-            save();
-        }
+        saveChannels(finalChannels);
     }
 
+    private void saveChannels(final List<String> channels) throws ParseException {
+        put(KEY_CHANNELS, channels);
+       // For some strange reason, an error 135 (missing fields) occurs on some platforms (e.g. win phone)
+        // if the following fields (which ironically are already in the Parse installation 
+        // retrieved from the server) are not included in the request.
+        // Seems to be a Parse issue (see https://goo.gl/cwwZdz) but this approach works around it.
+        if (installationId != null) {
+            put(KEY_INSTALLATION_ID, installationId);
+        }
+        
+        if (getString(KEY_DEVICE_TYPE) != null) {
+            put(KEY_DEVICE_TYPE, getString(KEY_DEVICE_TYPE));
+        }
+        save();
+    }
+    
     /**
      * Unsubscribes this device from all previously subscribed channels.
      * 
@@ -316,13 +366,20 @@ public class ParseInstallation extends ParseObject {
     /**
      * Retrieves the installation id.
      * <p> For Android and iOS, a native call is made to the Parse SDK; for 
-     * every other platform, the {@link com.codename1.io.Preferences} approach is used.
+     * every other platform, the previously set installation ID is returned, if any.
+     * <p>
+     * <b>Note: </b>If the installation ID was explicitly set (cf. {@link #setInstallationId(java.lang.String)},
+     * it will always take precedence regardless of the platform (so don't use the setter on 
+     * Android and iOS!).
      * 
      * @return The installation id if found; otherwise null.
      * @throws ParseException if anything goes wrong
      */
     private static String retrieveInstallationId() throws ParseException {
-        String installationId = null;
+        if (installationId != null) {
+            return installationId;
+        }
+        
         if (Parse.getPlatform() == Parse.EPlatform.ANDROID
                 || Parse.getPlatform() == Parse.EPlatform.IOS) {
             final ParseInstallationNative nativeInstallation = 
@@ -359,29 +416,8 @@ public class ParseInstallation extends ParseObject {
                 throw new ParseException(ParseException.PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED, 
                         "Failed to retrieve installation ID");
             }
-        } else {
-            installationId = Preferences.get(PARSE_INSTALLATION_ID_SETTING_KEY, null);
         }
         
         return installationId;
     }
-
-    /*
-     Some known errors when trying to create ParseInstallations via the REST API:
-            
-     {
-        "code": 132,
-        "error": "Invalid installation ID: 982021" // Format is apparently fixed but not documented publicly
-     }
-
-     {
-        "code": 135,
-        "error": "deviceType must be specified in this operation"
-     }
-
-     {
-        "code": 135,
-        "error": "at least one ID field (installationId,deviceToken) must be specified in this operation"
-     }
-     */
 }
