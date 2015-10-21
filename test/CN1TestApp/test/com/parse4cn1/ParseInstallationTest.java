@@ -221,11 +221,14 @@ public class ParseInstallationTest extends BaseParseTest {
         try {
             ParseInstallation.setInstallationId(null);
             ParseInstallation.getCurrentInstallation();
-            
+            System.err.println("[COKW] Installation exists with ID: " + ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (ParseException ex) {
+            System.err.println("[COKW] Error: " + ex);
             if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK) {
                 passed = true;
             }
+        } catch (Exception ex) {
+            System.err.println("[COKW] Error: " + ex);
         } finally  {
             ParseInstallation.setInstallationId(installationId);
         }

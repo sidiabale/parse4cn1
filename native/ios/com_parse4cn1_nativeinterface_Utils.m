@@ -130,6 +130,9 @@
 }
 
 +(NSString *)flattenPushPayload:(NSDictionary *)dict {
+  // {"aps"={"alert":"message"},"data":"extra"} -->
+  // {"alert":"message","data":"extra"}
+  
   NSDictionary *aps = dict[@"aps"];
   
   if (aps) {
