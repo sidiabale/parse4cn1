@@ -24,6 +24,8 @@ import com.codename1.impl.android.LifecycleListener;
 import com.codename1.impl.android.AndroidNativeUtil;
 import com.parse.Parse; // com.parse.* includes are already available from the Parse SDK already integrated in parse4cn1.cn1lib
 import com.parse.ParseInstallation;
+import com.parse.SaveCallback;
+import com.parse4cn1.ParsePush;
 
 /**
  * An Android application class that enables correct initialization of the Parse
@@ -72,7 +74,18 @@ public class CN1AndroidApplication extends Application {
         // Creates a unique installation representing the given device
         // and persists it to the Parse backend. 
         // Without an installation, a device cannot be targeted for push notifications.
-        ParseInstallation.getCurrentInstallation().saveInBackground();
+        ParseInstallation.getCurrentInstallation().saveInBackground(new SaveCallback() {
+
+               @Override
+               public void done(com.parse.ParseException error) {
+                    if (error == null) {
+                        ParsePush.handlePushRegistrationStatus(null, 0); // success
+                    }  else {
+                        ParsePush.handlePushRegistrationStatus(error.getMessage(), 3); // saving installation related failure
+                    }
+                }
+            }
+        );
         
         // Tracks the application state so that pushes can be handled according to the 
         // state.

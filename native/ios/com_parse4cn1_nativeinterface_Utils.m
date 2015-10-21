@@ -47,7 +47,7 @@
     
     JAVA_OBJECT javaPayload = fromNSString(CN1_THREAD_GET_STATE_PASS_ARG appOpenPushPayload);
     com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_TRUE);
-	appOpenPushPayload = nil;
+	  appOpenPushPayload = nil;
   }
 }
 
@@ -62,7 +62,7 @@
     com_parse4cn1_ParsePush_handlePushOpen___java_lang_String_boolean(CN1_THREAD_GET_STATE_PASS_ARG javaPayload, JAVA_TRUE);
   } else {
     // From tests, if the handlePushOpen() callback is invoked while the app is still transiting to the foreground (state= UIApplicationStateInactive)
-	// the message might be missed. To avoid that, we keep the message and send it only after we're sure that the app is in the foreground.
+	  // the message might be missed. To avoid that, we keep the message and send it only after we're sure that the app is in the foreground.
     appOpenPushPayload = payload;
   }
 }
@@ -127,6 +127,18 @@
   }
 
   return result;
+}
+
++(void)notifyPushRegistrationSuccess {
+  com_parse4cn1_ParsePush_handlePushRegistrationStatus___java_lang_String_int(CN1_THREAD_GET_STATE_PASS_ARG fromNSString(CN1_THREAD_GET_STATE_PASS_ARG nil), 0);
+}
+
++(void)notifySaveInstallationFailure:(NSString *)error {
+  com_parse4cn1_ParsePush_handlePushRegistrationStatus___java_lang_String_int(CN1_THREAD_GET_STATE_PASS_ARG fromNSString(CN1_THREAD_GET_STATE_PASS_ARG error), 3);
+}
+
++(void)handlePushRegistrationError:(NSString *)error {
+  com_parse4cn1_ParsePush_handlePushRegistrationStatus___java_lang_String_int(CN1_THREAD_GET_STATE_PASS_ARG fromNSString(CN1_THREAD_GET_STATE_PASS_ARG error), 1);
 }
 
 +(NSString *)flattenPushPayload:(NSDictionary *)dict {

@@ -27,6 +27,10 @@
 // (2) The return value defaults to YES for handleUnprocessedPushReceived
 +(BOOL)handlePushReceived:(NSDictionary *)userInfo;
 
++(void)notifyPushRegistrationSuccess;
++(void)notifySaveInstallationFailure:(NSString *)error;
++(void)handlePushRegistrationError:(NSString *)error;
+
 +(NSString *)dictToJson:(NSDictionary *)dict;
 
 // Any extra data is not included under the aps key.

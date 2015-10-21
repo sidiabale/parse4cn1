@@ -30,3 +30,6 @@ Not sure yet at what point this happens but I think it's in parse4cn1
 the package does not contain any assembly references that are compatible with that framework. For more information, contact the package author.
 Update nuGet https://parse.com/questions/windows-phone-8-nuget-package-error
 http://stackoverflow.com/questions/14070138/install-package-could-not-install-package-wptoolkit-error
+
+3. Device URI empty
+https://www.parse.com/questions/windows-phone-8-push-notification-issue-only-works-after-second-launch-net-sdk
