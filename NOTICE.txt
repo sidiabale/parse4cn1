@@ -17,3 +17,5 @@ Dependencies/Credits
 
 - CN1JSON.cn1lib: Untagged version retrieved on March 8, 2013 from https://github.com/shannah/CN1JSON/blob/master/dist/CN1JSON.cn1lib?raw=true
 - CN1JSON.jar: Regular jar version of CN1JSON.cn1lib retrieved on May 2, 2015 from https://github.com/shannah/CN1JSON/blob/master/dist/CN1JSON.jar?raw=true
+- Parse-1.10.2.jar and bolts-android-1.2.1.jar: Official Parse Android SDK retrieved in October, 2015 from https://parse.com/docs/downloads
+- Parse.framework and Bolts.framework: Official Parse iOS SDK v1.8.5 retrieved in October, 2015 from https://parse.com/docs/downloads
