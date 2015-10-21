@@ -366,4 +366,21 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
 
         });
     }
+    
+    @Override
+    public void onPushRegistrationFailed(final ParseException error) {
+        if (error == null) {
+            return;
+        }
+        
+        Logger.getInstance().error("Push notification registration failed.\n\nError: " 
+                + error.toString());
+        Display.getInstance().callSerially(new Runnable() {
+
+            public void run() {
+                Dialog.show("Push registration error",
+                    "Push registration failed: " + error.getMessage(), "OK", null);
+            }
+        });
+    }
 }

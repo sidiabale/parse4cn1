@@ -15,6 +15,7 @@
  */
 package com.parse4cn1;
 
+import com.codename1.ui.Display;
 import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -205,6 +206,12 @@ public class ParseInstallationTest extends BaseParseTest {
     private void testBadging() throws ParseException {
         System.out.println("============== testBadging()");
 
+        if (Parse.getPlatform() == Parse.EPlatform.IOS) {
+            System.out.println("Skipping this test since badging on iOS requires "
+                    + "native calls which will fail when running in simulator");
+            return;
+        }
+        
         currentInstallation.setBadge(0);
         assertEqual(0, (int)currentInstallation.getBadge(), 
                 "It should be possible to retrieve the badge field on all platforms");
@@ -217,20 +224,23 @@ public class ParseInstallationTest extends BaseParseTest {
     private void testRetrieveUnsetInstallation() {
         System.out.println("============== testRetrieveUnsetInstallation()");
         
+//        if (ParseInstallation.getCurrentInstallation() != null) {
+//            System.out.println("Skipping test since installation is already initialized");
+//            // This is expected when the test is run via the CN1 test project
+//            // where the test app automatically tries to retrieve the 
+//            // installation ID but should not occur in the Java test project
+//            // Unfortunately, there's no easy way to distinguish the two...
+//        }
+        
         boolean passed = false;
         try {
             ParseInstallation.setInstallationId(null);
             ParseInstallation.getCurrentInstallation();
-            System.err.println("[COKW] Installation exists with ID: " + ParseInstallation.getCurrentInstallation().getInstallationId());
         } catch (ParseException ex) {
-            System.err.println("[COKW] Error: " + ex);
-            if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK) {
+            if (ex.getCode() == ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK /* Occurs in java test project */
+                    || ex.getCode() == ParseException.PARSE4CN1_NATIVE_INTERFACE_LOOKUP_FAILED /* Occurs in CN1 test app */) {
                 passed = true;
             }
-        } catch (Exception ex) {
-            System.err.println("[COKW] Error: " + ex);
-        } finally  {
-            ParseInstallation.setInstallationId(installationId);
         }
         
         assertTrue(passed, "Retrieval of installation ID should fail when installation ID is not yet initialized");

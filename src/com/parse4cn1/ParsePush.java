@@ -72,6 +72,10 @@ public class ParsePush {
 
        });}
      * </pre>
+     * <p>
+     * Since registration for push should 'automatically' occur in the native 
+     * implementation, there's no interface method to explicitly trigger push
+     * notification registration.
      */
     public interface IPushCallback {
         /**
@@ -109,17 +113,33 @@ public class ParsePush {
          * currently running in the foreground. 
          * <p>See related methods {@link ParsePush#isAppOpenedViaPushNotification()}
          * and {@link ParsePush#getPushDataUsedToOpenApp()} for the case where 
-         * the app was not previously running but is being opened via a push notification.
+         * the app was not fully in the foreground with the callback was received.
          * 
          * @param pushPayload The push data.
          * @see ParsePush#isAppOpenedViaPushNotification()
          * @see ParsePush#getPushDataUsedToOpenApp() 
          */
         public void onAppOpenedViaPush(final JSONObject pushPayload);
+        
+        /**
+         * Called when registering for push notifications fails.
+         * <p>It is up to the underlying native implementation to detect when
+         * registration for push fails.
+         * <p>This callback should be invoked immediately if there's already a pending
+         * notification failure message.
+         * @param error The error wrapped in a ParseException. The {@link ParseException#getMessage() ()}
+         * and {@link ParseException#getCode()} should always be filled with meaningful values.
+         * 
+         * @see ParseException#PARSE4CN1_PUSH_REGISTRATION_FAILED
+         * @see ParseException#PARSE4CN1_PUSH_REGISTRATION_FAILED_INSTALLATION_UPDATE_ERROR
+         * @see ParseException#PARSE4CN1_PUSH_REGISTRATION_FAILED_MISSING_PARAMS
+         */
+        public void onPushRegistrationFailed(final ParseException error);
     }
 
     private static String appOpenPushPayload;
     private static String unprocessedPushPayload;
+    private static ParseException pushRegistrationError;
     private static IPushCallback pushCallback;
     
     private Set<String> channels;
@@ -154,15 +174,16 @@ public class ParsePush {
      * Checks whether the app is being opened via a push notification, e.g., by 
      * clicking the notification in the 'status bar'.
      * <p>
+     * This call will return {@code false} if the app was in the foreground 
+     * when it received the app opened push payload because in that case, the payload
+     * would be consumed directly by invoking {@link IPushCallback#onAppOpenedViaPush(ca.weblite.codename1.json.JSONObject)}.
+     * <p>
      * <b>Note that the result returned by this method is
      * guaranteed to be correct if the app is correctly managing the data,
      * i.e., checking every time the app is opened (typically in the start() method 
      * of the app's main class) and resetting the data after processing.</b>
      * 
      * @return {@code true} if app open push data is found; otherwise returns {@code false}.
-     * Note that this call will return {@code false} if the app was in the foreground 
-     * when it received the app opened push payload because in that case, the payload
-     * would be consumed directly by invoking {@link IPushCallback#onAppOpenedViaPush(ca.weblite.codename1.json.JSONObject)}.
      */
     public static boolean isAppOpenedViaPushNotification() {
         return (appOpenPushPayload != null);
@@ -194,6 +215,10 @@ public class ParsePush {
      * <p>
      * This data must be set by the native push implementations via 
      * {@link ParsePush#handlePushOpen(java.lang.String, boolean)}.
+     * <p>
+     * This call will return {@code null} if the app was in the foreground 
+     * when it received the app opened push payload because in that case, the payload
+     * would be consumed directly by invoking {@link IPushCallback#onAppOpenedViaPush(ca.weblite.codename1.json.JSONObject)}.
      * <p>
      * <b>Note that the result returned by this method is
      * guaranteed to be correct <u>if and only if</u> the app is correctly managing the data,
@@ -272,10 +297,14 @@ public class ParsePush {
      * Sets the push callback.
      * <p>This call removes any previously set callback since 
      * there can be at most one callback per app.
+     * <p>If there's a push registration failure notification from the native 
+     * code, {@link IPushCallback#onPushRegistrationFailed(com.parse4cn1.ParseException)} 
+     * will be invoked immediately.
      * @param callback The Push callback to be set or null to remove the current callback.
      */
     public static void setPushCallback(final IPushCallback callback) {        
         pushCallback = callback;
+        processRegistrationError();
     }
     
     /**
@@ -342,6 +371,7 @@ public class ParsePush {
             }
             existing.put(received);
             setUnprocessedPushPayload(existing);
+            pushRegistrationError = null; // We successfully receieved a push message so any previous error has been resolved.
         } catch (JSONException ex) {
             Logger.getInstance().error("Unable to parse push message payload '" 
                     + jsonPushPayload + "' to JSON. Error: " + ex);
@@ -387,6 +417,56 @@ public class ParsePush {
     }
     
     /**
+     * This method should be called by the native push implementation to report 
+     * the push notification registration status.
+     * 
+     * @param error A description of what went wrong or null if registration was successful.
+     * @param type A parameter to distinguish the kind of problem. The values currently 
+     * supported are:
+     * <br>0 - Registration succeeded
+     * <br>1 - Generic failure
+     * <br>2 - Failure due to missing parameters or configuration
+     * <br>3 - Error while saving/updating installation to backend
+     */
+    public static void handlePushRegistrationStatus(final String error, final int type) {
+        if (error == null || type == 0) {
+            Logger.logBuffered("handlePushRegistrationStatus(): Push registration succeeded");
+            pushRegistrationError = null;
+        } else {
+
+            int code;
+            switch (type) {
+                case 2:
+                    code = ParseException.PARSE4CN1_PUSH_REGISTRATION_FAILED_MISSING_PARAMS;
+                    break;
+                case 3:
+                    code = ParseException.PARSE4CN1_PUSH_REGISTRATION_FAILED_INSTALLATION_UPDATE_ERROR;
+                    break;
+                default:
+                    code = ParseException.PARSE4CN1_PUSH_REGISTRATION_FAILED;
+                    break;
+            }
+
+            pushRegistrationError = new ParseException(code, error);
+        }
+        processRegistrationError();
+    }
+    
+    /**
+     * Notifies the push callback of a pending push registration error if 
+     * there's a callback set.
+     */
+    private static void processRegistrationError() {
+        if (pushRegistrationError != null && pushCallback != null) {
+            Logger.logBuffered("processRegistrationError(): "
+                    + "Notifying callback of push registration error:  " 
+                    + pushRegistrationError.toString());
+            pushCallback.onPushRegistrationFailed(pushRegistrationError);
+            pushRegistrationError = null;
+        }
+    }
+    
+    /**
      * Processes push data received when app is running in foreground or background.
      * <p>
      * Forwards the data the push callback if any
@@ -398,7 +478,6 @@ public class ParsePush {
     private static boolean handlePushReceivedRunning(final String jsonPushPayload, boolean isForeground) {
         Logger.getInstance().debug("Push received while app is running in " 
                 + (isForeground ? "foreground" : "background") + ". Payload: " + jsonPushPayload);
-        
         JSONObject json;
         try {
             json = new JSONObject(jsonPushPayload);
@@ -409,6 +488,7 @@ public class ParsePush {
                     return pushCallback.onPushReceivedBackground(json);
                 }
             }
+            pushRegistrationError = null; // We successfully receieved a push message so any previous error has been resolved.
         } catch (JSONException ex) {
             Logger.getInstance().error("Unable to parse push message payload '" 
                     + jsonPushPayload + "' to JSON. Error: " + ex);
@@ -421,6 +501,8 @@ public class ParsePush {
      * @param pushPayload The push data to be saved.
      */
     private static void setUnprocessedPushPayload(final JSONArray pushPayload) {
+        Logger.logBuffered("setUnprocessedPushPayload(): "
+                    + "Received pushPayload:  " + pushPayload);
         if (pushPayload == null) {
             unprocessedPushPayload = null;
         } else {

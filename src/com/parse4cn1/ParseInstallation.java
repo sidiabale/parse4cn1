@@ -124,6 +124,8 @@ public class ParseInstallation extends ParseObject {
      * @param installationId The current installation's ID to be set. 
      */
     public static void setInstallationId(final String installationId) {
+        Logger.logBuffered("setInstallationId(): Installation ID explicitly set to " 
+                + installationId);
         ParseInstallation.installationId = installationId;
     }
     
@@ -364,12 +366,22 @@ public class ParseInstallation extends ParseObject {
     /**
      * Retrieves the installation id.
      * <p> For Android and iOS, a native call is made to the Parse SDK; for 
-     * every other platform, the {@link com.codename1.io.Preferences} approach is used.
+     * every other platform, the previously set installation ID is returned, if any.
+     * <p>
+     * <b>Note: </b>If the installation ID was explicitly set (cf. {@link #setInstallationId(java.lang.String)},
+     * it will always take precedence regardless of the platform (so don't use the setter on 
+     * Android and iOS!).
      * 
      * @return The installation id if found; otherwise null.
      * @throws ParseException if anything goes wrong
      */
     private static String retrieveInstallationId() throws ParseException {
+        if (installationId != null) {
+            Logger.logBuffered("retrieveInstallationId(): "
+                    + "Returning explicitly set installationId:  " + installationId);
+            return installationId;
+        }
+        
         if (Parse.getPlatform() == Parse.EPlatform.ANDROID
                 || Parse.getPlatform() == Parse.EPlatform.IOS) {
             final ParseInstallationNative nativeInstallation = 

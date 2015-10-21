@@ -34,6 +34,7 @@ public class ParsePushTest extends BaseParseTest implements IPushCallback {
     private JSONObject receivedForegroundPushPayload;
     private JSONObject receivedBackgroundPushPayload;
     private JSONObject receivedAppOpenPushPayload;
+    private ParseException receivedPushRegistrationError;
     
     private String pushPayload1;
     private String pushPayload2;
@@ -49,6 +50,7 @@ public class ParsePushTest extends BaseParseTest implements IPushCallback {
         testHandleUnprocessedPushReceived();
         testHandlePushOpenedForeground();
         testHandlePushOpenedBackground();
+        testHandlePushRegistrationStatus();
         testSendPushRestApiExample();
         return true;
     }
@@ -91,6 +93,11 @@ public class ParsePushTest extends BaseParseTest implements IPushCallback {
     @Override
     public void onAppOpenedViaPush(JSONObject pushPayload) {
         receivedAppOpenPushPayload = pushPayload;
+    }
+    
+    @Override
+    public void onPushRegistrationFailed(ParseException error) {
+        receivedPushRegistrationError = error;
     }
     
     private void testHandlePushNoCallback() throws ParseException {
@@ -233,6 +240,42 @@ public class ParsePushTest extends BaseParseTest implements IPushCallback {
                 "App open push payload should be the same as received");
     }
     
+    private void testHandlePushRegistrationStatus() throws JSONException {
+        System.out.println("============== testHandlePushRegistrationFailed()");
+        
+        System.out.println("-------------- No callback set --> "
+                + "error is delivered on callback registration");
+        runHandlePushRegistrationStatusTest("Generic error", 1, false);
+        runHandlePushRegistrationStatusTest("Missing deviceUris", 2, false);
+        runHandlePushRegistrationStatusTest("Unable to save installation ID", 3, false);
+        runHandlePushRegistrationStatusTest("Undefined type 4 (should be handled)", 4, false);
+        
+        System.out.println("-------------- No callback set and push succeeded --> "
+                + "no error notification at all "
+                + "(error string should be null or type should be 0 to suffice as success)");
+        // Message should be null or status should be 0 to suffice as success
+        runHandlePushRegistrationStatusTest(null, 0, false);
+        runHandlePushRegistrationStatusTest(null, 1, false);
+        runHandlePushRegistrationStatusTest("Mistake (should be ignored)", 0, false);
+        
+        System.out.println("-------------- Callback set --> "
+                + "error is delivered on immediately");
+        runHandlePushRegistrationStatusTest("Generic error 2", 1, true);
+        runHandlePushRegistrationStatusTest("Missing other required field", 2, true);
+        runHandlePushRegistrationStatusTest("Unable to save installation ID due to network error", 3, true);
+        runHandlePushRegistrationStatusTest("Undefined type 5 (should be handled)", 5, true);
+        
+        System.out.println("-------------- Callback set but push registration succeeded --> "
+                + "no error notification at all "
+                + "(error string should be null or type should be 0 to suffice as success)");
+        // Message should be null or status should be 0 to suffice as success
+        runHandlePushRegistrationStatusTest(null, 0, true);
+        runHandlePushRegistrationStatusTest(null, 1, true);
+        runHandlePushRegistrationStatusTest("Should be ignored", 0, true);
+
+        runHandlePushRegistrationErrorResetTest();   
+    }
+    
     private void testSendPushRestApiExample() throws JSONException, ParseException {
         System.out.println("============== testSendPushRestApiExample()");
         
@@ -331,11 +374,119 @@ public class ParsePushTest extends BaseParseTest implements IPushCallback {
         foregroundPushHandled = false;
         backgroundPushHandled = false;
         
+        receivedPushRegistrationError = null;
         receivedForegroundPushPayload = null;
         receivedBackgroundPushPayload = null;
         receivedAppOpenPushPayload = null;
         
         ParsePush.resetPushDataUsedToOpenApp();
         ParsePush.resetUnprocessedPushData();
+    }
+    
+    private void runHandlePushRegistrationStatusTest(final String message, int type, boolean useCallback) {
+        System.out.println("-------------- " + 
+                String.format("message=%s; type=%d; useCallback=%b", message, type, useCallback));
+        resetPushHandlingData();
+        try {
+            if (!useCallback) {
+                ParsePush.setPushCallback(null);
+            }
+            
+            int expectedErrorCode;
+            switch (type) {
+                case 0:
+                    expectedErrorCode = type;
+                    break;
+                case 2:
+                    expectedErrorCode = ParseException.PARSE4CN1_PUSH_REGISTRATION_FAILED_MISSING_PARAMS;
+                    break;
+                case 3:
+                    expectedErrorCode = ParseException.PARSE4CN1_PUSH_REGISTRATION_FAILED_INSTALLATION_UPDATE_ERROR;
+                    break;
+                default:
+                    expectedErrorCode = ParseException.PARSE4CN1_PUSH_REGISTRATION_FAILED;
+                    break;
+            }
+            
+            if (message == null) {
+                expectedErrorCode = 0;
+            }
+            
+            ParsePush.handlePushRegistrationStatus(message, type);
+            if (!useCallback) {
+                assertNull(receivedPushRegistrationError, "No registration error expected on old PushCallback");
+                ParsePush.setPushCallback(this); // Should trigger callback
+            }
+            
+            if (expectedErrorCode != 0) {
+                checkPushRegistrationErrorInfo(message, expectedErrorCode);
+            } else {
+                assertNull(receivedPushRegistrationError, "No registration error callback expected upon succesful registration");
+            }
+            
+        } finally {
+            if (!useCallback) {
+                resetPushHandlingData();
+                ParsePush.setPushCallback(this);
+                // Callback if any should already have been triggered so shouldn't occur again
+                assertNull(receivedPushRegistrationError, "Registration error should be reported only once");
+            }
+        }
+    }
+    
+    private void runHandlePushRegistrationErrorResetTest() throws JSONException {
+        
+        resetPushHandlingData();
+        
+        try {
+            int expectedErrorCode = ParseException.PARSE4CN1_PUSH_REGISTRATION_FAILED;
+            String expectedMessage = "A generic failure occurred";
+            
+            ParsePush.setPushCallback(null);
+            ParsePush.handlePushRegistrationStatus(expectedMessage, expectedErrorCode);
+            
+            System.out.println("-------------- After app open via push, pending "
+                    + "registration error should still be delivered when callback is set");
+            
+            ParsePush.handlePushOpen(pushPayload2, true);
+            ParsePush.setPushCallback(this);
+            checkPushRegistrationErrorInfo(expectedMessage, expectedErrorCode);
+
+            ParsePush.setPushCallback(null);
+            ParsePush.handlePushOpen(pushPayload1, false);
+            ParsePush.setPushCallback(this);
+            checkPushRegistrationErrorInfo(expectedMessage, expectedErrorCode);
+            
+            System.out.println("-------------- On receiving push while running, pending "
+                    + "registration error be cleared");
+            
+            resetPushHandlingData();
+            ParsePush.setPushCallback(null);
+            ParsePush.handlePushRegistrationStatus(expectedMessage, expectedErrorCode);
+            ParsePush.handlePushReceivedForeground(pushPayload1);
+            ParsePush.setPushCallback(this);
+            assertNull(receivedPushRegistrationError, "Previous failed registration error is cleared when push is received in foreground");
+            
+            ParsePush.setPushCallback(null);
+            ParsePush.handlePushRegistrationStatus(expectedMessage, expectedErrorCode);
+            ParsePush.handlePushReceivedBackground(pushPayload2);
+            ParsePush.setPushCallback(this);
+            assertNull(receivedPushRegistrationError, "Previous failed registration error is cleared when push is received in background");
+            
+            ParsePush.setPushCallback(null);
+            ParsePush.handlePushRegistrationStatus(expectedMessage, expectedErrorCode);
+            ParsePush.handleUnprocessedPushReceived(pushPayload1);
+            ParsePush.setPushCallback(this);
+            assertNull(receivedPushRegistrationError, "Previous failed registration error is cleared when unprocessed push is received");
+            
+        } finally {
+            ParsePush.setPushCallback(this);
+        }
+    }
+
+    private void checkPushRegistrationErrorInfo(String expectedMessage, int expectedErrorCode) {
+        assertNotNull(receivedPushRegistrationError, "Registration failure callback expected"); 
+        assertEqual(expectedMessage, receivedPushRegistrationError.getMessage());
+        assertEqual(expectedErrorCode, receivedPushRegistrationError.getCode());
     }
 }
