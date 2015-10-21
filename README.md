@@ -50,11 +50,11 @@ The Parse RESTAPI is quite extensive. As such, we maintain an overview of the fu
 | Files | IMPLEMENTED | |
 | Analytics | Pending | |
 | Config | IMPLEMENTED | |
-| Push Notifications* | Pending | |
-| Installations | Pending | |
+| Push Notifications* | IMPLEMENTED| |
+| Installations | IMPLEMENTED| |
 | Cloud Code | IMPLEMENTED | |
 | GeoPoints | IMPLEMENTED | |
-\*Advanced feature that cannot be realized using REST API only. However, it *should* be realizable via CN1 native interfaces.
+\*Advanced feature that cannot be realized using REST API only; involves native code integration. See the CN1 Parse push [guide](https://github.com/sidiabale/parse4cn1/wiki/Push-Notifications-Overview) for more details.
 
 | Advanced Features | Remarks |
 |:-------:	|:-------: |
@@ -62,11 +62,8 @@ The Parse RESTAPI is quite extensive. As such, we maintain an overview of the fu
 | User-defined ParseObject subclasses | See example [here](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples#registering-custom-sub-classes) |
 
 ### Release Planning ###
-v1.3: Q4 2015
-* Installations
-* Push Notifications
-
 Unscheduled
+* Analytics
 * Roles
 * Sessions
 * Linking users
@@ -86,7 +83,7 @@ Contributing to this project is most welcome; the more, the merrier! Simply fork
 
 1. Document at least all public facing methods with comments that add value (not simply boilerplate comments that state the obvious).
 1. Write tests for added functionality (see the [test directory](https://github.com/sidiabale/parse4cn1/tree/master/test) for some inspiration if needed).
-1. Make sure all tests are passing before issuing a pull request.
+1. Make sure all tests are passing in both the [Java test application](https://github.com/sidiabale/parse4cn1/tree/master/test/JavaTestApplication) (run on travis) and the [CN1 test app](https://github.com/sidiabale/parse4cn1/tree/master/test/CN1TestApp) before issuing a pull request.
 
 Furthermore, it's handy, at the time you pick up a feature, to mention it so that others can see what's in progress and efforts can be consolidated (there's little or no value in having multiple implementations of the same feature going on in parallel). So update the coverage table above with what you're working on as well as an estimate of when you expect it to be done. If you can't update this page directly, just create a ticket with the information and this page will be updated for you. Thanks!
 
