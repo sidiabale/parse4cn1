@@ -62,7 +62,7 @@ The Parse RESTAPI is quite extensive. As such, we maintain an overview of the fu
 | User-defined ParseObject subclasses | See example [here](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples#registering-custom-sub-classes) |
 
 ### Release Planning ###
-Unscheduled
+_Unscheduled_ (read: Feel free to contribute!)
 * Analytics
 * Roles
 * Sessions
