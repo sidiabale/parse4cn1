@@ -194,6 +194,21 @@ public class Parse {
         ParseRegistry.registerDefaultSubClasses();
         ParseRegistry.registerExternalizableClasses();
         ParseOperationDecoder.registerDefaultDecoders();
+        
+        /*
+        This is a workaround to prevent the over-zealous stripping away 
+        of unused classed by the CN1 VM during iOS builds which results in 
+        a compilation error when ParsePush is not explicitly used in an app
+        that includes this library. Apparently, the stripper has a bug that 
+        causes usage of ParsePush in iOS native code not to be detected, hence 
+        the class is stripped which subsquently results in a 'file not found'
+        error while compiling the iOS native code that imports it. 
+        
+        The  workaround is to make the following 'harmless' call so that 
+        ParsePush is considered used and thus not stripped out during iOS compilation.
+        See also:https://groups.google.com/d/msg/codenameone-discussions/r1svrNwVOA8/6d1QmMVfBQAJ
+        */
+        ParsePush.isUnprocessedPushDataAvailable();
     }
 
     /**
