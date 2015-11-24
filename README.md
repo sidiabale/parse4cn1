@@ -24,7 +24,7 @@ Build Status (develop): [![Build Status (develop)](https://travis-ci.org/sidiaba
 
 
 ## Synopsis ##
-The Parse platform provides a complete backend solution for your mobile application. Parse provides a REST API as well as libraries for different mobile platforms like Android and iOS. CodenameOne (CN1 for short) on the other hand is a great framework for cross-platform mobile application development. Although some of the functionality provided by Parse is offered to *paying* CN1 users, integration of third-party libraries is allowed and even encouraged in CN1. This project aims at making the Parse platform available to CN1 apps thereby giving developers more options for cloud-based backend solutions in CN1. In order to maximize platform support, this library aims at implementing the REST API specification rather than for instance, integrating the existing Parse native libraries for various platforms. Of course, where possible, advanced features that go beyond the REST API (e.g., background operations) will also be supported by this library provided they can be implemented in a generic manner. Since CN1 is written in Java, this library can also be used in pure Java projects as illustrated [here](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples#using-parse4cn1-in-a-regular-java-project).
+The Parse platform provides a complete backend solution for your mobile application. Parse provides a REST API as well as libraries for different mobile platforms like Android and iOS. CodenameOne (CN1 for short) on the other hand is a great framework for cross-platform mobile application development. Although some of the functionality provided by Parse is offered to *paying* CN1 users, integration of third-party libraries is allowed and even encouraged in CN1. This project aims at making the Parse platform available to CN1 apps thereby giving developers more options for cloud-based backend solutions in CN1. In order to maximize platform support, this library aims at implementing the REST API specification rather than, for instance, integrating the existing Parse native libraries for various platforms to achieve the same functionality. Of course, where possible, advanced features that go beyond the REST API (e.g., background operations) will also be supported by this library preferably in a generic manner. Since CN1 is written in Java, this library can also be used in pure Java projects as illustrated [here](https://github.com/sidiabale/parse4cn1/wiki/Usage-Examples#using-parse4cn1-in-a-regular-java-project).
 
 ## License ##
 Apache License, [Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
@@ -34,7 +34,7 @@ Apache License, [Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 2. CN1JSON library (delivered along with this library for compatibility; see the Installation section below)
 
 ## Installation ##
-1. Download the dist/parse4cn1.cn1lib and dist/CN1JSON.cn1lib files and copy them into your Codename One Application's "lib" directory (or alternatively, use the corresponding JARs in dist/parse4cn1.jar and dist/lib/CN1JSON.jar).
+1. Download the dist/parse4cn1.cn1lib and dist/CN1JSON.cn1lib files and copy them into your Codename One Application's "lib" directory.
 2. If using Netbeans, right-click on your application's icon in the Netbeans project explorer, and select "Refresh Libs".
 
 ## Coverage ##
