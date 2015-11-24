@@ -35,7 +35,7 @@ Apache License, [Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 
 ## Installation ##
 1. Download the dist/parse4cn1.cn1lib and dist/CN1JSON.cn1lib files and copy them into your Codename One Application's "lib" directory.
-2. If using Netbeans, right-click on your application's icon in the Netbeans project explorer, and select "Refresh Libs".
+2. Refresh project libs, if applicable, for the added cn1libs to be picked up (e.g. by right-click on your application's icon in the project explorer, and selecting "Codename One" >> "Refresh cn1lib files" in Netbeans or "Codename One" >> "Refresh Libs" in Eclipse).
 
 ## Coverage ##
 The Parse RESTAPI is quite extensive. As such, we maintain an overview of the functionality that is currently covered. Developers are most welcome to work on pending functionality. Note that some of the functionality marked as pending below may actually be present in the source code inherited from Parse4J. However, the status here reflects what has been tested and verified to work with CN1. Any functionality not marked as implemented below may be used at own risk :)
