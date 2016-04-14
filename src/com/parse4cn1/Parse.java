@@ -158,6 +158,7 @@ public class Parse {
 
     private static String mApplicationId = null;
     private static String mClientKey = null;
+    private static String mParseAPIUrl = ParseConstants.API_ENDPOINT;
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
@@ -212,6 +213,61 @@ public class Parse {
     }
 
     /**
+     * Authenticates this client as belonging to your application. 
+     * <p> It also initializes internal state required for the library to function 
+     * properly, e.g., enabling persistence to CN1 storage.
+     * <p>
+     * <p> In addition, it sets the base URL that will be used for Parse API calls.
+     * </p>
+     * This method must be called before your application can use the Parse
+     * library. The recommended way is to put a call to Parse.initialize in your
+     * CN1 Application's state machine as follows:
+     * <pre>
+     * <code>
+     * public class StateMachine extends StateMachineBase {
+     *   protected void initVars(Resources res) {
+     *     Parse.initialize(APP_ID, APP_REST_API_ID);
+     *   }
+     * }
+     * </code>
+     * </pre>
+     *
+     * @param applicationId The application id provided in the Parse dashboard.
+     * @param clientKey The client key provided in the Parse dashboard.
+     * @param parseApiUrl The base URL to use for Parse API calls.
+     * <p>
+     * <b>Note:</b> Developers are advised to use the CLIENT KEY instead of
+     * using the REST API in production code (cf.
+     * <a href='https://parse.com/docs/rest#general-callfromclient'>https://parse.com/docs/rest#general-callfromclient</a>).
+     * Hence, the latter is not exposed via this library. The same security
+     * consideration explains why the MASTER KEY is not exposed either.
+     */
+    static public void initialize(String applicationId, String clientKey, String parseApiUrl) {
+        mApplicationId = applicationId;
+        mClientKey = clientKey;
+        mParseApiUrl = parseApiUrl;
+        
+        ParseRegistry.registerDefaultSubClasses();
+        ParseRegistry.registerExternalizableClasses();
+        ParseOperationDecoder.registerDefaultDecoders();
+        
+        /*
+        This is a workaround to prevent the over-zealous stripping away 
+        of unused classed by the CN1 VM during iOS builds which results in 
+        a compilation error when ParsePush is not explicitly used in an app
+        that includes this library. Apparently, the stripper has a bug that 
+        causes usage of ParsePush in iOS native code not to be detected, hence 
+        the class is stripped which subsquently results in a 'file not found'
+        error while compiling the iOS native code that imports it. 
+        
+        The  workaround is to make the following 'harmless' call so that 
+        ParsePush is considered used and thus not stripped out during iOS compilation.
+        See also:https://groups.google.com/d/msg/codenameone-discussions/r1svrNwVOA8/6d1QmMVfBQAJ
+        */
+        ParsePush.isUnprocessedPushDataAvailable();
+    }
+    
+    /**
      * @return The application ID if one has been set or null.
      * @see #initialize(java.lang.String, java.lang.String)
      */
@@ -246,7 +302,7 @@ public class Parse {
      * @return The created URL.
      */
     static public String getParseAPIUrl(String endPoint) {
-        return ParseConstants.API_ENDPOINT + "/" + ParseConstants.API_VERSION
+        return mParseAPIUrl + "/" + ParseConstants.API_VERSION
                 + "/" + ((endPoint != null) ? endPoint : "");
     }
 
