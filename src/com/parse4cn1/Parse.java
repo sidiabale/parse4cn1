@@ -226,7 +226,7 @@ public class Parse {
      * <code>
      * public class StateMachine extends StateMachineBase {
      *   protected void initVars(Resources res) {
-     *     Parse.initialize(APP_ID, APP_REST_API_ID);
+     *     Parse.initialize(APP_ID, APP_REST_API_ID, MY_PARSE_API_URL);
      *   }
      * }
      * </code>
