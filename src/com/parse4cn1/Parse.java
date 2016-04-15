@@ -245,7 +245,7 @@ public class Parse {
     static public void initialize(String applicationId, String clientKey, String parseAPIUrl) {
         mApplicationId = applicationId;
         mClientKey = clientKey;
-        mParseAPIUrl = parseApiUrl;
+        mParseAPIUrl = parseAPIUrl;
         
         ParseRegistry.registerDefaultSubClasses();
         ParseRegistry.registerExternalizableClasses();
