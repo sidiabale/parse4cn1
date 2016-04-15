@@ -234,7 +234,7 @@ public class Parse {
      *
      * @param applicationId The application id provided in the Parse dashboard.
      * @param clientKey The client key provided in the Parse dashboard.
-     * @param parseApiUrl The base URL to use for Parse API calls.
+     * @param mParseAPIUrl The base URL to use for Parse API calls.
      * <p>
      * <b>Note:</b> Developers are advised to use the CLIENT KEY instead of
      * using the REST API in production code (cf.
@@ -242,10 +242,10 @@ public class Parse {
      * Hence, the latter is not exposed via this library. The same security
      * consideration explains why the MASTER KEY is not exposed either.
      */
-    static public void initialize(String applicationId, String clientKey, String parseApiUrl) {
+    static public void initialize(String applicationId, String clientKey, String parseAPIUrl) {
         mApplicationId = applicationId;
         mClientKey = clientKey;
-        mParseApiUrl = parseApiUrl;
+        mParseAPIUrl = parseApiUrl;
         
         ParseRegistry.registerDefaultSubClasses();
         ParseRegistry.registerExternalizableClasses();
