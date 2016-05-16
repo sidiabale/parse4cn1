@@ -46,25 +46,28 @@ public class ParseCloudTest extends BaseParseTest {
         final String helloWorld = ParseCloud.callFunction("hello", null);
         assertEqual("Hello world!", helloWorld);
         
-        // Cloud job via function wrapper
-        for (int i = 0; i < 5; ++i) {
-            ParseUser user = ParseUser.create("User" + (i + 1) + "_" + getCurrentTimeInHex(), 
-                    BaseParseTest.TEST_PASSWORD);
-            user.signUp();
-        }
+        // [16-05-16] Background jobs are not supported by parse server
+        // https://github.com/ParsePlatform/parse-server/wiki/Compatibility-with-Hosted-Parse#jobs
         
-        final Map<String, String> params = new HashMap<String, String>();
-        params.put("plan", "Paid");
-        final String jobTriggerResult = ParseCloud.callFunction("userMigrationJobWrapper", params);
-        assertEqual("{}", jobTriggerResult.trim(), "On successful trigger, result should be empty");
-        
-        waitFor(5000); // Wait a bit to ensure that job has been completed
-        
-        // Check that job did what was expected
-        ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseConstants.CLASS_NAME_USER);
-        List<ParseUser> results = query.find();
-        for (ParseUser user : results) {
-            assertEqual("Paid", user.getString("plan"));
-        }
+//        // Cloud job via function wrapper
+//        for (int i = 0; i < 5; ++i) {
+//            ParseUser user = ParseUser.create("User" + (i + 1) + "_" + getCurrentTimeInHex(), 
+//                    BaseParseTest.TEST_PASSWORD);
+//            user.signUp();
+//        }
+//        
+//        final Map<String, String> params = new HashMap<String, String>();
+//        params.put("plan", "Paid");
+//        final String jobTriggerResult = ParseCloud.callFunction("userMigrationJobWrapper", params);
+//        assertEqual("{}", jobTriggerResult.trim(), "On successful trigger, result should be empty");
+//        
+//        waitFor(5000); // Wait a bit to ensure that job has been completed
+//        
+//        // Check that job did what was expected
+//        ParseQuery<ParseUser> query = ParseQuery.getQuery(ParseConstants.CLASS_NAME_USER);
+//        List<ParseUser> results = query.find();
+//        for (ParseUser user : results) {
+//            assertEqual("Paid", user.getString("plan"));
+//        }
     } 
 }

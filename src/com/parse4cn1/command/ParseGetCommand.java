@@ -29,10 +29,13 @@ public class ParseGetCommand extends ParseCommand {
 
     private final String endPoint;
     private String objectId;
+        
+    protected boolean addJson;
 
     public ParseGetCommand(String endPoint, String objectId) {
         this.endPoint = endPoint;
         this.objectId = objectId;
+        addJson = true;
     }
 
     public ParseGetCommand(String endPoint) {

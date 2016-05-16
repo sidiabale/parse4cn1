@@ -53,7 +53,7 @@ public class ParseQueryTest extends BaseParseTest {
     public boolean runTest() throws Exception {
         testQueryFormat();
         testRestApiExample();
-        testGeoPointQueries();
+//        testGeoPointQueries(); see: https://github.com/ParsePlatform/parse-server/issues/1592
         return true;
     }
 
@@ -606,6 +606,7 @@ public class ParseQueryTest extends BaseParseTest {
         // Teams
         ParseObject object = ParseObject.create(classTeam);
         object.put(fieldWinRecord, 0.7);
+        object.put(fieldCity, cityVenlo);
         teams.add(object);
 
         object = ParseObject.create(classTeam);

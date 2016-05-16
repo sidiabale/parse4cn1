@@ -37,7 +37,7 @@ public class ParseConfigTest extends BaseParseTest {
         // Check pre-defined config values
         assertNotNull(config.getParseFile("backgroundImage"));
         assertEqual(config.getParseFile("backgroundImage").getName(), 
-                "tfss-0086e03d-660f-4a53-bee1-6dfb0e1d6906-Tulips.jpg");
+                "1bd2637b569d1960232690f36b7061a6_tfss-0086e03d-660f-4a53-bee1-6dfb0e1d6906-Tulips.jpg");
         assertEqual(config.getList("betaTestUserIds"), 
                 Arrays.asList("2TWipjNjOQ", "80S3HiJ1iZ", "pcjSHaYtaA"));
         assertTrue(config.getBoolean("configSetup"));
@@ -49,11 +49,11 @@ public class ParseConfigTest extends BaseParseTest {
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2015);
         cal.set(Calendar.MONTH, 4); // = May; month is 0-based.
-        cal.set(Calendar.DAY_OF_MONTH, 17);
+        cal.set(Calendar.DAY_OF_MONTH, 16);
         cal.set(Calendar.HOUR_OF_DAY, 18);
         cal.set(Calendar.MINUTE, 28);
-        cal.set(Calendar.SECOND, 03);
-        cal.set(Calendar.MILLISECOND, 721);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
 
         assertEqual(0, cal.getTime().compareTo(config.getDate("lastUpdate")));
         assertEqual("Have fun!", config.getString("welcomeMessage"));

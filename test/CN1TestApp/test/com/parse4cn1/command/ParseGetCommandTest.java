@@ -55,7 +55,7 @@ public class ParseGetCommandTest extends BaseParseTest {
             assertNotNull(response.getJsonObject(), "Non-null reply expected");
             ParseException serverMsg = ParseResponse.getParseError(response.getJsonObject());
             assertEqual(ParseException.OBJECT_NOT_FOUND, serverMsg.getCode(), "Response code");
-            assertEqual("object not found for get", serverMsg.getMessage().toLowerCase());
+            assertEqual("object not found.", serverMsg.getMessage().toLowerCase());
         } catch (ParseException ex) {
             assertBool(false, "Oops! An unexpected exception occurred: " + ex);
         }
@@ -72,7 +72,7 @@ public class ParseGetCommandTest extends BaseParseTest {
             assertNotNull(response.getJsonObject(), "Non-null reply expected");
             ParseException serverMsg = ParseResponse.getParseError(response.getJsonObject());
             assertEqual(ParseException.OBJECT_NOT_FOUND, serverMsg.getCode(), "Response code");
-            assertEqual("invalid login parameters", serverMsg.getMessage().toLowerCase());
+            assertEqual("invalid username/password.", serverMsg.getMessage().toLowerCase());
         } catch (ParseException ex) {
             assertBool(false, "Oops! An unexpected exception occurred: " + ex);
         }

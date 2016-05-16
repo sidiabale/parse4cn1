@@ -47,8 +47,6 @@ public abstract class ParseCommand {
     private final JSONObject data = new JSONObject();
     private final JSONObject headers = new JSONObject();
     private ProgressCallback progressCallback;
-    
-    protected boolean addJson;
 
     /**
      * Sets up the network connection request that will be issued when performing 
@@ -113,7 +111,11 @@ public abstract class ParseCommand {
             final String key = (String) keys.next();
             if (!REQUEST_BODY_KEY.equals(key)) {
                 try {
+                    Logger.getInstance().debug("key="+key);
+                    Logger.getInstance().debug("val="+data.get(key).toString());
+                    Logger.getInstance().debug("val="+data.get(key));
                     request.addArgument(key, data.get(key).toString());
+//                    request.addArgumentNoEncoding(key, data.get(key).toString());
                 } catch (JSONException ex) {
                     Logger.getInstance().error("Error parsing key '" + key + "' in command data. Error: " + ex);
                     throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
@@ -200,16 +202,10 @@ public abstract class ParseCommand {
         try {
             headers.put(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
             headers.put(ParseConstants.HEADER_CLIENT_KEY, Parse.getClientKey());
-            if (addJson) {
+//            if (addJson) {
                 headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
-            }
-            if (!data.has(ParseConstants.FIELD_SESSION_TOKEN) && ParseUser.getCurrent() != null) {
-                data.put(ParseConstants.FIELD_SESSION_TOKEN, ParseUser.getCurrent().getSessionToken());
-            }
-            if (data.has(ParseConstants.FIELD_SESSION_TOKEN)) {
-                headers.put(ParseConstants.HEADER_SESSION_TOKEN,
-                        data.getString(ParseConstants.FIELD_SESSION_TOKEN));
-            } 
+//            }
+
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
@@ -223,7 +219,7 @@ public abstract class ParseCommand {
      * @return The Parse API URL of the format {@code https://api.parse.com/<endpoint>[/<objectId>]}.
      */
     static protected String getUrl(final String endPoint, final String objectId) {
-        String url = Parse.getParseAPIUrl(endPoint) + (objectId != null ? "/" + objectId : "");
+        String url = Parse.getParseAPIUrl(endPoint) + (!Parse.isEmpty(objectId) ? "/" + objectId : "");
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Request URL: " + url);

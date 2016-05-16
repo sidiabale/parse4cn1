@@ -31,6 +31,7 @@ public class ParseTest extends BaseParseTest {
         testGetParseApiUrl();
         testIsReservedKey();
         testJoin();
+        testIsEmpty();
         return true;
     }
     
@@ -47,10 +48,10 @@ public class ParseTest extends BaseParseTest {
     }
     
     private void testGetParseApiUrl() {
-        assertEqual("https://api.parse.com/1/", Parse.getParseAPIUrl(null));
-        assertEqual("https://api.parse.com/1/", Parse.getParseAPIUrl(""));
-        assertEqual("https://api.parse.com/1/classes", Parse.getParseAPIUrl("classes"));
-        assertEqual("https://api.parse.com/1/classes/myEntity", Parse.getParseAPIUrl("classes/myEntity"));
+        assertEqual(TEST_API_ENDPOINT + "/", Parse.getParseAPIUrl(null));
+        assertEqual(TEST_API_ENDPOINT + "/", Parse.getParseAPIUrl(""));
+        assertEqual(TEST_API_ENDPOINT + "/classes", Parse.getParseAPIUrl("classes"));
+        assertEqual(TEST_API_ENDPOINT + "/classes/myEntity", Parse.getParseAPIUrl("classes/myEntity"));
     }
     
     private void testIsReservedKey() {
@@ -78,5 +79,12 @@ public class ParseTest extends BaseParseTest {
         } catch (Exception ex) {
             assertBool(true, ex.getMessage());
         }
+    }
+    
+    private void testIsEmpty() {
+        assertTrue(Parse.isEmpty(null));
+        assertTrue(Parse.isEmpty(""));
+        assertFalse(Parse.isEmpty(" "));
+        assertFalse(Parse.isEmpty("Non-empty"));
     }
 }

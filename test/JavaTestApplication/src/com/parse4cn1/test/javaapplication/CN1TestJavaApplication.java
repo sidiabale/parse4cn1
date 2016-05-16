@@ -128,12 +128,20 @@ public class CN1TestJavaApplication {
         int counter = 1;
         List<String> failedTests = new ArrayList<String>();
         for (Class<? extends BaseParseTest> testClass : testClasses) {
-            
-//            /*
-//             Filter for running subsets of tests if necessary (particularly useful since 
-//             at the time of writing, the CN1 test runner lacks this functionality
-//             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
-//             */
+         
+        /*
+            The following tests failed and got modified (changes need to be documented):
+            com.parse4cn1.ParseUserTest, 
+            com.parse4cn1.ParseInstallationTest: Master key (https://parse.com/docs/rest/guide#push-notifications-querying-installations) 
+            com.parse4cn1.ParseQueryTest: GeoQueries https://github.com/ParsePlatform/parse-server/issues/1592
+            ]
+        */
+        
+            /*
+             Filter for running subsets of tests if necessary (particularly useful since 
+             at the time of writing, the CN1 test runner lacks this functionality
+             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
+             */
 //            if (!testClass.getCanonicalName().endsWith("ParseInstallationTest")) {
 //                System.err.println("Ignoring test " + testClass.getCanonicalName());
 //                continue;
