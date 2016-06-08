@@ -177,14 +177,14 @@ public class Parse {
      * <code>
      * public class StateMachine extends StateMachineBase {
      *   protected void initVars(Resources res) {
-     *     Parse.initialize(APP_ID, APP_REST_API_ID);
+     *     Parse.initialize(API_ENDPOINT, APP_ID, APP_REST_API_ID);
      *   }
      * }
      * </code>
      * </pre>
      *
      * @param apiEndpoint The path to the Parse backend, e.g.
-     * "your_website_url"/parse.
+     * "your_parse_backend_website_url"/parse.
      * @param applicationId The application id of your parse backend.
      * @param clientKey The client key of your parse backend if applicable. If not,
      * pass null and it will be ignored.
@@ -237,7 +237,7 @@ public class Parse {
     /**
      * Checks if the library has been initialized.
      * <p>
-     * <em>Note:</em> The now optional client key (cf. {@link #getClientKey()}) 
+     * <em>Note:</em> The optional client key (cf. {@link #getClientKey()}) 
      * is no longer taken into account.
      * @return {@code true} if the library has been initialized; otherwise,
      * returns {@code false}.

@@ -19,6 +19,7 @@ import com.codename1.io.Log;
 import com.codename1.ui.Display;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.BaseParseTest;
+import com.parse4cn1.util.ParseRegistry;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
@@ -111,8 +112,16 @@ public class CN1TestJavaApplication {
         
         return status;
     }
+    
+     private static int runTests() {
+        int status = 0;
+        status += runTests("https://api.parse.com/1", "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB");
+        status += runTests(BaseParseTest.DEFAULT_API_ENDPOINT /*openshift*/, BaseParseTest.DEFAULT_APP_ID, BaseParseTest.DEFAULT_CLIENT_KEY);
+//        status += runTests("https://parseapi.back4app.com", "OiTzm1ivZovdmMktQnqk8ajqBVIPgl4dlgUxw4dh", "fHquv9DA0SA5pd7VPO38tNzOrzrgTgfd7yY3nXbo");
+        return status;
+    }
 
-    private static int runTests() {
+    private static int runTests(String apiEndPoint, String appId, String clientKey) {
         // Auto-detect defined test classes
         // cf. lib/reflections-0.9.9-RC1-uberjar.jar and its dependencies 
         // (lib/javassist.jar, lib/guava-18.0.jar)
@@ -121,20 +130,116 @@ public class CN1TestJavaApplication {
                 = reflections.getSubTypesOf(BaseParseTest.class);
 
         final int testCount = testClasses.size();
-        System.out.println("Testing Java application based on CN1 Parse port!!!");
+        System.out.println("Testing Java application based on CN1 Parse port using backend: " + apiEndPoint);
         System.out.println("About to run " + testCount + " tests...\n");
 //        com.parse4cn1.util.Logger.getInstance().setLogLevel(Log.DEBUG); // Show extra details e.g. to debug failing test
 
+        ParseRegistry.reset();
+        BaseParseTest.setBackend(apiEndPoint, appId, clientKey);
+        
+        
         int counter = 1;
         List<String> failedTests = new ArrayList<String>();
         for (Class<? extends BaseParseTest> testClass : testClasses) {
          
         /*
+            Openshift
             The following tests failed and got modified (changes need to be documented):
             com.parse4cn1.ParseUserTest, 
             com.parse4cn1.ParseInstallationTest: Master key (https://parse.com/docs/rest/guide#push-notifications-querying-installations) 
             com.parse4cn1.ParseQueryTest: GeoQueries https://github.com/ParsePlatform/parse-server/issues/1592
             ]
+        */
+            
+        /*
+            back4apps: (parse-server 2.2.10, parse dashboard 1.0.12 and the S3 adapter for files)
+           com.parse4cn1.ParseConfigTest: Missing types (File, GeoPoint)
+           Parse.com:
+            {
+                "params": {
+                  "backgroundImage": {
+                    "__type": "File",
+                    "name": "tfss-0086e03d-660f-4a53-bee1-6dfb0e1d6906-Tulips.jpg",
+                    "url": "http://files.parsetfss.com/9499f1cb-d3b8-4514-aa10-05659741bacc/tfss-0086e03d-660f-4a53-bee1-6dfb0e1d6906-Tulips.jpg"
+                  },
+                  "betaTestUserIds": [
+                    "2TWipjNjOQ",
+                    "80S3HiJ1iZ",
+                    "pcjSHaYtaA"
+                  ],
+                  "compoundObject": {
+                    "select": {
+                      "key": "username",
+                      "query": {
+                        "className": "players",
+                        "where": {
+                          "games": {
+                            "exists": true
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "configSetup": true,
+                  "data": {
+                    "key1": "value1",
+                    "key2": true,
+                    "key3": 5
+                  },
+                  "eventLocation": {
+                    "__type": "GeoPoint",
+                    "latitude": 37.79215,
+                    "longitude": -122.390335
+                  },
+                  "lastUpdate": {
+                    "__type": "Date",
+                    "iso": "2015-05-17T18:28:03.721Z"
+                  },
+                  "welcomeMessage": "Have fun!",
+                  "winningNumber": 42
+                }
+            }
+           
+            back4apps:
+            {
+                "params": {
+                  "welcomeMessage": "Have fun!",
+                  "compoundObject": {
+                    "select": {
+                      "key": "username",
+                      "query": {
+                        "className": "players",
+                        "where": {
+                          "games": {
+                            "exists": true
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "data": {
+                    "key1": "value1",
+                    "key2": true,
+                    "key3": 5
+                  },
+                  "betaTestUserIds": [
+                    "2TWipjNjOQ",
+                    "80S3HiJ1iZ",
+                    "pcjSHaYtaA"
+                  ],
+                  "eventLocation": [
+                    "-122.390335",
+                    "37.79215"
+                  ],
+                  "winningNumber": 42,
+                  "configSetup": true,
+                  "lastUpdate": {
+                    "__type": "Date",
+                    "iso": "2015-05-17T18:28:00.000Z"
+                  },
+                  "backgroundImage": "ca58066b323f840fbad7e27c88976d9d_tfss-0086e03d-660f-4a53-bee1-6dfb0e1d6906-Tulips.jpg"
+                }
+            }
         */
         
             /*

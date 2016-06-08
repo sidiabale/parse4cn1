@@ -32,7 +32,11 @@ public class ParseInstallationTest extends BaseParseTest {
     // Use a valid, predefined installation for testing since creation from client is not supported by parse4cn1
     // The installation object with this ID is guaranteed not to be deleted in the backend
     // (protected via the cloud code beforeDelete hook)
-    private static final String objectId = "VTHZUypXZC";
+    private static String objectId = null;
+    private static final String[] objectIds = new String[]{
+        "uZEbU3FPwa" /* parse.com */,
+        "VTHZUypXZC" /* openshift */, 
+        "XVHtg1oqZC" /* back4apps */}; // Possible test ids from different backends
     private static final String installationId = "09a198b7-b6e0-4bd3-8eb0-f2b712f957c2";
     private static ParseInstallation currentInstallation;
     
@@ -50,13 +54,18 @@ public class ParseInstallationTest extends BaseParseTest {
     public void prepare() {
         super.prepare();
         testRetrieveUnsetInstallation(); // Must be run before initialization of installation ID
-        ParseInstallation.setInstallationObjectId(objectId);
-        try {            
-            currentInstallation = ParseInstallation.getCurrentInstallation();
-        } catch (ParseException ex) {
-            Logger.getInstance().error("Retrieving current installation failed! Error: " +  ex);
-            fail("Retrieving current installation failed! Error: " + ex.getMessage());
+        for (String objId: objectIds) {
+            ParseInstallation.setInstallationObjectId(objId);
+            try {            
+                currentInstallation = ParseInstallation.getCurrentInstallation();
+                objectId = objId;
+                break;
+            } catch (ParseException ex) {
+                Logger.getInstance().error("Retrieving current installation failed for objectId="
+                        + objId + ". Will try other objectIds.\nError: " +  ex);
+            }
         }
+       
         assertNotNull(currentInstallation, "Current installation is null");
         
         try {
@@ -74,7 +83,8 @@ public class ParseInstallationTest extends BaseParseTest {
             assertNotNull(currentInstallation, "Current installation should still be valid after tests");
             assertTrue(currentInstallation.getSubscribedChannels().contains("test"),
                     "[Invariant] After all tests, test installation must still be subscribed to the 'test' channel");
-            // Test installation is used for tracking ParseTestApp test pushes so it should never be removed
+            ParseInstallation.resetCurrentInstallation();
+            // Test installation is used for tracking ParseTestApp test pushes so it should never be deleted
         } catch (ParseException ex) {
             fail("An unexpected error occurred: " + ex);
         } finally {
@@ -229,12 +239,17 @@ public class ParseInstallationTest extends BaseParseTest {
     private void testRetrieveUnsetInstallation() {
         System.out.println("============== testRetrieveUnsetInstallation()");
         
-//        if (ParseInstallation.getCurrentInstallation() != null) {
-//            System.out.println("Skipping test since installation is already initialized");
-//            // This is expected when the test is run via the CN1 test project
-//            // where the test app automatically tries to retrieve the 
-//            // installation ID but should not occur in the Java test project
-//            // Unfortunately, there's no easy way to distinguish the two...
+//        try {
+//            if (ParseInstallation.getCurrentInstallation() != null) {
+//                System.out.println("Skipping test since installation is already initialized");
+//                return;
+//                // This can happen e.g. when the test is run via the CN1 test project
+//                // where the test app automatically tries to retrieve the
+//                // installation ID or when ParseInstallationTest is executed multiple times.
+//                // Unfortunately, there's no easy way to distinguish the two...
+//            }
+//        } catch (ParseException ex) {
+//            System.out.println("Ignoring error while trying to retrieve current installation. Error: " + ex.getMessage());
 //        }
         
         boolean passed = false;

@@ -134,6 +134,7 @@ public class ParseGeoPointTest extends BaseParseTest {
         }
 
         assertNotNull(e, "Expected exception did not occur");
-        assertEqual(e.getMessage(), "There can only be one geopoint field in a class");
+        assertTrue("There can only be one geopoint field in a class".equalsIgnoreCase(e.getMessage())
+            || "Currently, only one GeoPoint field may exist in an object. Adding work when home already exists.".equalsIgnoreCase(e.getMessage()));
     }
 }

@@ -55,8 +55,7 @@ public class ParseInstallation extends ParseObject {
     private static final String KEY_CHANNELS = "channels";
     private static final String KEY_BADGE = "badge";
     private static boolean parseSdkInitialized = false;
-//    private static String installationId = null;
-    private static String objectId =  null;
+    private static String objectId;
 
     private static ParseInstallation currentInstallation;
     
@@ -116,6 +115,13 @@ public class ParseInstallation extends ParseObject {
         }
 
         return currentInstallation;
+    }
+    
+    /**
+     * Sets the current installation to null.
+     */
+    public static void resetCurrentInstallation() {
+        currentInstallation = null;
     }
     
     /**

@@ -143,9 +143,6 @@ public class ParseObjectTest extends BaseParseTest {
         assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());
 
         retrieved = ParseObject.fetch(retrieved.getClassName(), retrieved.getObjectId());
-        for (String key: retrieved.keySet()) {
-            System.out.println("CHOK: " + "key=" + key + "; value=" + retrieved.get(key));
-        }
         retrievedRelation = (ParseRelation<ParseObject>) retrieved.getRelation("opponents");
         assertNotNull(retrievedRelation);
 //        assertEqual(retrievedRelation.getTargetClass(), opponent.getClassName());

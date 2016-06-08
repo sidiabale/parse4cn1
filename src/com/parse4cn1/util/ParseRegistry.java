@@ -54,6 +54,16 @@ public class ParseRegistry {
 
     private static final Map<String, Parse.IParseObjectFactory> objectFactories
         = new HashMap<String, Parse.IParseObjectFactory>();
+    
+    /**
+     * Resets all registered class mappings.
+     * <p>Note that registered externalizable classes are not deregistered as that 
+     * is not supported.
+     */
+    public static void reset() {
+        classNames.clear();
+        objectFactories.clear();
+    }
 
     /**
      * Registers predefined Parse classes like _User and _Role so that they 
