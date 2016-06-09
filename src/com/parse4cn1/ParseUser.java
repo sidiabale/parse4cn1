@@ -291,7 +291,6 @@ public class ParseUser extends ParseObject {
     public void login() throws ParseException {
 
         ParseGetCommand command = new ParseGetCommand(ENDPOINT_LOGIN);
-        command.addJson(false);
         command.addArgument(KEY_USERNAME, getUsername());
         command.addArgument(KEY_PASSWORD, password);
         ParseResponse response = command.perform();
