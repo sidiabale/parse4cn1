@@ -412,7 +412,7 @@ public class ParseInstallation extends ParseObject {
                         }
                         try {
                             // TODO: Add API endpoint
-                            nativeInstallation.initialize(Parse.getApplicationId(), Parse.getClientKey());
+                            nativeInstallation.initialize(Parse.getApiEndpoint(), Parse.getApplicationId(), Parse.getClientKey());
                             parseSdkInitialized = true;
                         } catch (Exception ex) {
                             // Something went wrong but it could be a false alarm

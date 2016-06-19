@@ -28,10 +28,11 @@ public interface ParseInstallationNative extends NativeInterface {
      * <p>This method may raise an exception, e.g., if the Parse SDK is already 
      * initialized and it is the responsibility of the caller to handle any such exceptions.
      * 
+     * @param apiEndpoint The path to the Parse backend, e.g. "your_parse_backend_website_url"/parse.
      * @param applicationId The Parse application ID.
      * @param clientKey The Parse client key.
      */
-    public void initialize(final String applicationId, final String clientKey);
+    public void initialize(final String apiEndpoint, final String applicationId, final String clientKey);
     
     /**
      * Retrieves the installation ID of the current installation. An installation 
