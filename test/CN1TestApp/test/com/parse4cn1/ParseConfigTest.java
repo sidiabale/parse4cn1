@@ -36,14 +36,21 @@ public class ParseConfigTest extends BaseParseTest {
     private void testParseConfig(final ParseConfig config) throws ParseException {
         // Check pre-defined config values
         assertNotNull(config.getParseFile("backgroundImage"));
-        assertTrue(config.getParseFile("backgroundImage").getName().endsWith("Tulips.jpg"));
+        
+//        if (config.getParseFile("backgroundImage") != null) {
+            assertTrue(config.getParseFile("backgroundImage").getName().endsWith("Tulips.jpg"));
+//        }
+        
+//        if (config.getParseGeoPoint("eventLocation") != null) {
+            assertEqual(37.79215, 
+                config.getParseGeoPoint("eventLocation").getLatitude());
+            assertEqual(-122.390335, 
+                config.getParseGeoPoint("eventLocation").getLongitude());
+//        }
+
         assertEqual(config.getList("betaTestUserIds"), 
                 Arrays.asList("2TWipjNjOQ", "80S3HiJ1iZ", "pcjSHaYtaA"));
         assertTrue(config.getBoolean("configSetup"));
-        assertEqual(37.79215, 
-                config.getParseGeoPoint("eventLocation").getLatitude());
-        assertEqual(-122.390335, 
-                config.getParseGeoPoint("eventLocation").getLongitude());
 
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2015);

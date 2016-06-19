@@ -39,13 +39,9 @@ import java.util.Set;
  * @author sidiabale
  */
 public class BaseParseTest extends AbstractTest {
-    public static final String DEFAULT_API_ENDPOINT = "https://parse-parse4cn1.rhcloud.com/parse";
-    public static final String DEFAULT_APP_ID = "myAppId";
-    public static final String DEFAULT_CLIENT_KEY = null;
-    
-    protected static String testApiEndPoint = DEFAULT_API_ENDPOINT;
-    protected static String testAppId = DEFAULT_APP_ID;
-    protected static String testClientKey = DEFAULT_CLIENT_KEY;
+    protected static String testApiEndPoint = "https://parse-parse4cn1.rhcloud.com/parse";
+    protected static String testAppId = "myAppId";
+    protected static String testClientKey = null;
     protected static final String TEST_PASSWORD = "p_n7!-e8";
     
     @Override

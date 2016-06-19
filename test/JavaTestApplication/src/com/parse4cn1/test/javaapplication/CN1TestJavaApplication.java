@@ -116,7 +116,7 @@ public class CN1TestJavaApplication {
      private static int runTests() {
         int status = 0;
         status += runTests("https://api.parse.com/1", "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB");
-        status += runTests(BaseParseTest.DEFAULT_API_ENDPOINT /*openshift*/, BaseParseTest.DEFAULT_APP_ID, BaseParseTest.DEFAULT_CLIENT_KEY);
+        status += runTests("https://parse-parse4cn1.rhcloud.com/parse" /*openshift*/, "myAppId", null);
 //        status += runTests("https://parseapi.back4app.com", "OiTzm1ivZovdmMktQnqk8ajqBVIPgl4dlgUxw4dh", "fHquv9DA0SA5pd7VPO38tNzOrzrgTgfd7yY3nXbo");
         return status;
     }
@@ -283,11 +283,13 @@ public class CN1TestJavaApplication {
         }
 
         int status = 0;
+        System.out.println("\n[TEST RESULT]");
         if (failedTests.isEmpty()) {
-            System.out.println("\nALL tests passed!!!");
+            System.out.println("\nALL tests passed!!! Backend: " + apiEndPoint);
         } else {
             status = failedTests.size();
-            System.err.println("\nThe following tests failed:\n" + failedTests);
+            System.err.println("\nThe following tests failed (backend: " 
+                    + apiEndPoint + ")\n" + failedTests);
         }
         return status;
     }
