@@ -40,6 +40,7 @@ import java.util.Map;
 public class Parse {
 
     public enum EPlatform {
+
         IOS,
         ANDROID,
         WINDOWS_PHONE,
@@ -47,7 +48,7 @@ public class Parse {
         JAVA_ME,
         UNKNOWN
     }
-    
+
     /**
      * An interface for a persistable entity.
      */
@@ -121,7 +122,7 @@ public class Parse {
             } else if (ParseConstants.ENDPOINT_ROLES.equals(className)
                     || ParseConstants.CLASS_NAME_ROLE.equals(className)) {
                 obj = (T) new ParseRole();
-            } else if (ParseConstants.CLASS_NAME_INSTALLATION.equals(className)) { 
+            } else if (ParseConstants.CLASS_NAME_INSTALLATION.equals(className)) {
                 obj = (T) new ParseInstallation();
             } else {
                 obj = (T) new ParseObject(className);
@@ -132,15 +133,17 @@ public class Parse {
             return obj;
         }
     }
-    
+
     /**
      * Retrieves the current platform
-     * @return A literal matching the current platform or {@link EPlatform#UNKNOWN}
+     *
+     * @return A literal matching the current platform or
+     * {@link EPlatform#UNKNOWN}
      */
     public static EPlatform getPlatform() {
         final String platformStr = Display.getInstance().getPlatformName().toLowerCase();
         EPlatform platform = EPlatform.UNKNOWN;
-        
+
         if ("and".equals(platformStr)) {
             platform = EPlatform.ANDROID;
         } else if ("ios".equals(platformStr)) {
@@ -152,17 +155,19 @@ public class Parse {
         } else if ("win".equals(platformStr)) {
             platform = EPlatform.WINDOWS_PHONE;
         }
-        
+
         return platform;
     }
 
     private static String mApplicationId = null;
     private static String mClientKey = null;
+    private static String mApiEndpoint = null;
     private static final DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
 
     /**
-     * Authenticates this client as belonging to your application. 
-     * <p> It also initializes internal state required for the library to function 
+     * Authenticates this client as belonging to your application.
+     * <p>
+     * It also initializes internal state required for the library to function
      * properly, e.g., enabling persistence to CN1 storage.
      * <p>
      * This method must be called before your application can use the Parse
@@ -172,14 +177,17 @@ public class Parse {
      * <code>
      * public class StateMachine extends StateMachineBase {
      *   protected void initVars(Resources res) {
-     *     Parse.initialize(APP_ID, APP_REST_API_ID);
+     *     Parse.initialize(API_ENDPOINT, APP_ID, APP_REST_API_ID);
      *   }
      * }
      * </code>
      * </pre>
      *
-     * @param applicationId The application id provided in the Parse dashboard.
-     * @param clientKey The client key provided in the Parse dashboard.
+     * @param apiEndpoint The path to the Parse backend, e.g.
+     * "your_parse_backend_website_url"/parse.
+     * @param applicationId The application id of your parse backend.
+     * @param clientKey The client key of your parse backend if applicable. If not,
+     * pass null and it will be ignored.
      * <p>
      * <b>Note:</b> Developers are advised to use the CLIENT KEY instead of
      * using the REST API in production code (cf.
@@ -187,9 +195,14 @@ public class Parse {
      * Hence, the latter is not exposed via this library. The same security
      * consideration explains why the MASTER KEY is not exposed either.
      */
-    static public void initialize(String applicationId, String clientKey) {
+    static public void initialize(String apiEndpoint, String applicationId, String clientKey) {
+        mApiEndpoint = apiEndpoint;
         mApplicationId = applicationId;
         mClientKey = clientKey;
+        
+        if (mApiEndpoint != null && mApiEndpoint.endsWith("/")) {
+            mApiEndpoint = mApiEndpoint.substring(0, mApiEndpoint.length() - 2);
+        }
 
         ParseRegistry.registerDefaultSubClasses();
         ParseRegistry.registerExternalizableClasses();
@@ -210,10 +223,19 @@ public class Parse {
         */
         ParsePush.isUnprocessedPushDataAvailable();
     }
+    
+    /**
+     * Retrieves the Parse API endpoint without a trailing '/'.
+     * @return The Parse backend API endpoint if one has been set or null.
+     * @see #initialize(java.lang.String, java.lang.String, java.lang.String) 
+     */
+    static public String getApiEndpoint() {
+        return mApiEndpoint;
+    }
 
     /**
      * @return The application ID if one has been set or null.
-     * @see #initialize(java.lang.String, java.lang.String)
+     * @see #initialize(java.lang.String, java.lang.String, java.lang.String) 
      */
     static public String getApplicationId() {
         return mApplicationId;
@@ -221,33 +243,34 @@ public class Parse {
 
     /**
      * @return The client key if one has been set or null.
-     * @see #initialize(java.lang.String, java.lang.String)
+     * @see #initialize(java.lang.String, java.lang.String, java.lang.String) 
      */
     static public String getClientKey() {
         return mClientKey;
     }
-    
+
     /**
      * Checks if the library has been initialized.
-     * @return {@code true} if the library has been initialized; otherwise, returns {@code false}.
-     * @see #initialize(java.lang.String, java.lang.String) 
+     * <p>
+     * <em>Note:</em> The optional client key (cf. {@link #getClientKey()}) 
+     * is no longer taken into account.
+     * @return {@code true} if the library has been initialized; otherwise,
+     * returns {@code false}.
+     * @see #initialize(java.lang.String, java.lang.String, java.lang.String) 
      */
     static public boolean isInitialized() {
-        return (getApplicationId() != null && getApplicationId().length() > 0
-                && getClientKey() != null && getClientKey().length() > 0);
+        return !(isEmpty(getApiEndpoint()) || isEmpty(getApplicationId()));
     }
 
     /**
      * Creates a valid Parse REST API URL using the predefined
-     * {@link ParseConstants#API_ENDPOINT} and
-     * {@link ParseConstants#API_VERSION}.
+     * {@code apiEndpoint} provided in {@link #initialize(java.lang.String, java.lang.String, java.lang.String)}.
      *
      * @param endPoint The target endpoint/class name.
      * @return The created URL.
      */
     static public String getParseAPIUrl(String endPoint) {
-        return ParseConstants.API_ENDPOINT + "/" + ParseConstants.API_VERSION
-                + "/" + ((endPoint != null) ? endPoint : "");
+        return getApiEndpoint() + "/" + (!isEmpty(endPoint) ? endPoint : "");
     }
 
     /**
@@ -273,7 +296,7 @@ public class Parse {
     public static synchronized Date parseDate(String dateString) {
         boolean parsed = false;
         Date parsedDate = null;
-            
+
         // As at July 2015, the CN1 port for Windows Phone is not quite mature
         // For example, using the SimpleDateFormat.format() method raises an
         // org.xmlvm._nNotYetImplementedException (cf. https://groups.google.com/d/topic/codenameone-discussions/LHZeubG-sf0/discussion)
@@ -283,15 +306,14 @@ public class Parse {
         // "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'" e.g. "2015-07-14T15:55:52.133Z"
         // Note that a regex-based approach is not taken because it's simply
         // not necessary and regexes will mean yet another cn1lib dependency.
-
-        if (dateString.length() == 24) { 
+        if (dateString.length() == 24) {
             try {
-                int year  = Integer.valueOf(dateString.substring(0, 4));
+                int year = Integer.valueOf(dateString.substring(0, 4));
                 int month = Integer.valueOf(dateString.substring(5, 7));
-                int day   = Integer.valueOf(dateString.substring(8, 10));
-                int hour  = Integer.valueOf(dateString.substring(11, 13));
-                int min   = Integer.valueOf(dateString.substring(14, 16));
-                int sec   = Integer.valueOf(dateString.substring(17, 19));
+                int day = Integer.valueOf(dateString.substring(8, 10));
+                int hour = Integer.valueOf(dateString.substring(11, 13));
+                int min = Integer.valueOf(dateString.substring(14, 16));
+                int sec = Integer.valueOf(dateString.substring(17, 19));
                 int milli = Integer.valueOf(dateString.substring(20, 23));
 
                 Calendar cal = Calendar.getInstance();
@@ -302,7 +324,7 @@ public class Parse {
                 cal.set(Calendar.MINUTE, min);
                 cal.set(Calendar.SECOND, sec);
                 cal.set(Calendar.MILLISECOND, milli);
-                
+
                 parsedDate = cal.getTime();
                 parsed = true;
             } catch (NumberFormatException ex) {
@@ -310,16 +332,16 @@ public class Parse {
                 parsed = false;
             }
         }
-            
+
         try {
-            if (!parsed) { 
+            if (!parsed) {
                 // Fallback to default and hope for the best
                 parsedDate = dateFormat.parse(dateString);
             }
         } catch (com.codename1.l10n.ParseException e) {
             parsedDate = null;
         }
-        
+
         return parsedDate;
     }
 
@@ -399,12 +421,17 @@ public class Parse {
         return buffer.toString();
     }
     
+    public static boolean isEmpty(String str) {
+        return (str == null || str.length() == 0);
+    }
+
     /**
-     * Retrieved the default ID to used for serialization of objects.
-     * @return The serialization ID which is the integer value of {@link ParseConstants#API_VERSION}.
-     * @see com.codename1.io.Externalizable#getVersion() 
+     * Retrieves the default ID to be used for serialization of objects.
+     *
+     * @return A default serialization id (=1).
+     * @see com.codename1.io.Externalizable#getVersion()
      */
     public static int getSerializationVersion() {
-        return Integer.valueOf(ParseConstants.API_VERSION);
+        return 1;
     }
 }

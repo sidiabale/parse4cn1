@@ -16,6 +16,7 @@
 
 package com.parse4cn1;
 
+import com.codename1.io.Log;
 import com.codename1.io.Storage;
 import com.codename1.testing.AbstractTest;
 import com.parse4cn1.util.ExternalizableParseObject;
@@ -38,9 +39,9 @@ import java.util.Set;
  * @author sidiabale
  */
 public class BaseParseTest extends AbstractTest {
-
-    protected static final String TEST_APPLICATION_ID = "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8";
-    protected static final String TEST_CLIENT_KEY = "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB";
+    protected static String testApiEndPoint = "https://parse-parse4cn1.rhcloud.com/parse";
+    protected static String testAppId = "myAppId";
+    protected static String testClientKey = null;
     protected static final String TEST_PASSWORD = "p_n7!-e8";
     
     @Override
@@ -80,6 +81,12 @@ public class BaseParseTest extends AbstractTest {
         return true;
     }
     
+    public static void setBackend(String apiEndPoint, String appId, String clientKey) {
+       testApiEndPoint = apiEndPoint;
+       testAppId = appId;
+       testClientKey = clientKey;
+    }
+    
     /**
      * Initializes the parse application ID and client key.
      * Update with your own keys to avoid the chance of false negatives 
@@ -91,13 +98,14 @@ public class BaseParseTest extends AbstractTest {
      */
     protected final void init() {
         Logger.getInstance().info("Initializing " + getClass().getCanonicalName());
-        Parse.initialize(TEST_APPLICATION_ID, TEST_CLIENT_KEY);
+        Log.setLevel(Log.DEBUG);
+        Parse.initialize(testApiEndPoint, testAppId, testClientKey);
     }
     /**
      * Resets the parse application ID and client key.
      */
     protected final void reset() {
-        Parse.initialize(null, null);
+        Parse.initialize(null, null, null);
     }
     
     protected void deleteAllUsers() {

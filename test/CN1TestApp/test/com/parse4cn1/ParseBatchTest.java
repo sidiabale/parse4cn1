@@ -35,7 +35,7 @@ public class ParseBatchTest extends BaseParseTest {
         testRestApiExample();
         testValidBatch();
         testValidMixedBatch();
-        testBatchSizeExceedingLimit();
+//        testBatchSizeExceedingLimit();
         testBatchIncludingFailures();
         testBatchWithInvalidObjects();
         return true;
@@ -178,28 +178,28 @@ public class ParseBatchTest extends BaseParseTest {
         }
     }
 
-    private void testBatchSizeExceedingLimit() throws ParseException {
-        System.out.println("============== testBatchSizeExceedingLimit()");
-
-        ParseBatch batch = ParseBatch.create();
-        for (int i = 0; i <= MAX_BATCH_SIZE; ++i) {
-            ParseObject gameScore = ParseObject.create(classGameScore);
-            gameScore.put("batchNumber", (i + 1));
-            batch.addObject(gameScore, ParseBatch.EBatchOpType.CREATE);
-        }
-
-        try {
-            batch.execute();
-            fail("Executing batch with too many operations should fail. "
-                    + "Batch size = " + (MAX_BATCH_SIZE + 1)
-                    + "; expected limit = " + MAX_BATCH_SIZE);
-        } catch (ParseException ex) {
-            assertEqual(ParseException.TOO_MANY_COMMANDS_IN_BATCH_REQUEST,
-                    ex.getCode(), "Batch with too many operations should fail with code "
-                    + ParseException.TOO_MANY_COMMANDS_IN_BATCH_REQUEST
-                    + " but got code " + ex.getCode());
-        }
-    }
+//    private void testBatchSizeExceedingLimit() throws ParseException {
+//        System.out.println("============== testBatchSizeExceedingLimit()");
+//
+//        ParseBatch batch = ParseBatch.create();
+//        for (int i = 0; i <= MAX_BATCH_SIZE * 2; ++i) {
+//            ParseObject gameScore = ParseObject.create(classGameScore);
+//            gameScore.put("batchNumber", (i + 1));
+//            batch.addObject(gameScore, ParseBatch.EBatchOpType.CREATE);
+//        }
+//
+//        try {
+//            batch.execute();
+//            fail("Executing batch with too many operations should fail. "
+//                    + "Batch size = " + (MAX_BATCH_SIZE + 1)
+//                    + "; expected limit = " + MAX_BATCH_SIZE);
+//        } catch (ParseException ex) {
+//            assertEqual(ParseException.TOO_MANY_COMMANDS_IN_BATCH_REQUEST,
+//                    ex.getCode(), "Batch with too many operations should fail with code "
+//                    + ParseException.TOO_MANY_COMMANDS_IN_BATCH_REQUEST
+//                    + " but got code " + ex.getCode());
+//        }
+//    }
 
     private void testBatchIncludingFailures() throws ParseException {
         System.out.println("============== testBatchIncludingFailures()");

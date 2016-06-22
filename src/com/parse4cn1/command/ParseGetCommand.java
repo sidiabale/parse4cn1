@@ -29,6 +29,8 @@ public class ParseGetCommand extends ParseCommand {
 
     private final String endPoint;
     private String objectId;
+        
+    protected boolean addJson;
 
     public ParseGetCommand(String endPoint, String objectId) {
         this.endPoint = endPoint;
@@ -41,13 +43,9 @@ public class ParseGetCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(addJson);
+        setupDefaultHeaders();
         request.setPost(false);
         request.setHttpMethod("GET");
         request.setUrl(getUrl(endPoint, objectId));
-    }
-
-    public void addJson(boolean addJson) {
-        this.addJson = addJson;
     }
 }

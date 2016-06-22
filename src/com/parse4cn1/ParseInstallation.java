@@ -15,6 +15,8 @@
  */
 package com.parse4cn1;
 
+import ca.weblite.codename1.json.JSONException;
+import ca.weblite.codename1.json.JSONObject;
 import com.codename1.system.NativeLookup;
 import com.parse4cn1.nativeinterface.ParseInstallationNative;
 import com.parse4cn1.nativeinterface.ParsePushNative;
@@ -22,6 +24,7 @@ import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -42,7 +45,7 @@ import java.util.List;
  * access via the CN1 native interface mechanism. However, since the Windows 
  * Phone port does not support native interfaces, creation is the responsibility
  * of the user who should make the corresponding installation id available via 
- * {@link ParseInstallation#setInstallationId(java.lang.String)}.
+ * {@link ParseInstallation#setInstallationObjectId(java.lang.String)}.
  * 
  */
 public class ParseInstallation extends ParseObject {
@@ -52,7 +55,7 @@ public class ParseInstallation extends ParseObject {
     private static final String KEY_CHANNELS = "channels";
     private static final String KEY_BADGE = "badge";
     private static boolean parseSdkInitialized = false;
-    private static String installationId = null;
+    private static String objectId;
 
     private static ParseInstallation currentInstallation;
     
@@ -60,7 +63,7 @@ public class ParseInstallation extends ParseObject {
      * Retrieves the current installation. On Android and iOS, a new installation 
      * is created, persisted to the Parse backend and returned, if one is not present.
      * On Windows Phone and any other platform, the installation is retrieved from the backend if its
-     * installationId has been specified via {@link #setInstallationId(java.lang.String)}.
+     * objectId has been specified via {@link #setInstallationObjectId(java.lang.String)}.
      * <p>
      * <em>Note</em>Windows Phone is a special case because native interfaces are not (yet) 
      * supported so creating the installation via the .net native Parse SDK is not feasible.
@@ -75,7 +78,7 @@ public class ParseInstallation extends ParseObject {
         
         if (currentInstallation == null) {
             final String id;
-            id = retrieveInstallationId();
+            id = retrieveObjectId();
             if (id != null) {
               
                 try {
@@ -115,18 +118,25 @@ public class ParseInstallation extends ParseObject {
     }
     
     /**
-     * Sets the ID of the current installation.
+     * Sets the current installation to null.
+     */
+    public static void resetCurrentInstallation() {
+        currentInstallation = null;
+    }
+    
+    /**
+     * Sets the object ID of the current installation.
      * <p>This method is intended for use on platforms where parse4cn1 cannot 
-     * retrieve the installation ID e.g. because native interfaces are not supported.
+     * retrieve the installation object ID e.g. because native interfaces are not supported.
      * It can also be used in unit tests for initializing the installation ID
      * <p><em>Note:</em> It is assumed that at the time this method is invoked,
      * the corresponding ParseInstallation already exists in the Parse backend.
-     * @param installationId The current installation's ID to be set. 
+     * @param objectId The current installation's ID to be set. 
      */
-    public static void setInstallationId(final String installationId) {
-        Logger.logBuffered("setInstallationId(): Installation ID explicitly set to " 
-                + installationId);
-        ParseInstallation.installationId = installationId;
+    public static void setInstallationObjectId(final String objectId) {
+        Logger.logBuffered("setInstallationObjectId(): Installation object ID explicitly set to " 
+                + objectId);
+        ParseInstallation.objectId = objectId;
     }
     
     /**
@@ -151,7 +161,7 @@ public class ParseInstallation extends ParseObject {
     }
 
     /**
-     * Returns the unique ID of this installation as contained in the
+     * Returns the unique ID of this installation object as contained in the
      * {@code ParseInstallation} object.
      *
      * @return A UUID that represents this device or null if one is not
@@ -159,7 +169,7 @@ public class ParseInstallation extends ParseObject {
      * @throws com.parse4cn1.ParseException if the installation Id cannot be retrieved.
      */
     public String getInstallationId() throws ParseException {
-        return retrieveInstallationId();
+        return getString(KEY_INSTALLATION_ID);
     }
     
     /**
@@ -310,12 +320,17 @@ public class ParseInstallation extends ParseObject {
 
     private void saveChannels(final List<String> channels) throws ParseException {
         put(KEY_CHANNELS, channels);
-       // For some strange reason, an error 135 (missing fields) occurs on some platforms (e.g. win phone)
+        // For some strange reason, an error 135 (missing fields) occurs on some platforms (e.g. win phone)
         // if the following fields (which ironically are already in the Parse installation 
         // retrieved from the server) are not included in the request.
         // Seems to be a Parse issue (see https://goo.gl/cwwZdz) but this approach works around it.
-        if (installationId != null) {
-            put(KEY_INSTALLATION_ID, installationId);
+        try {
+            String installationId = getInstallationId();
+            if (installationId != null) {
+                put(KEY_INSTALLATION_ID, installationId);
+            }
+        } catch (ParseException ex) {
+            // Ignore
         }
         
         if (getString(KEY_DEVICE_TYPE) != null) {
@@ -341,43 +356,48 @@ public class ParseInstallation extends ParseObject {
     }
     
     /**
-     * Executes a query for retrieving an installation by ID.
-     * @param installationId The installation ID of the installation to be queried for.
+     * Executes a query for retrieving an installation by its object ID.
+     * @param objectId The installation object's ID of the installation to be queried for.
      * @return The retrieved installation.
      * @throws ParseException if no installation is found or multiple installations are found.
      */
-    private static ParseInstallation fetchInstallation(final String installationId) throws ParseException {
+    private static ParseInstallation fetchInstallation(final String objectId) throws ParseException {
+        if (Parse.isEmpty(objectId)) {
+            return null;
+        }
 
-        final ParseQuery<ParseInstallation> query
-                = ParseInstallation.getQuery().whereEqualTo(KEY_INSTALLATION_ID, installationId);
-        final List<ParseInstallation> results = query.find();
-        if (results.size() == 1) {
-            return results.get(0);
-        } else if (results.size() > 1) {
-            throw new ParseException(ParseException.PARSE4CN1_MULTIPLE_INSTALLATIONS_FOUND,
-                    "Found multiple installations with ID "
-                    + installationId + " (installation IDs must be unique)");
-        } else {
-            throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_NOT_FOUND,
-                    "Found no installation with ID " + installationId);
+        // [16-05-16] Call below now fails with error:
+        // "Clients aren't allowed to perform the find operation on the installation collection."
+        // because the operation now requires the master key --> use cloud code
+            
+        final HashMap<String, String> params = new HashMap<String, String>();
+        params.put("objectId", objectId);
+        String response = ParseCloud.callFunction("getInstallationByObjectId", params);
+
+        ParseInstallation installation = ParseInstallation.create(ParseConstants.CLASS_NAME_INSTALLATION);
+        try {
+            installation.setData(new JSONObject(response));
+            return installation;
+        } catch (JSONException ex) {
+            throw new ParseException("Retrieval of installation failed", ex);
         }
     }
     
     /**
-     * Retrieves the installation id.
+     * Retrieves the installation object's id.
      * <p> For Android and iOS, a native call is made to the Parse SDK; for 
-     * every other platform, the previously set installation ID is returned, if any.
+     * every other platform, the previously set installation object's ID is returned, if any.
      * <p>
-     * <b>Note: </b>If the installation ID was explicitly set (cf. {@link #setInstallationId(java.lang.String)},
+     * <b>Note: </b>If the installation object's ID was explicitly set (cf. {@link #setInstallationObjectId(java.lang.String)},
      * it will always take precedence regardless of the platform (so don't use the setter on 
      * Android and iOS!).
      * 
-     * @return The installation id if found; otherwise null.
+     * @return The installation object's id if found; otherwise null.
      * @throws ParseException if anything goes wrong
      */
-    private static String retrieveInstallationId() throws ParseException {
-        if (installationId != null) {
-            return installationId;
+    private static String retrieveObjectId() throws ParseException {
+        if (objectId != null) {
+            return objectId;
         }
         
         if (Parse.getPlatform() == Parse.EPlatform.ANDROID
@@ -391,7 +411,8 @@ public class ParseInstallation extends ParseObject {
                            throw new ParseException("The Parse library is not yet initialized.", null); 
                         }
                         try {
-                            nativeInstallation.initialize(Parse.getApplicationId(), Parse.getClientKey());
+                            // TODO: Add API endpoint
+                            nativeInstallation.initialize(Parse.getApiEndpoint(), Parse.getApplicationId(), Parse.getClientKey());
                             parseSdkInitialized = true;
                         } catch (Exception ex) {
                             // Something went wrong but it could be a false alarm
@@ -405,8 +426,9 @@ public class ParseInstallation extends ParseObject {
                         }
                     }
                     
-                    installationId = nativeInstallation.getInstallationId();
-                    parseSdkInitialized = (installationId != null && installationId.length() > 0);
+                    // TODO: Change native api to retrieve objectId() instead since installation ID requires master key
+                    objectId = nativeInstallation.getInstallationId();
+                    parseSdkInitialized = !Parse.isEmpty(objectId);
                 } catch (Exception ex) {
                    throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
                            "Failed to retrieve installation ID." +
@@ -418,6 +440,6 @@ public class ParseInstallation extends ParseObject {
             }
         }
         
-        return installationId;
+        return objectId;
     }
 }

@@ -31,6 +31,7 @@ public class ParseTest extends BaseParseTest {
         testGetParseApiUrl();
         testIsReservedKey();
         testJoin();
+        testIsEmpty();
         return true;
     }
     
@@ -40,17 +41,17 @@ public class ParseTest extends BaseParseTest {
         assertNull(Parse.getClientKey(), "Test app client key should be null");
         
         init();
-        assertEqual(TEST_APPLICATION_ID, Parse.getApplicationId(), 
+        assertEqual(testAppId, Parse.getApplicationId(), 
                 "Test app ID is not initialized");
-        assertEqual(TEST_CLIENT_KEY, Parse.getClientKey(), 
+        assertEqual(testClientKey, Parse.getClientKey(), 
                 "Test app client key is not initialized");
     }
     
     private void testGetParseApiUrl() {
-        assertEqual("https://api.parse.com/1/", Parse.getParseAPIUrl(null));
-        assertEqual("https://api.parse.com/1/", Parse.getParseAPIUrl(""));
-        assertEqual("https://api.parse.com/1/classes", Parse.getParseAPIUrl("classes"));
-        assertEqual("https://api.parse.com/1/classes/myEntity", Parse.getParseAPIUrl("classes/myEntity"));
+        assertEqual(testApiEndPoint + "/", Parse.getParseAPIUrl(null));
+        assertEqual(testApiEndPoint + "/", Parse.getParseAPIUrl(""));
+        assertEqual(testApiEndPoint + "/classes", Parse.getParseAPIUrl("classes"));
+        assertEqual(testApiEndPoint + "/classes/myEntity", Parse.getParseAPIUrl("classes/myEntity"));
     }
     
     private void testIsReservedKey() {
@@ -78,5 +79,12 @@ public class ParseTest extends BaseParseTest {
         } catch (Exception ex) {
             assertBool(true, ex.getMessage());
         }
+    }
+    
+    private void testIsEmpty() {
+        assertTrue(Parse.isEmpty(null));
+        assertTrue(Parse.isEmpty(""));
+        assertFalse(Parse.isEmpty(" "));
+        assertFalse(Parse.isEmpty("Non-empty"));
     }
 }

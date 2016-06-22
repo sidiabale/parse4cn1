@@ -19,6 +19,7 @@ import com.codename1.io.Log;
 import com.codename1.ui.Display;
 import com.parse4cn1.ParseException;
 import com.parse4cn1.BaseParseTest;
+import com.parse4cn1.util.ParseRegistry;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
@@ -111,8 +112,16 @@ public class CN1TestJavaApplication {
         
         return status;
     }
+    
+     private static int runTests() {
+        int status = 0;
+        status += runTests("https://api.parse.com/1", "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB");
+        status += runTests("https://parse-parse4cn1.rhcloud.com/parse" /*openshift*/, "myAppId", null);
+//        status += runTests("https://parseapi.back4app.com", "OiTzm1ivZovdmMktQnqk8ajqBVIPgl4dlgUxw4dh", "fHquv9DA0SA5pd7VPO38tNzOrzrgTgfd7yY3nXbo");
+        return status;
+    }
 
-    private static int runTests() {
+    private static int runTests(String apiEndPoint, String appId, String clientKey) {
         // Auto-detect defined test classes
         // cf. lib/reflections-0.9.9-RC1-uberjar.jar and its dependencies 
         // (lib/javassist.jar, lib/guava-18.0.jar)
@@ -121,19 +130,32 @@ public class CN1TestJavaApplication {
                 = reflections.getSubTypesOf(BaseParseTest.class);
 
         final int testCount = testClasses.size();
-        System.out.println("Testing Java application based on CN1 Parse port!!!");
+        System.out.println("Testing Java application based on CN1 Parse port using backend: " + apiEndPoint);
         System.out.println("About to run " + testCount + " tests...\n");
 //        com.parse4cn1.util.Logger.getInstance().setLogLevel(Log.DEBUG); // Show extra details e.g. to debug failing test
 
+        ParseRegistry.reset();
+        BaseParseTest.setBackend(apiEndPoint, appId, clientKey);
+        
+        
         int counter = 1;
         List<String> failedTests = new ArrayList<String>();
         for (Class<? extends BaseParseTest> testClass : testClasses) {
-            
-//            /*
-//             Filter for running subsets of tests if necessary (particularly useful since 
-//             at the time of writing, the CN1 test runner lacks this functionality
-//             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
-//             */
+         
+        /*
+            Openshift
+            The following tests failed and got modified (changes need to be documented):
+            com.parse4cn1.ParseUserTest, 
+            com.parse4cn1.ParseInstallationTest: Master key (https://parse.com/docs/rest/guide#push-notifications-querying-installations) 
+            com.parse4cn1.ParseQueryTest: GeoQueries https://github.com/ParsePlatform/parse-server/issues/1592
+            ]
+        */
+        
+            /*
+             Filter for running subsets of tests if necessary (particularly useful since 
+             at the time of writing, the CN1 test runner lacks this functionality
+             see: https://groups.google.com/d/msg/codenameone-discussions/WVO8xrRvo3I/dklQXs6m4v4J)
+             */
 //            if (!testClass.getCanonicalName().endsWith("ParseInstallationTest")) {
 //                System.err.println("Ignoring test " + testClass.getCanonicalName());
 //                continue;
@@ -170,11 +192,13 @@ public class CN1TestJavaApplication {
         }
 
         int status = 0;
+        System.out.println("\n[TEST RESULT]");
         if (failedTests.isEmpty()) {
-            System.out.println("\nALL tests passed!!!");
+            System.out.println("\nALL tests passed!!! Backend: " + apiEndPoint);
         } else {
             status = failedTests.size();
-            System.err.println("\nThe following tests failed:\n" + failedTests);
+            System.err.println("\nThe following tests failed (backend: " 
+                    + apiEndPoint + ")\n" + failedTests);
         }
         return status;
     }

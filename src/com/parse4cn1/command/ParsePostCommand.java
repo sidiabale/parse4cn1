@@ -41,7 +41,7 @@ public class ParsePostCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(addJson);
+        setupDefaultHeaders();
         request.setPost(true);
         request.setHttpMethod("POST");
         request.setUrl(getUrl(endPoint, objectId));

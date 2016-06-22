@@ -24,9 +24,6 @@ package com.parse4cn1;
  */
 public class ParseConstants {
 
-    public static final String API_ENDPOINT = "https://api.parse.com";
-    public static final String API_VERSION = "1";
-
     public static final String HEADER_CONTENT_TYPE = "Content-Type";
     public static final String HEADER_APPLICATION_ID = "X-Parse-Application-Id";
     public static final String HEADER_CLIENT_KEY = "X-Parse-Client-Key";

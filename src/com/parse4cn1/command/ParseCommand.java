@@ -47,8 +47,6 @@ public abstract class ParseCommand {
     private final JSONObject data = new JSONObject();
     private final JSONObject headers = new JSONObject();
     private ProgressCallback progressCallback;
-    
-    protected boolean addJson;
 
     /**
      * Sets up the network connection request that will be issued when performing 
@@ -115,7 +113,7 @@ public abstract class ParseCommand {
                 try {
                     request.addArgument(key, data.get(key).toString());
                 } catch (JSONException ex) {
-                    Logger.getInstance().error("Error parsing key '" + key + "' in command data. Error: " + ex);
+                    LOGGER.error("Error parsing key '" + key + "' in command data. Error: " + ex);
                     throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
                 }
             }
@@ -143,7 +141,7 @@ public abstract class ParseCommand {
         try {
             headers.put(key, value);
         } catch (JSONException ex) {
-            Logger.getInstance().error("Unable to add header. Error: " + ex);
+            LOGGER.error("Unable to add header. Error: " + ex);
             throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
     }
@@ -192,24 +190,19 @@ public abstract class ParseCommand {
     /**
      * Adds the default headers (e.g., {@link ParseConstants#HEADER_APPLICATION_ID}
      * and {@link ParseConstants#HEADER_CLIENT_KEY}) associated with Parse REST API calls.
-     * 
-     * @param addJson If true, the corresponding content-type header field is also set.
+     * The content type is also set to {@link ParseConstants#CONTENT_TYPE_JSON} by default
+     * and can be overruled in {@link #setUpRequest(com.codename1.io.ConnectionRequest)}.
      * @throws ParseException if anything goes wrong.
      */
-    protected void setupDefaultHeaders(boolean addJson) throws ParseException {
+    protected void setupDefaultHeaders() throws ParseException {
         try {
             headers.put(ParseConstants.HEADER_APPLICATION_ID, Parse.getApplicationId());
             headers.put(ParseConstants.HEADER_CLIENT_KEY, Parse.getClientKey());
-            if (addJson) {
-                headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
-            }
-            if (!data.has(ParseConstants.FIELD_SESSION_TOKEN) && ParseUser.getCurrent() != null) {
-                data.put(ParseConstants.FIELD_SESSION_TOKEN, ParseUser.getCurrent().getSessionToken());
-            }
-            if (data.has(ParseConstants.FIELD_SESSION_TOKEN)) {
-                headers.put(ParseConstants.HEADER_SESSION_TOKEN,
-                        data.getString(ParseConstants.FIELD_SESSION_TOKEN));
-            } 
+            // Although doc. states that json content type is only needed for PUT and POST
+            // requests, it turns out that other commands that didn't require 
+            // an explicit json content type in Parse.com now require it in the open source Parse server.
+            // Hence, it is set here in the base command class by default.
+            headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
@@ -223,7 +216,7 @@ public abstract class ParseCommand {
      * @return The Parse API URL of the format {@code https://api.parse.com/<endpoint>[/<objectId>]}.
      */
     static protected String getUrl(final String endPoint, final String objectId) {
-        String url = Parse.getParseAPIUrl(endPoint) + (objectId != null ? "/" + objectId : "");
+        String url = Parse.getParseAPIUrl(endPoint) + (!Parse.isEmpty(objectId) ? "/" + objectId : "");
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Request URL: " + url);

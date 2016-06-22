@@ -36,24 +36,30 @@ public class ParseConfigTest extends BaseParseTest {
     private void testParseConfig(final ParseConfig config) throws ParseException {
         // Check pre-defined config values
         assertNotNull(config.getParseFile("backgroundImage"));
-        assertEqual(config.getParseFile("backgroundImage").getName(), 
-                "tfss-0086e03d-660f-4a53-bee1-6dfb0e1d6906-Tulips.jpg");
+        
+        // Parse Server version 2.2.7 <= v <= 2.2.13 doesn't save files and geo points correctly
+        // Hence the following tests will fail for any of the specified versions.
+        // However, they pass on Parse.com and Parse Server version 2.2.6
+        // See also: https://github.com/ParsePlatform/parse-server/issues/2103
+        assertTrue(config.getParseFile("backgroundImage").getName().endsWith("Tulips.jpg"));
+
+        assertEqual(37.79215, 
+            config.getParseGeoPoint("eventLocation").getLatitude());
+        assertEqual(-122.390335, 
+            config.getParseGeoPoint("eventLocation").getLongitude());
+
         assertEqual(config.getList("betaTestUserIds"), 
                 Arrays.asList("2TWipjNjOQ", "80S3HiJ1iZ", "pcjSHaYtaA"));
         assertTrue(config.getBoolean("configSetup"));
-        assertEqual(37.79215, 
-                config.getParseGeoPoint("eventLocation").getLatitude());
-        assertEqual(-122.390335, 
-                config.getParseGeoPoint("eventLocation").getLongitude());
 
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.YEAR, 2015);
         cal.set(Calendar.MONTH, 4); // = May; month is 0-based.
-        cal.set(Calendar.DAY_OF_MONTH, 17);
+        cal.set(Calendar.DAY_OF_MONTH, 16);
         cal.set(Calendar.HOUR_OF_DAY, 18);
         cal.set(Calendar.MINUTE, 28);
-        cal.set(Calendar.SECOND, 03);
-        cal.set(Calendar.MILLISECOND, 721);
+        cal.set(Calendar.SECOND, 0);
+        cal.set(Calendar.MILLISECOND, 0);
 
         assertEqual(0, cal.getTime().compareTo(config.getDate("lastUpdate")));
         assertEqual("Have fun!", config.getString("welcomeMessage"));

@@ -35,12 +35,18 @@ public class ParseGeoPointTest extends BaseParseTest {
     private void testParseGeoPointConstraints() throws ParseException {
         System.out.println("============== testParseGeoPointConstraints()");
         
+        /*
+        // [16-05-16] Lat./long. range constraints are no longer enforced
+        //            although they're still mentioned in the API doc.
+        //            https://parse.com/docs/rest/guide#geopoints-caveats
         checkLatLonConstraint(null, -91, 0, "Latitude must be in [-90, 90]: -91.0");
         checkLatLonConstraint(null, 91, 0, "Latitude must be in [-90, 90]: 91.0");
         checkLatLonConstraint(null, 0, 182, "Longitude must be in [-180, 180): 182.0");
         checkLatLonConstraint(null, 0, -187, "Longitude must be in [-180, 180): -187.0");
         checkLatLonConstraint(new ParseGeoPoint(), -93, 0, "Latitude must be in [-90, 90]: -93.0");
         checkLatLonConstraint(new ParseGeoPoint(), 0, 181, "Longitude must be in [-180, 180): 181.0");
+        */
+        
         checkMultipleGeoPointsInParseObjectNotAllowed();
     }
     
@@ -128,6 +134,7 @@ public class ParseGeoPointTest extends BaseParseTest {
         }
 
         assertNotNull(e, "Expected exception did not occur");
-        assertTrue(e.getMessage().startsWith("Currently, only one GeoPoint field may exist in an object"));
+        assertTrue("There can only be one geopoint field in a class".equalsIgnoreCase(e.getMessage())
+            || "Currently, only one GeoPoint field may exist in an object. Adding work when home already exists.".equalsIgnoreCase(e.getMessage()));
     }
 }

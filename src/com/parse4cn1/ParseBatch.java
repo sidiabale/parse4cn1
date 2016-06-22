@@ -18,6 +18,8 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
+import com.codename1.io.Util;
+import com.codename1.util.StringUtil;
 import com.parse4cn1.command.ParseCommand;
 import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
@@ -96,7 +98,9 @@ public class ParseBatch {
     public ParseBatch addObjects(final Collection<? extends ParseObject> objects,
             final EBatchOpType opType) throws ParseException {
 
-        final String pathPrefix = "/" + ParseConstants.API_VERSION + "/";
+        final String urlPath =  StringUtil.replaceAll(Util.getURLPath(Parse.getApiEndpoint()), "/", "");
+        final String pathPrefix = "/" + (!Parse.isEmpty(urlPath) ? urlPath + "/" : "");
+
         final String method = opTypeToHttpMethod(opType);
         
         for (ParseObject object : objects) {
@@ -105,7 +109,7 @@ public class ParseBatch {
             try {
                 objData.put("method", method);
                 objData.put("path", pathPrefix + getObjectPath(object, opType));
-                objData.put("data", object.getParseData());
+                objData.put("body", object.getParseData());
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, 
                         ParseException.ERR_PREPARING_REQUEST, ex);

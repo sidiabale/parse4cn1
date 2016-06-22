@@ -43,7 +43,7 @@ public class ParsePutCommand extends ParseCommand {
 
     @Override
     void setUpRequest(ConnectionRequest request) throws ParseException {
-        setupDefaultHeaders(true);
+        setupDefaultHeaders();
         request.setPost(true);
         request.setHttpMethod("PUT");
         request.setUrl(getUrl(endPoint, objectId));

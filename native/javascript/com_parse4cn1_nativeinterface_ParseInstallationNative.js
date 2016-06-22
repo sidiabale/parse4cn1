@@ -2,7 +2,7 @@
 
 var o = {};
 
-    o.initialize__java_lang_String_java_lang_String = function(param1, param2, callback) {
+    o.initialize__java_lang_String_java_lang_String_java_lang_String = function(param1, param2, param3, callback) {
         callback.error(new Error("Not implemented yet"));
     };
 
