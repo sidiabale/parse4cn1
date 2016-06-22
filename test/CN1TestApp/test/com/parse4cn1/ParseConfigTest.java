@@ -37,16 +37,16 @@ public class ParseConfigTest extends BaseParseTest {
         // Check pre-defined config values
         assertNotNull(config.getParseFile("backgroundImage"));
         
-//        if (config.getParseFile("backgroundImage") != null) {
-            assertTrue(config.getParseFile("backgroundImage").getName().endsWith("Tulips.jpg"));
-//        }
-        
-//        if (config.getParseGeoPoint("eventLocation") != null) {
-            assertEqual(37.79215, 
-                config.getParseGeoPoint("eventLocation").getLatitude());
-            assertEqual(-122.390335, 
-                config.getParseGeoPoint("eventLocation").getLongitude());
-//        }
+        // Parse Server version 2.2.7 <= v <= 2.2.13 doesn't save files and geo points correctly
+        // Hence the following tests will fail for any of the specified versions.
+        // However, they pass on Parse.com and Parse Server version 2.2.6
+        // See also: https://github.com/ParsePlatform/parse-server/issues/2103
+        assertTrue(config.getParseFile("backgroundImage").getName().endsWith("Tulips.jpg"));
+
+        assertEqual(37.79215, 
+            config.getParseGeoPoint("eventLocation").getLatitude());
+        assertEqual(-122.390335, 
+            config.getParseGeoPoint("eventLocation").getLongitude());
 
         assertEqual(config.getList("betaTestUserIds"), 
                 Arrays.asList("2TWipjNjOQ", "80S3HiJ1iZ", "pcjSHaYtaA"));
