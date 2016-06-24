@@ -84,7 +84,7 @@ The Parse REST API is quite extensive. As such, we maintain an overview of the f
 ### Release Planning ###
 _Unscheduled_ (read: Feel free to contribute!)
 
-* Installations and push notification support for Parse Server
+* Installations and push notification support for Parse Server (if you're interested in this functionality in the short term, kindly fill the short survey at the end of [this blog post](http://www.smash-ict.com/blog/parse4cn1-is-now-parse-server-ready/))
 * Analytics
 * Roles
 * Sessions
