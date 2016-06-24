@@ -98,6 +98,7 @@ Parse Server is actively in development. As such, there are bugs/missing feature
 
 | Issue | Type | Implications |
 |:-------|:-------:|:-------	|
+|ParseCloud function calls requiring a session token fail|`parse4cn1` bug?|Session token header must be explicitly added to the post request as suggested [here](https://github.com/sidiabale/parse4cn1/issues/19#issuecomment-228212977). This issue will be fixed in `parse4cn1` a.s.a.p.|
 |Files and GeoPoints are not correctly saved in ParseConfig (see this [issue](https://github.com/ParsePlatform/parse-server/issues/2103))|Bug|Creating ParseConfig objects of type File or GeoPoint using the affected Parse Server versions will not work as expected. Also, the `parse4cn1` ParseConfigTest will fail when run against a backend in which the ParseConfig test objects were initialized using any of the affected Parse Server versions|
 | Master key is required for retrieving installations| Change w.r.t. Parse.com | Since `parse4cn1` does not support any operations requiring the master key, retrieving installations is now realized via cloud code (see this [comment](https://github.com/sidiabale/parse4cn1/issues/18#issuecomment-227690891)) |
 | Master key is required for sending push notifications from clients (see this [page](https://github.com/ParsePlatform/parse-server/wiki/Compatibility-with-Hosted-Parse#client-push))| Change w.r.t. Parse.com | Since `parse4cn1` does not support any operations requiring the master key, client-triggered push notifications will have to be realized via cloud code|
