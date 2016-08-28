@@ -6,7 +6,7 @@ import com.codename1.impl.android.AndroidNativeUtil;
 
 public class ParseInstallationNativeImpl {
     public void initialize(String applicationId, String clientKey, String parseUrl) {
-        Parse.initialize(new Parse.Configuration.Builder(myContext)
+        Parse.initialize(new Parse.Configuration.Builder(AndroidNativeUtil.getActivity())
             .applicationId(applicationId)
             .clientKey(clientKey)
             .server(parseUrl) // Note: Url needs to have a trailing slash 
