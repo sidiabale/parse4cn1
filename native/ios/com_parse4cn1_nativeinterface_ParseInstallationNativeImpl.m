@@ -9,6 +9,10 @@
     return nil;
 }
 
+-(NSString*)getObjectId{
+    return nil;
+}
+
 -(BOOL)isSupported{
     return NO;
 }

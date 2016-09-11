@@ -6,18 +6,24 @@ import com.codename1.impl.android.AndroidNativeUtil;
 
 public class ParseInstallationNativeImpl {
     public void initialize(String applicationId, String clientKey, String parseUrl) {
-        Parse.initialize(new Parse.Configuration.Builder(AndroidNativeUtil.getActivity())
+        Parse.initialize(new Parse.Configuration.Builder(AndroidNativeUtil.getActivity().getApplicationContext())
             .applicationId(applicationId)
             .clientKey(clientKey)
             .server(parseUrl) // Note: Url needs to have a trailing slash 
             .build()
         );
     }
+    
+    public String getObjectId() {
+        ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
+        return currentInstallation.getObjectId();
+    }
 
     public String getInstallationId() {
          String installationId = null;
         
         // Save to make sure that the installation can (immediately) be retrieved from Parse by the caller using the installationId
+        
         ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
         
         // Installation could be null

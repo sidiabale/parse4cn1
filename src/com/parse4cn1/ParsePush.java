@@ -26,7 +26,7 @@ import java.util.Date;
 import ca.weblite.codename1.json.JSONObject;
 import com.parse4cn1.command.ParsePostCommand;
 import com.parse4cn1.command.ParseResponse;
-import com.parse4cn1.util.Logger;
+//import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -239,8 +239,8 @@ public class ParsePush {
             }
         } catch (JSONException ex) {
             final String error = "Unable to parse push message payload";
-            Logger.getInstance().error(error + " '"  + appOpenPushPayload 
-                    + "' to JSON. Error: " + ex);
+//            System.out.println(error + " '"  + appOpenPushPayload 
+//                    + "' to JSON. Error: " + ex);
             throw new ParseException(error, ex);
         }
         return json;
@@ -279,8 +279,8 @@ public class ParsePush {
             }
         } catch (JSONException ex) {
             final String error = "Unable to parse push message payload";
-            Logger.getInstance().error(error + " '"  + unprocessedPushPayload 
-                    + "' to JSON. Error: " + ex);
+//            System.out.println(error + " '"  + unprocessedPushPayload 
+//                    + "' to JSON. Error: " + ex);
             throw new ParseException(error, ex);
         }
         return json;
@@ -352,7 +352,7 @@ public class ParsePush {
      * @param jsonPushPayload The push data.
      */
     public static void handleUnprocessedPushReceived(final String jsonPushPayload) {
-        Logger.getInstance().debug("Unprocessed (hidden?) push received. "
+        System.out.println("Unprocessed (hidden?) push received. "
                 + "Payload: " + jsonPushPayload);
         
         JSONObject received;
@@ -362,7 +362,7 @@ public class ParsePush {
             try {
                 existing = getUnprocessedPushData();
             } catch (ParseException ex) {
-                Logger.getInstance().error("Failed to retrieve existing unprocessed push(es). "
+                System.out.println("Failed to retrieve existing unprocessed push(es). "
                         + "Will create a new array. Error: " + ex);
             }
             
@@ -373,7 +373,7 @@ public class ParsePush {
             setUnprocessedPushPayload(existing);
             pushRegistrationError = null; // We successfully receieved a push message so any previous error has been resolved.
         } catch (JSONException ex) {
-            Logger.getInstance().error("Unable to parse push message payload '" 
+            System.out.println("Unable to parse push message payload '" 
                     + jsonPushPayload + "' to JSON. Error: " + ex);
         }
     }
@@ -396,7 +396,7 @@ public class ParsePush {
      * when and how {@code jsonPushPayload} is made available to the app.
      */
     public static void handlePushOpen(final String jsonPushPayload, boolean isAppInForeground) {
-        Logger.getInstance().debug("App about to open via push message. "
+        System.out.println("App about to open via push message. "
                 + "App in foreground? " + (isAppInForeground ? "Yes" : "No") + ". "
                 + "Payload: " + jsonPushPayload);
         
@@ -408,7 +408,7 @@ public class ParsePush {
                     pushCallback.onAppOpenedViaPush(json);
                 }
             } catch (JSONException ex) {
-                Logger.getInstance().error("Unable to parse push message payload '" 
+                System.out.println("Unable to parse push message payload '" 
                         + jsonPushPayload + "' to JSON. Error: " + ex);
             }
         } else {
@@ -430,7 +430,7 @@ public class ParsePush {
      */
     public static void handlePushRegistrationStatus(final String error, final int type) {
         if (error == null || type == 0) {
-            Logger.logBuffered("handlePushRegistrationStatus(): Push registration succeeded");
+            System.out.println("handlePushRegistrationStatus(): Push registration succeeded");
             pushRegistrationError = null;
         } else {
 
@@ -458,7 +458,7 @@ public class ParsePush {
      */
     private static void processRegistrationError() {
         if (pushRegistrationError != null && pushCallback != null) {
-            Logger.logBuffered("processRegistrationError(): "
+            System.out.println("processRegistrationError(): "
                     + "Notifying callback of push registration error:  " 
                     + pushRegistrationError.toString());
             pushCallback.onPushRegistrationFailed(pushRegistrationError);
@@ -476,7 +476,7 @@ public class ParsePush {
      * @return The response of the push callback if one is available or {@code false} otherwise.
      */
     private static boolean handlePushReceivedRunning(final String jsonPushPayload, boolean isForeground) {
-        Logger.getInstance().debug("Push received while app is running in " 
+        System.out.println("Push received while app is running in " 
                 + (isForeground ? "foreground" : "background") + ". Payload: " + jsonPushPayload);
         JSONObject json;
         try {
@@ -490,7 +490,7 @@ public class ParsePush {
             }
             pushRegistrationError = null; // We successfully receieved a push message so any previous error has been resolved.
         } catch (JSONException ex) {
-            Logger.getInstance().error("Unable to parse push message payload '" 
+            System.out.println("Unable to parse push message payload '" 
                     + jsonPushPayload + "' to JSON. Error: " + ex);
         }
         return false;
@@ -501,7 +501,7 @@ public class ParsePush {
      * @param pushPayload The push data to be saved.
      */
     private static void setUnprocessedPushPayload(final JSONArray pushPayload) {
-        Logger.logBuffered("setUnprocessedPushPayload(): "
+        System.out.println("setUnprocessedPushPayload(): "
                     + "Received pushPayload:  " + pushPayload);
         if (pushPayload == null) {
             unprocessedPushPayload = null;
@@ -616,7 +616,7 @@ public class ParsePush {
      */
     public void setBadge(final String badge) throws ParseException {
         if (Parse.getPlatform() != Parse.EPlatform.IOS) {
-            Logger.getInstance().warn("Setting the badge may not work as expected "
+            System.out.println("Setting the badge may not work as expected "
                     + "on this platform since it is an iOS-only feature.");
         }
         addToPushData("badge", badge);
@@ -629,7 +629,7 @@ public class ParsePush {
      */
     public void setSound(final String sound) throws ParseException {
         if (Parse.getPlatform() != Parse.EPlatform.IOS) {
-            Logger.getInstance().warn("Setting the sound file may not work as expected "
+            System.out.println("Setting the sound file may not work as expected "
                     + "on this platform since it is an iOS-only feature.");
         }
         addToPushData("sound", sound);
@@ -645,7 +645,7 @@ public class ParsePush {
      */
     public void setContentAvailable(final boolean contentAvailable) throws ParseException {
         if (Parse.getPlatform() != Parse.EPlatform.IOS) {
-            Logger.getInstance().warn("Triggering background downloading of content may not work as expected "
+            System.out.println("Triggering background downloading of content may not work as expected "
                     + "on this platform since it is an iOS-only feature.");
         }
         addToPushData("content-available", contentAvailable ? 1 : 0);  
@@ -659,7 +659,7 @@ public class ParsePush {
      */
     public void setCategory(final String category) throws ParseException {
         if (Parse.getPlatform() != Parse.EPlatform.IOS) {
-            Logger.getInstance().warn("Setting a category may not work as expected "
+            System.out.println("Setting a category may not work as expected "
                     + "on this platform since it is an iOS-only feature.");
         }
         addToPushData("category", category);  
@@ -673,7 +673,7 @@ public class ParsePush {
      */
     public void setUri(final String uri) throws ParseException {
         if (Parse.getPlatform() != Parse.EPlatform.ANDROID) {
-            Logger.getInstance().warn("Setting the URI may not work as expected "
+            System.out.println("Setting the URI may not work as expected "
                     + "on this platform since it is an Android-only feature.");
         }
         addToPushData("uri", uri);
@@ -686,7 +686,7 @@ public class ParsePush {
      */
     public void setTitle(final String title) throws ParseException {
         if (Parse.getPlatform() != Parse.EPlatform.ANDROID) {
-            Logger.getInstance().warn("Setting the push notification title may not work as "
+            System.out.println("Setting the push notification title may not work as "
                     + "expected on this platform since it is an Android-only feature.");
         }
         addToPushData("title", title);
@@ -752,11 +752,11 @@ public class ParsePush {
         if (!response.isFailed()) {
             JSONObject jsonResponse = response.getJsonObject();
             if (jsonResponse == null) {
-                Logger.getInstance().error("Empty response");
+                System.out.println("Empty response");
                 throw response.getException();
             }
         } else {
-            Logger.getInstance().error("Request failed.");
+            System.out.println("Request failed.");
             throw response.getException();
         }
     }

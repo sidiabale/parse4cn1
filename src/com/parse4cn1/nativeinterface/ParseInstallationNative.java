@@ -45,4 +45,13 @@ public interface ParseInstallationNative extends NativeInterface {
      * @return The current installation's ID.
      */
     public String getInstallationId();
+    
+    
+    /**
+     * Similar to {@link #getInstallationId()}, just returns the objectId instead,
+     * to be used when current installation is unavailable, in order to retrieve ParseInstallation
+     * object via Cloud Code
+     * @return 
+     */
+    public String getObjectId();
 }

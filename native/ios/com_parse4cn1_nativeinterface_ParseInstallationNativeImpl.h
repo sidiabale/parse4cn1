@@ -5,5 +5,6 @@
 
 -(void)initialize:(NSString*)param param1:(NSString*)param1 param2:(NSString*)param2;
 -(NSString*)getInstallationId;
+-(NSString*)getObjectId;
 -(BOOL)isSupported;
 @end

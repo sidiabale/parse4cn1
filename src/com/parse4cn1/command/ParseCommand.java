@@ -113,12 +113,14 @@ public abstract class ParseCommand {
                 try {
                     request.addArgument(key, data.get(key).toString());
                 } catch (JSONException ex) {
+                    System.out.println("Error parsing key '" + key + "' in command data. Error: " + ex);
                     LOGGER.error("Error parsing key '" + key + "' in command data. Error: " + ex);
                     throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
                 }
             }
         }
         NetworkManager.getInstance().addToQueueAndWait(request);
+        System.out.println("Parse command returned with code " + request.getResponseCode() + ", and content length " + request.getResponseData().length);
         response.extractResponseData(request);
         long commandReceived = System.currentTimeMillis();
 

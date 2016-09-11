@@ -14,7 +14,7 @@ Parse.Cloud.define("deleteFile", function(request, response) {
   } else {
 	  Parse.Cloud.httpRequest({
 		method: 'DELETE',
-		url: 'https://parse-parse4cn1.rhcloud.com/parse/files/' + filename,
+		url: "https://parseapi.back4app.com/" + 'files/' + filename,
 		headers: {
 		  'X-Parse-Application-Id': Parse.applicationId,
           'X-Parse-Master-Key': Parse.masterKey
@@ -39,7 +39,7 @@ Parse.Cloud.define("getInstallationByObjectId", function(request, response) {
   } else {
 	  Parse.Cloud.httpRequest({
 		method: 'GET',
-		url: 'https://parse-parse4cn1.rhcloud.com/parse/classes/_Installation/' + objId,
+		url: "https://parseapi.back4app.com/" + 'classes/_Installation/' + objId,
 		headers: {
 		  'Content-type': 'application/json',
 		  'X-Parse-Application-Id': Parse.applicationId,
@@ -54,3 +54,45 @@ Parse.Cloud.define("getInstallationByObjectId", function(request, response) {
 	  });
   }
 });
+
+/** Sends a push notification to a specific user. Querying ParseInstallation was 
+ * unsupported from clients until very recently, and may still be forbidden under
+ * many circumstances
+ * 
+ * Note: payload must be formatted according to Parse push notification payload definitions
+ */ 
+
+Parse.Cloud.define("sendPushByInstallation", function(request, response) {
+  Parse.Cloud.useMasterKey();
+  
+  var payload = request.params.payload;
+  var installationObjectId = request.params.installationObjectId;
+  if(!payload){
+      response.error("No message payload received");
+  }
+  if(!installationObjectId){
+      response.error("No installation object id received");
+  }
+  var query = new Parse.Query(Parse.Installation);
+  query.equalTo("objectId", installationObjectId);
+  
+
+Parse.Push.send({
+  where: query, // Set our Installation query
+  data: payload
+}, {
+  success: function() {
+    response.success("Push notification sent!");
+  },
+  error: function(error) {
+     var errorStr = "";
+     for (var k in error){
+         errorStr += k + ',';
+     }
+    response.error(errorStr);
+  },
+  useMasterKey: true
+});
+
+});
+
