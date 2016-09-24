@@ -54,6 +54,7 @@ public class ParseUploadCommand extends ParseCommand {
 
         if (contentType != null) {
             request.addRequestHeader(ParseConstants.HEADER_CONTENT_TYPE, contentType);
+            addHeader(ParseConstants.HEADER_CONTENT_TYPE, contentType);
         }
     }
 
