@@ -48,7 +48,6 @@ public class IncrementFieldOperation implements ParseOperation {
             throws ParseException {
 
         if (oldValue == null) {
-            needIncrement = false;
             return amount;
         }
 
