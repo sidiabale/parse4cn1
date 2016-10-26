@@ -923,6 +923,8 @@ public class ParseQuery<T extends ParseObject> {
         }
         query.remove(ParseConstants.FIELD_CLASSNAME);
         addDataToCommand(command, query);
+        if (sessionToken != null)
+            command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, sessionToken);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             if (response.getJsonObject() == null) {
