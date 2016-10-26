@@ -908,7 +908,7 @@ public class ParseObject implements IPersistable {
      */
     public <T extends ParseObject> T fetchIfNeeded() throws ParseException {
         if (!isDataAvailable() && !isDirty()) {
-            return fetch(getEndPoint(), getObjectId());
+            return fetch(getClassName(), getObjectId());
         } else {
             return (T) this;
         }
