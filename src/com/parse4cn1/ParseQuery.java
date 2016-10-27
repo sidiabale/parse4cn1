@@ -52,6 +52,7 @@ public class ParseQuery<T extends ParseObject> {
     private int skip;
     private String order;
     private boolean caseSensitive = true;
+    private String sessionToken = null;
 
     /**
      * Creates a ParseQuery for the specified class type.
@@ -840,6 +841,9 @@ public class ParseQuery<T extends ParseObject> {
         ParseGetCommand command = new ParseGetCommand(getEndPoint());
         query.remove(ParseConstants.FIELD_CLASSNAME);
         addDataToCommand(command, query);
+        if (sessionToken != null)
+            command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, sessionToken);
+
         ParseResponse response = command.perform();
         List<T> results = new ArrayList<T>();
         if (!response.isFailed()) {
@@ -919,6 +923,8 @@ public class ParseQuery<T extends ParseObject> {
         }
         query.remove(ParseConstants.FIELD_CLASSNAME);
         addDataToCommand(command, query);
+        if (sessionToken != null)
+            command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, sessionToken);
         ParseResponse response = command.perform();
         if (!response.isFailed()) {
             if (response.getJsonObject() == null) {
@@ -1106,5 +1112,21 @@ public class ParseQuery<T extends ParseObject> {
             }
             return json;
         }
+    }
+
+    /**
+     * Add the current user sesseonToken to the request headers
+     */
+    public void addSessionToken() {
+        addSessionToken(ParseUser.getCurrent().getSessionToken());
+    }
+
+    /**
+     * Add sesseonToken to the request headers.
+     *
+     * @param sessionToken a session token.
+     */
+    public void addSessionToken(String sessionToken) {
+        this.sessionToken = sessionToken;
     }
 }
