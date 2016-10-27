@@ -203,6 +203,8 @@ public abstract class ParseCommand {
             // an explicit json content type in Parse.com now require it in the open source Parse server.
             // Hence, it is set here in the base command class by default.
             headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
+            if (ParseUser.getCurrent() != null && ParseUser.getCurrent().isAuthenticated())
+                headers.put(ParseConstants.HEADER_SESSION_TOKEN, ParseUser.getCurrent().getSessionToken());
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
