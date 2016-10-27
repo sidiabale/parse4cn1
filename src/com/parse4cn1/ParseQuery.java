@@ -1107,5 +1107,4 @@ public class ParseQuery<T extends ParseObject> {
             return json;
         }
     }
-
 }
