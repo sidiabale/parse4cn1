@@ -189,7 +189,8 @@ public abstract class ParseCommand {
 
     /**
      * Adds the default headers (e.g., {@link ParseConstants#HEADER_APPLICATION_ID}
-     * and {@link ParseConstants#HEADER_CLIENT_KEY}) associated with Parse REST API calls.
+     * and {@link ParseConstants#HEADER_CLIENT_KEY}) associated with Parse REST API calls
+     * and (@Link ParseConstants#HEADER_SESSION_TOKEN) if there is a current user.
      * The content type is also set to {@link ParseConstants#CONTENT_TYPE_JSON} by default
      * and can be overruled in {@link #setUpRequest(com.codename1.io.ConnectionRequest)}.
      * @throws ParseException if anything goes wrong.
