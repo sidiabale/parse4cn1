@@ -189,7 +189,8 @@ public abstract class ParseCommand {
 
     /**
      * Adds the default headers (e.g., {@link ParseConstants#HEADER_APPLICATION_ID}
-     * and {@link ParseConstants#HEADER_CLIENT_KEY}) associated with Parse REST API calls.
+     * and {@link ParseConstants#HEADER_CLIENT_KEY}) associated with Parse REST API calls
+     * and (@Link ParseConstants#HEADER_SESSION_TOKEN) if there is a current user.
      * The content type is also set to {@link ParseConstants#CONTENT_TYPE_JSON} by default
      * and can be overruled in {@link #setUpRequest(com.codename1.io.ConnectionRequest)}.
      * @throws ParseException if anything goes wrong.
@@ -203,6 +204,8 @@ public abstract class ParseCommand {
             // an explicit json content type in Parse.com now require it in the open source Parse server.
             // Hence, it is set here in the base command class by default.
             headers.put(ParseConstants.HEADER_CONTENT_TYPE, ParseConstants.CONTENT_TYPE_JSON);
+            if (ParseUser.getCurrent() != null && ParseUser.getCurrent().isAuthenticated())
+                headers.put(ParseConstants.HEADER_SESSION_TOKEN, ParseUser.getCurrent().getSessionToken());
         } catch (JSONException ex) {
             throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
         }
