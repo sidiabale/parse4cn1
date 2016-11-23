@@ -74,6 +74,8 @@ The Parse REST API is quite extensive. As such, we maintain an overview of the f
 | Installations | Implemented for Parse.com but pending for Parse Server | |
 | Cloud Code | IMPLEMENTED | |
 | GeoPoints | IMPLEMENTED | |
+| LiveQuery | [IMPLEMENTED](https://gist.github.com/ahmedengu/607266b5caeffbc19c4508b4684b4b7b) | |
+
 \*Advanced feature that cannot be realized using REST API only; involves native code integration. See the CN1 Parse push [guide](https://github.com/sidiabale/parse4cn1/wiki/Push-Notifications-Overview) for more details.
 
 | Advanced Features | Remarks |
