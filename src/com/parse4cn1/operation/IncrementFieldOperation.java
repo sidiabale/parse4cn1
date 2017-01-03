@@ -61,17 +61,13 @@ public class IncrementFieldOperation implements ParseOperation {
 
     @Override
     public Object encode(IParseObjectEncodingStrategy objectEncoder) {
-        if (needIncrement) {
-            JSONObject output = new JSONObject();
-            try {
-                output.put(ParseConstants.KEYWORD_OP, "Increment");
-                output.put("amount", this.amount);
-            } catch (JSONException ex) {
-                throw new RuntimeException(ex.getMessage());
-            }
-            return output;
-        } else {
-            return amount;
+        JSONObject output = new JSONObject();
+        try {
+            output.put(ParseConstants.KEYWORD_OP, "Increment");
+            output.put("amount", this.amount);
+        } catch (JSONException ex) {
+            throw new RuntimeException(ex.getMessage());
         }
+        return output;
     }
 }
