@@ -342,7 +342,7 @@ public class ParseUser extends ParseObject {
         
         Util.writeUTF(sessionToken, out);
         Util.writeUTF(password, out);
-        Util.writeObject(this.equals(current) ? true : false, out);
+        Util.writeObject(this.equals(current), out);
     }
 
     /**
@@ -359,7 +359,7 @@ public class ParseUser extends ParseObject {
         
         sessionToken = Util.readUTF(in);
         password = Util.readUTF(in);
-        current = ((boolean) Util.readObject(in)) ? this : null;
+        current = ((Boolean) Util.readObject(in)) ? this : null;
     }
 
     @Override
