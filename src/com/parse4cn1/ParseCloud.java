@@ -54,6 +54,7 @@ public class ParseCloud {
     public static <T> T callFunction(String name, Map<String, ?> params)
             throws ParseException {
 
+        System.out.println("Attempting to call cloud code function '" + name + "'");
         T result = null;
         ParsePostCommand command = new ParsePostCommand("functions", name);
         if (params != null) {

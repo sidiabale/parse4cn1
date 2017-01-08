@@ -174,6 +174,7 @@ public class ParseResponse {
         if (request.getResponseData() != null) {
             responseBody = request.getResponseData();
             if (LOGGER.isDebugEnabled()) {
+                System.out.println("Raw response (as string): " + new String(responseBody));
                 LOGGER.debug("Raw response (as string): " + new String(responseBody));
             }
             setStatusCode(request.getResponseCode());

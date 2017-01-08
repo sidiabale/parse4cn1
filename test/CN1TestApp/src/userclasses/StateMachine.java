@@ -57,7 +57,8 @@ public class StateMachine extends StateMachineBase implements IPushCallback {
      */
     protected void initVars(Resources res) {
         Parse.initialize("j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", 
-                "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB");
+                "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB",
+                "https://parse-parse4cn1.rhcloud.com/parse");
         ParsePush.setPushCallback(this);
     }
     

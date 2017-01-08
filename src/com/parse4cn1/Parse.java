@@ -177,7 +177,7 @@ public class Parse {
      * <code>
      * public class StateMachine extends StateMachineBase {
      *   protected void initVars(Resources res) {
-     *     Parse.initialize(API_ENDPOINT, APP_ID, APP_REST_API_ID);
+     *     Parse.initialize(API_ENDPOINT, APP_ID, APP_CLIENT_KEY);
      *   }
      * }
      * </code>
@@ -201,7 +201,7 @@ public class Parse {
         mClientKey = clientKey;
         
         if (mApiEndpoint != null && mApiEndpoint.endsWith("/")) {
-            mApiEndpoint = mApiEndpoint.substring(0, mApiEndpoint.length() - 2);
+            mApiEndpoint = mApiEndpoint.substring(0, mApiEndpoint.length() - 1);
         }
 
         ParseRegistry.registerDefaultSubClasses();

@@ -60,6 +60,20 @@ public class ParseInstallation extends ParseObject {
     private static ParseInstallation currentInstallation;
     
     /**
+     * Simple static method for getting installation ID without having to make cloud
+     * code call
+     * @return
+     * @throws ParseException 
+     */
+    public static String getCurrentInstallationId() throws ParseException{
+        if (currentInstallation == null) {
+            return retrieveObjectId();
+        }else{
+            return currentInstallation.getInstallationId();
+        }
+    }
+    
+    /**
      * Retrieves the current installation. On Android and iOS, a new installation 
      * is created, persisted to the Parse backend and returned, if one is not present.
      * On Windows Phone and any other platform, the installation is retrieved from the backend if its
@@ -427,7 +441,7 @@ public class ParseInstallation extends ParseObject {
                     }
                     
                     // TODO: Change native api to retrieve objectId() instead since installation ID requires master key
-                    objectId = nativeInstallation.getInstallationId();
+                    objectId = nativeInstallation.getObjectId();
                     parseSdkInitialized = !Parse.isEmpty(objectId);
                 } catch (Exception ex) {
                    throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,
