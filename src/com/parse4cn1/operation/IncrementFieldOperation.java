@@ -57,7 +57,8 @@ public class IncrementFieldOperation implements ParseOperation {
         }
 
         throw new IllegalArgumentException("You cannot increment a non-number."
-                + " Key type [" + oldValue.getClass().getCanonicalName() + "]");
+                + " Key type [" + oldValue.getClass().toString()+ "]");
+
     }
 
     @Override

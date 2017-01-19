@@ -170,7 +170,7 @@ public class ParseEncoder {
             return value;
         }
 
-        LOGGER.error("Object type not decoded: " + value.getClass().getCanonicalName());
+        LOGGER.error("Object type not decoded: " + value.getClass().toString());
         throw new IllegalArgumentException("Invalid type for ParseObject: " + value.getClass().toString());
     }
 }
