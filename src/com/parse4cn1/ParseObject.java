@@ -21,7 +21,6 @@ package com.parse4cn1;
 import ca.weblite.codename1.json.JSONArray;
 import ca.weblite.codename1.json.JSONException;
 import ca.weblite.codename1.json.JSONObject;
-import com.codename1.io.Log;
 import com.codename1.io.Util;
 import com.parse4cn1.Parse.IPersistable;
 import com.parse4cn1.callback.GetCallback;
@@ -666,7 +665,6 @@ public class ParseObject implements IPersistable {
     public void save() throws ParseException {
 
         if (!isDirty()) {
-            //Log.p("ParseObject->save() !isDirty()="+!isDirty(), Log.DEBUG);
             Logger.getInstance().warn("Ignoring request to save unchanged/empty"
                     + " object");
             return;
@@ -676,7 +674,6 @@ public class ParseObject implements IPersistable {
 
         ParseCommand command;
         if (objectId == null) {
-            //Log.p("ParseObject->save() objectId == null"+!isDirty(), Log.DEBUG);
             command = new ParsePostCommand(getEndPoint());
         } else {
             command = new ParsePutCommand(getEndPoint(), getObjectId());
