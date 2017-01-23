@@ -67,9 +67,12 @@ public class CN1AndroidApplication extends Application {
         //
         // See: http://stackoverflow.com/questions/26637730/where-to-place-the-parse-initialize
         // and https://parse.com/questions/cannot-send-push-to-android-after-app-is-closed-until-screen-unlock
-        Parse.initialize(this, 
-                "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", /* TODO: Replace with your Application ID */
-                "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB" /* TODO: Replace with your Client Key */);
+        Parse.initialize(new Parse.Configuration.Builder(this)
+            .applicationId("OiTzm1ivZovdmMktQnqk8ajqBVIPgl4dlgUxw4dh")
+            .clientKey("fHquv9DA0SA5pd7VPO38tNzOrzrgTgfd7yY3nXbo")
+            .server("https://parseapi.back4app.com")
+            .build()
+        );
         
         // Creates a unique installation representing the given device
         // and persists it to the Parse backend. 

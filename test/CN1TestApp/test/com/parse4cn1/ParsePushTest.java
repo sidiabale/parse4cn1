@@ -290,6 +290,7 @@ public class ParsePushTest extends BaseParseTest implements IPushCallback {
         ParsePush parsePush = ParsePush.create();
         parsePush.setMessage(data.getString("alert"));
         parsePush.setChannel("Test");
+        parsePush.send();
         parsePush.setChannels(channels); // Should override previous channel
         JSONObject actualPayload = parsePush.getJSONData();
         assertEqual(expectedPayload.toString(), actualPayload.toString());
@@ -306,6 +307,7 @@ public class ParsePushTest extends BaseParseTest implements IPushCallback {
         parseQuery.whereEqualTo("channels", "Giants");
         parseQuery.whereEqualTo("scores", true);
         parsePush.setQuery(parseQuery);
+        parsePush.send();
         
         expectedPayload.remove("channels"); // Query should nullify channels
         actualPayload = parsePush.getJSONData();

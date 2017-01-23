@@ -184,6 +184,7 @@ public class ParseFileTest extends BaseParseTest {
         assertNotNull(filename, "File name is null");
         final HashMap<String, String> params = new HashMap<String, String>();
         params.put("filename", filename);
+        params.put("server", Parse.getApiEndpoint());
         
         assertTrue(((String)ParseCloud.callFunction("deleteFile", params)).isEmpty(),
                 "Successful delete should return an empty string");

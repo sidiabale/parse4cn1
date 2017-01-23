@@ -277,16 +277,6 @@ public class ParseInstallationTest extends BaseParseTest {
     }
     
     private ParseInstallation retrieveInstallation() throws ParseException {
-        final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("objectId", currentInstallation.getObjectId());
-        String response = ParseCloud.callFunction("getInstallationByObjectId", params);
-
-        ParseInstallation installation = ParseInstallation.create(ParseConstants.CLASS_NAME_INSTALLATION);
-        try {
-            installation.setData(new JSONObject(response));
-            return installation;
-        } catch (JSONException ex) {
-            throw new ParseException("Retrieval of installation failed", ex);
-        }
+        return ParseObject.fetch(ParseConstants.CLASS_NAME_INSTALLATION, currentInstallation.getObjectId());
     }
 }
