@@ -365,22 +365,8 @@ public class ParseInstallation extends ParseObject {
         if (Parse.isEmpty(objectId)) {
             return null;
         }
-
-        // [16-05-16] Call below now fails with error:
-        // "Clients aren't allowed to perform the find operation on the installation collection."
-        // because the operation now requires the master key --> use cloud code
-            
-        final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("objectId", objectId);
-        String response = ParseCloud.callFunction("getInstallationByObjectId", params);
-
-        ParseInstallation installation = ParseInstallation.create(ParseConstants.CLASS_NAME_INSTALLATION);
-        try {
-            installation.setData(new JSONObject(response));
-            return installation;
-        } catch (JSONException ex) {
-            throw new ParseException("Retrieval of installation failed", ex);
-        }
+        
+        return ParseObject.fetch(ParseConstants.CLASS_NAME_INSTALLATION, objectId);
     }
     
     /**
@@ -411,7 +397,6 @@ public class ParseInstallation extends ParseObject {
                            throw new ParseException("The Parse library is not yet initialized.", null); 
                         }
                         try {
-                            // TODO: Add API endpoint
                             nativeInstallation.initialize(Parse.getApiEndpoint(), Parse.getApplicationId(), Parse.getClientKey());
                             parseSdkInitialized = true;
                         } catch (Exception ex) {
@@ -426,8 +411,7 @@ public class ParseInstallation extends ParseObject {
                         }
                     }
                     
-                    // TODO: Change native api to retrieve objectId() instead since installation ID requires master key
-                    objectId = nativeInstallation.getInstallationId();
+                    objectId = nativeInstallation.getInstallationObjectId();
                     parseSdkInitialized = !Parse.isEmpty(objectId);
                 } catch (Exception ex) {
                    throw new ParseException(ParseException.PARSE4CN1_INSTALLATION_ID_NOT_RETRIEVED_FROM_NATIVE_SDK,

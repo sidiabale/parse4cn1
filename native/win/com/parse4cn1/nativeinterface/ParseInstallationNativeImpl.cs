@@ -7,7 +7,7 @@ public class ParseInstallationNativeImpl {
     public void initialize(String param, String param1, String param2) {
     }
 
-    public String  getInstallationId() {
+    public String  getInstallationObjectId() {
         return null;
     }
 

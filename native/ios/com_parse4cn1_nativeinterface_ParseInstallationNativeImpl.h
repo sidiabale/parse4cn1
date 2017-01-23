@@ -4,6 +4,6 @@
 }
 
 -(void)initialize:(NSString*)param param1:(NSString*)param1 param2:(NSString*)param2;
--(NSString*)getInstallationId;
+-(NSString*)getInstallationObjectId;
 -(BOOL)isSupported;
 @end
