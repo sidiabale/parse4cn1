@@ -34,7 +34,6 @@ public class ParseInstallationTest extends BaseParseTest {
     // (protected via the cloud code beforeDelete hook)
     private static String objectId = null;
     private static final String[] objectIds = new String[]{
-        "uZEbU3FPwa" /* parse.com */,
         "2C8bKd0kdb" /* openshift */, 
         "XVHtg1oqZC" /* back4apps */}; // Possible test ids from different backends
     private static final String installationId = "09a198b7-b6e0-4bd3-8eb0-f2b712f957c2";

@@ -27,3 +27,6 @@ test/CN1TestApp/native/internal_tmp/
 /test/Parse4CN1TestApp/nbproject/private/
 /test/Parse4CN1TestApp/build/
 /test/Parse4CN1TestApp/dist/
+test/CN1TestApp/.cn1/
+test/CN1TestApp/resources/old/
+test/CN1TestApp/resources/keystore.ks
