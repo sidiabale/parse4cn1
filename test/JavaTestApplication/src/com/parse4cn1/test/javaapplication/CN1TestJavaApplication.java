@@ -115,9 +115,8 @@ public class CN1TestJavaApplication {
     
      private static int runTests() {
         int status = 0;
-        //status += runTests("https://api.parse.com/1", "j1KMuH9otZlHcPncU9dZ1JFH7cXL8K5XUiQQ9ot8", "V6ZUyBtfERtzbq6vjeAb13tiFYij980HN9nQTWGB");
-        status += runTests("https://parse-parse4cn1.rhcloud.com/parse" /*openshift*/, "myAppId", null);
-//        status += runTests("https://parseapi.back4app.com", "OiTzm1ivZovdmMktQnqk8ajqBVIPgl4dlgUxw4dh", "fHquv9DA0SA5pd7VPO38tNzOrzrgTgfd7yY3nXbo");
+//        status += runTests("https://parse-parse4cn1.rhcloud.com/parse" /*openshift*/, "myAppId", null);
+        status += runTests("https://parseapi.back4app.com", "OiTzm1ivZovdmMktQnqk8ajqBVIPgl4dlgUxw4dh", "fHquv9DA0SA5pd7VPO38tNzOrzrgTgfd7yY3nXbo");
         return status;
     }
 

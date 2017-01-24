@@ -32,10 +32,10 @@ public interface ParseInstallationNative extends NativeInterface {
      * @param applicationId The Parse application ID.
      * @param clientKey The Parse client key.
      */
-    public void initialize(final String apiEndpoint, final String applicationId, final String clientKey);
+    public void initialize(String apiEndpoint, String applicationId, String clientKey);
     
     /**
-     * Retrieves the installation ID of the current installation. An installation 
+     * Retrieves the object ID of the current installation. An installation 
      * should be created on the fly and persisted to Parse if one does not exist.
      * 
      * <p>It is recommended to perform the save operation in a background thread
@@ -44,5 +44,5 @@ public interface ParseInstallationNative extends NativeInterface {
      * 
      * @return The current installation's ID.
      */
-    public String getInstallationId();
+    public String getInstallationObjectId();
 }

@@ -24,3 +24,9 @@ test/CN1TestApp/lib/impl/
 /dist/
 test/CN1TestApp/lib/CN1JSON.cn1lib
 test/CN1TestApp/native/internal_tmp/
+/test/Parse4CN1TestApp/nbproject/private/
+/test/Parse4CN1TestApp/build/
+/test/Parse4CN1TestApp/dist/
+test/CN1TestApp/.cn1/
+test/CN1TestApp/resources/old/
+test/CN1TestApp/resources/keystore.ks

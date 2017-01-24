@@ -48,7 +48,6 @@ public class IncrementFieldOperation implements ParseOperation {
             throws ParseException {
 
         if (oldValue == null) {
-            needIncrement = false;
             return amount;
         }
 
@@ -57,22 +56,19 @@ public class IncrementFieldOperation implements ParseOperation {
         }
 
         throw new IllegalArgumentException("You cannot increment a non-number."
-                + " Key type [" + oldValue.getClass().getCanonicalName() + "]");
+                + " Key type [" + oldValue.getClass().toString()+ "]");
+
     }
 
     @Override
     public Object encode(IParseObjectEncodingStrategy objectEncoder) {
-        if (needIncrement) {
-            JSONObject output = new JSONObject();
-            try {
-                output.put(ParseConstants.KEYWORD_OP, "Increment");
-                output.put("amount", this.amount);
-            } catch (JSONException ex) {
-                throw new RuntimeException(ex.getMessage());
-            }
-            return output;
-        } else {
-            return amount;
+        JSONObject output = new JSONObject();
+        try {
+            output.put(ParseConstants.KEYWORD_OP, "Increment");
+            output.put("amount", this.amount);
+        } catch (JSONException ex) {
+            throw new RuntimeException(ex.getMessage());
         }
+        return output;
     }
 }

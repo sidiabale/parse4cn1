@@ -29,6 +29,7 @@ import com.parse4cn1.command.ParseResponse;
 import com.parse4cn1.util.Logger;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -199,8 +200,8 @@ public class ParsePush {
      * native Push, the actual semantics are dependent on the native implementation 
      * which may vary from app to app.
      * <p>
-     * <b>Note that the result returned by this method is
-     * guaranteed to be correct <u>if and only if</u> the app is correctly managing the data,
+     * <b>Note that the response returned by this method is
+ guaranteed to be correct <u>if and only if</u> the app is correctly managing the data,
      * i.e., checking every time the app is opened (typically in the start() method 
      * of the app's main class) and resetting the data after processing.</b>
      * 
@@ -740,24 +741,32 @@ public class ParsePush {
     /**
      * Sends this push notification while blocking this thread until the
      * push notification has successfully reached the Parse servers.
+     * <p>Note that the messages are sent via cloud code since sending of
+     * of push messages requires the Master key which is not exposed via parse4cn1.
+     * As such a 'sendPushViaRestApi' cloud code function must be defined in the 
+     * Parse backend taking the following parameters:<br />
+     * <pre>
+     * - server: The Parse server URL without trailing backslash.
+     * - payload: The HTTP POST request payload conforming the the REST API for sending Parse push notifications.
+     * </pre>
+     * Such a function is already present in the same cloud code delivered along 
+     * with parse4cn1 (see https://github.com/sidiabale/parse4cn1/tree/master/cloud)
      * 
      * @throws ParseException if anything goes wrong.
      */
-    public void send() throws ParseException {
-        ParsePostCommand command = new ParsePostCommand("push");
-        JSONObject requestData = getJSONData();
-        command.setMessageBody(requestData);
-        ParseResponse response = command.perform();
+    public void send() throws ParseException {        
+        final JSONObject requestData = getJSONData();
+        final HashMap<String, String> params = new HashMap<String, String>();
+        params.put("payload", requestData.toString());
+        params.put("server", Parse.getApiEndpoint());
         
-        if (!response.isFailed()) {
-            JSONObject jsonResponse = response.getJsonObject();
-            if (jsonResponse == null) {
-                Logger.getInstance().error("Empty response");
-                throw response.getException();
-            }
-        } else {
-            Logger.getInstance().error("Request failed.");
-            throw response.getException();
+        final String response = (String) ParseCloud.callFunction("sendPushViaRestApi", params);
+        
+        if (response.length() <= 0) {  
+            Logger.getInstance().error("Sending push via cloud code failed: data " + params.toString()
+                    + " | response: " + response);
+            throw new ParseException(ParseException.PARSE4CN1_PUSH_SENDING_FAILED, 
+                    "Sending push notification failed: " + response);
         }
     }
 

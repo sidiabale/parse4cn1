@@ -147,6 +147,7 @@ public class ParseEncoder {
             try {
                 output.put(ParseConstants.KEYWORD_TYPE, "File");
                 output.put("name", file.getName());
+                output.put("url", file.getUrl());
             } catch (JSONException ex) {
                 throw new ParseException(ParseException.INVALID_JSON, ParseException.ERR_PREPARING_REQUEST, ex);
             }
@@ -170,7 +171,7 @@ public class ParseEncoder {
             return value;
         }
 
-        LOGGER.error("Object type not decoded: " + value.getClass().getCanonicalName());
+        LOGGER.error("Object type not decoded: " + value.getClass().toString());
         throw new IllegalArgumentException("Invalid type for ParseObject: " + value.getClass().toString());
     }
 }

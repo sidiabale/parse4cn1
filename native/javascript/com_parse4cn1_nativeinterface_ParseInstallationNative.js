@@ -6,7 +6,7 @@ var o = {};
         callback.error(new Error("Not implemented yet"));
     };
 
-    o.getInstallationId_ = function(callback) {
+    o.getInstallationObjectId_ = function(callback) {
         callback.error(new Error("Not implemented yet"));
     };
 

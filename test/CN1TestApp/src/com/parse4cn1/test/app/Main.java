@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.parse4cn1.TestApp;
+package com.parse4cn1.test.app;
 
 
 import ca.weblite.codename1.json.JSONArray;

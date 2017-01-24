@@ -34,7 +34,6 @@ public class ParseInstallationTest extends BaseParseTest {
     // (protected via the cloud code beforeDelete hook)
     private static String objectId = null;
     private static final String[] objectIds = new String[]{
-        "uZEbU3FPwa" /* parse.com */,
         "2C8bKd0kdb" /* openshift */, 
         "XVHtg1oqZC" /* back4apps */}; // Possible test ids from different backends
     private static final String installationId = "09a198b7-b6e0-4bd3-8eb0-f2b712f957c2";
@@ -277,16 +276,6 @@ public class ParseInstallationTest extends BaseParseTest {
     }
     
     private ParseInstallation retrieveInstallation() throws ParseException {
-        final HashMap<String, String> params = new HashMap<String, String>();
-        params.put("objectId", currentInstallation.getObjectId());
-        String response = ParseCloud.callFunction("getInstallationByObjectId", params);
-
-        ParseInstallation installation = ParseInstallation.create(ParseConstants.CLASS_NAME_INSTALLATION);
-        try {
-            installation.setData(new JSONObject(response));
-            return installation;
-        } catch (JSONException ex) {
-            throw new ParseException("Retrieval of installation failed", ex);
-        }
+        return ParseObject.fetch(ParseConstants.CLASS_NAME_INSTALLATION, currentInstallation.getObjectId());
     }
 }
