@@ -320,11 +320,11 @@ public class ParseUser extends ParseObject {
             ParseCommand command = new ParsePostCommand(ENDPOINT_LOGOUT);
             command.addHeader(ParseConstants.HEADER_SESSION_TOKEN, getSessionToken());
             ParseResponse response = command.perform();
+            setSessionToken(null);
+            current = null;
             if (response.isFailed()) {
                 throw response.getException();
             }
-            setSessionToken(null);
-            current = null;
         }
     }
     
