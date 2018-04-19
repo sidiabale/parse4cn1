@@ -5,10 +5,10 @@ Build Status (develop): [![Build Status (develop)](https://travis-ci.org/sidiaba
 
 Tests are run with the following backend configurations:
 
-* Parse.com
+* Parse Server version 2.2.24 hosted on back4app.com
 * Parse Server version 2.2.13 hosted on openshift
 
-# Parse4CN1 - Codename One Library for [Parse.com](https://parse.com)  and [Parse Server](https://github.com/ParsePlatform/Parse-Server)#
+# Parse4CN1 - Codename One Library for [Parse Server](https://github.com/ParsePlatform/Parse-Server)#
 
 **This library is a port of Parse's [REST API](https://www.parse.com/docs/rest) to [CodenameOne](http://www.codenameone.com/) (and by extension to Java).**
 
@@ -70,8 +70,8 @@ The Parse REST API is quite extensive. As such, we maintain an overview of the f
 | Files | IMPLEMENTED | |
 | Analytics | Pending | |
 | Config | IMPLEMENTED | |
-| Push Notifications* | Implemented for Parse.com but pending for Parse Server | |
-| Installations | Implemented for Parse.com but pending for Parse Server | |
+| Push Notifications* | IMPLEMENTED | |
+| Installations* | IMPLEMENTED | |
 | Cloud Code | IMPLEMENTED | |
 | GeoPoints | IMPLEMENTED | |
 | LiveQuery | [IMPLEMENTED](https://gist.github.com/ahmedengu/607266b5caeffbc19c4508b4684b4b7b) | |
