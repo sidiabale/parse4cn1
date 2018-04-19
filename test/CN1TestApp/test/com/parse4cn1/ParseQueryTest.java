@@ -750,7 +750,7 @@ public class ParseQueryTest extends BaseParseTest {
         assertTrue(!results.isEmpty(), "keys query should return results");
         for (ParseObject output : results) {
             // [19-04-2018] This does not work according to spec as 
-            // pointer field "opponent" is returned athough this is not a built in key
+            // relation field "opponent" is returned athough this is not a built in key
             // --> For now disable the test
             // Last tested with Parse server 2.7.1
             /*
